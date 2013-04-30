@@ -39,7 +39,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 	light->setDiffuseColour(Ogre::ColourValue::White);
 	light->setSpecularColour(Ogre::ColourValue(0.4, 0.4, 0.4));
  
-	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
+	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
  
 	mTerrainGlobals = OGRE_NEW Ogre::TerrainGlobalOptions();
  
@@ -92,19 +92,67 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
     	}
     	//Ground----------------------------------------------------------------------
     	{   
-	    	Ogre::Vector3 shapeDim = Ogre::Vector3(dim/100, 1, dim/100);
-    		Ogre::Vector3 position = Ogre::Vector3(700, 225, -700);	    
+	    	//Ogre::Vector3 shapeDim = Ogre::Vector3(dim/100, 1, dim/100);
+		Ogre::Vector3 shapeDim = Ogre::Vector3(500, 10, 500);
+    		Ogre::Vector3 position = Ogre::Vector3(700, 225, -700);
+
+		//Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("RustedMetal", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		//Ogre::TextureUnitState* tuisTexture = mat->getTechnique(0)->getPass(0)->createTextureUnitState("RustedMetal.jpg");
+
+		//Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
+		//Ogre::MeshManager::getSingleton().createPlane("platform",
+                //        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+                //    plane, 1000, 1000, 20, 20, true, 1, 10, 10, Ogre::Vector3::UNIT_Z);
 	
-			Ogre::Entity* ent = mSceneMgr->createEntity("GroundEntity", "column.mesh");
+		//Ogre::Entity* ent = mSceneMgr->createEntity("GroundEntity", "cube.mesh");
+		Ogre::Entity* ent = mSceneMgr->createEntity("GroundEntity", "cube.mesh");
     		Ogre::SceneNode* snode = mSceneMgr->getRootSceneNode()->
     			createChildSceneNode("snode1", position);
     		
- 			snode->attachObject(ent);
- 			snode->scale(shapeDim.x, .1, shapeDim.z);
+ 		snode->attachObject(ent);
+ 		//snode->scale(shapeDim.x, .01, shapeDim.z);
+		snode->scale(5, .1, 5);
 	 		//snode->translate(position);
-    		ent->setMaterialName("Examples/Rocky");
+    		//ent->setMaterialName("Examples/Rocky");
+		ent->setMaterialName("Examples/RustySteel");
     		ent->setCastShadows(true);
+
+		mBullet->setRigidBoxBody(snode, shapeDim, position, 0.0);
     	}
+        //Dynamic--------------------------------------------------------------------
+        {
+		//Ogre::Vector3 shapeDim = Ogre::Vector3(.5, .5, .5);
+		Ogre::Vector3 shapeDim = Ogre::Vector3(10, 10, 10);
+		Ogre::Vector3 position = Ogre::Vector3(700, 500, -700);
+
+		Ogre::Entity* ent = mSceneMgr->createEntity("DynamicEntity","cube.mesh");
+		Ogre::SceneNode* snode = mSceneMgr->getRootSceneNode()->
+			createChildSceneNode("snode2", position);
+
+		snode->attachObject(ent);
+		//snode->scale(shapeDim.x, shapeDim.y, shapeDim.z);
+		snode->scale(.1, .1, .1);
+		ent->setMaterialName("Examples/Rocky");
+		ent->setCastShadows(true);
+
+		mBullet->setRigidBoxBody(snode, shapeDim, position, 100.0);
+	}
+	//Kinematic------------------------------------------------------------------
+	{
+		Ogre::Vector3 shapeDim = Ogre::Vector3(50, 50, 50);
+		Ogre::Vector3 position = Ogre::Vector3(700, 450, -750);
+
+		Ogre::Entity* ent = mSceneMgr->createEntity("KinematicEntity","cube.mesh");
+		Ogre::SceneNode* snode = mSceneMgr->getRootSceneNode()->
+			createChildSceneNode("snode3", position);
+
+		snode->attachObject(ent);
+		snode->scale(.5, .5, .5);
+		ent->setMaterialName("Examples/Chrome");
+		ent->setCastShadows(true);
+
+		mBullet->setRigidBoxBody(snode, shapeDim, position, 250.0);
+	}
 	}
 	
 	Ogre::ColourValue fadeColour(0.9, 0.9, 0.9);

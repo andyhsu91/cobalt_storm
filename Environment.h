@@ -12,6 +12,7 @@ Filename:    Environment.h
 
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
 
 #include <stdio.h>
 

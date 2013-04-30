@@ -25,8 +25,8 @@ void Cobalt::createCamera(void)
 	// Create the camera
 	mCamera = mSceneMgr->createCamera("PlayerCam");
 	
-	mCamera->setPosition(Ogre::Vector3(700, 400, -700));
-	mCamera->lookAt(Ogre::Vector3(1963, 50, 1660));
+	mCamera->setPosition(Ogre::Vector3(1200, 600, -700));
+	mCamera->lookAt(Ogre::Vector3(500, 50, -600));
 	mCamera->setNearClipDistance(0.1);
 	mCamera->setFarClipDistance(50000);
 
@@ -62,12 +62,39 @@ void Cobalt::createFrameListener(void)
 //-------------------------------------------------------------------------------------
 bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
-    bool ret = BaseApplication::frameRenderingQueued(evt);
-    
-    mBullet.updateWorld(evt);
-    mEnv.frmqUpdate(evt, mTrayMgr);
-    return ret;
+	bool ret = BaseApplication::frameRenderingQueued(evt);
+
+	mBullet.updateWorld(evt);
+	mEnv.frmqUpdate(evt, mTrayMgr);
+	return ret;
 }
+
+//-------------------------------------------------------------------------------------
+bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
+{
+	
+}
+//-------------------------------------------------------------------------------------
+bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
+{
+
+}
+//-------------------------------------------------------------------------------------
+bool Cobalt::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+{
+
+}
+//-------------------------------------------------------------------------------------
+bool Cobalt::mouseMoved( const OIS::MouseEvent &arg )
+{
+
+}
+//-------------------------------------------------------------------------------------
+bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+{
+
+}
+
  
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include "macUtils.h"

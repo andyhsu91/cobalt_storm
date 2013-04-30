@@ -372,7 +372,7 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 		mCamera->setPolygonMode(pm);
 		mDetailsPanel->setParamValue(10, newVal);
 	}
-	else if(arg.key == OIS::KC_F5)   // refresh all textures
+	else if (arg.key == OIS::KC_F5)   // refresh all textures
 	{
 		Ogre::TextureManager::getSingleton().reloadAll();
 	}
@@ -384,7 +384,23 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 	{
 		mShutDown = true;
 	}
- 
+	else if (arg.key == OIS::KC_W)
+	{
+		
+	}
+	else if (arg.key == OIS::KC_S)
+        {
+		
+        }
+	else if (arg.key == OIS::KC_A)
+        {
+		
+        }
+	else if (arg.key == OIS::KC_D)
+        {
+		
+        }
+
 	mCameraMan->injectKeyDown(arg);
 	return true;
 }

@@ -9,7 +9,12 @@ Filename:    Physics.h
 #include <btBulletDynamicsCommon.h>
 #include <Ogre.h>
 #include <btBulletCollisionCommon.h>
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include <stdio.h>
+#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
+#include "BulletDynamics/Character/btKinematicCharacterController.h"
+
+class btKinematicCharacterController;
 
 class Physics
 {
@@ -20,6 +25,8 @@ public:
 	void updateWorld(const Ogre::FrameEvent& evt);
 	btRigidBody* setRigidBoxBody(Ogre::SceneNode *snode, 
 		Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass);
+	btPairCachingGhostObject* setKinematicCharacter(Ogre::SceneNode *snode,
+                Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass);
 	void setBallRestitution(double restit);
 
 private:

@@ -11,8 +11,8 @@ using namespace std;
 
 static double gravity = -100;
 static bool debug = true;
-static double restitution = 1.05;
-static double sr = 0.94; //scale ratio
+static double restitution = 0.50;
+static double sr = 1.0; //scale ratio
 
 
 
@@ -63,12 +63,14 @@ void Physics::initPhysics()
 	collisionConfiguration = new btDefaultCollisionConfiguration(); //safe
 	dispatcher = new btCollisionDispatcher(collisionConfiguration); //safe
 	overlappingPairCache = new btDbvtBroadphase(); //safe
+	overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 	solver = new btSequentialImpulseConstraintSolver; //safe
 
 	dynamicsWorld = new btDiscreteDynamicsWorld
 		(dispatcher, overlappingPairCache, solver, collisionConfiguration); //safe
 	
 	dynamicsWorld->setGravity(btVector3(0, gravity, 0));
+	//dynamicsWorld->setInternalGhostPairCallback(new btGhostPairCallback());
 	
 	cerr << "Finished bullet init" << endl;
 }
@@ -81,19 +83,30 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 	for (int j=dynamicsWorld->getNumCollisionObjects()-1; j>=0 ;j--)
 	{
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-		obj->setRestitution(restitution);
+		//obj->setRestitution(restitution);
 		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState())
+		if (obj->getCollisionFlags() == btCollisionObject::CF_CHARACTER_OBJECT) {
+			btGhostObject* ghost = btGhostObject::upcast(obj);
+			Ogre::SceneNode *mNode = static_cast<Ogre::SceneNode *>(body->getUserPointer());
+			if (mNode) {
+				btTransform trans = ghost->getWorldTransform();               
+				btQuaternion rot = trans.getRotation();
+				btVector3 pos = trans.getOrigin();
+
+				mNode->setOrientation(rot.w(), rot.x(), rot.y(), rot.z());
+				mNode->setPosition(pos.x(), pos.y(), pos.z());
+			}
+		}
+		else if (body && body->getMotionState())
 		{
 			Ogre::SceneNode *mNode = static_cast<Ogre::SceneNode *>(body->getUserPointer());
-			
 			btTransform trans;
 			body->getMotionState()->getWorldTransform(trans);
-			
-			btQuaternion ori = trans.getRotation();
+			btQuaternion rot = trans.getRotation();
 			btVector3 pos = trans.getOrigin();
+
+			mNode->setOrientation(Ogre::Quaternion(rot.w(), rot.x(), rot.y(), rot.z()));
 			mNode->setPosition(Ogre::Vector3(pos.x(),pos.y(),pos.z()));
-			mNode->setOrientation(Ogre::Quaternion(ori.w(),ori.x(),ori.y(),ori.z()));
 		}
 	}
 }
@@ -101,7 +114,7 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode, 
 		Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass)
 {	
-	shape = new btBoxShape(btVector3(sr*shapeDim.x, sr*shapeDim.y, sr*shapeDim.z));
+	shape = new btBoxShape(btVector3(sr*shapeDim.x/2.0, sr*shapeDim.y/2.0, sr*shapeDim.z/2.0));
 	collisionShapes.push_back(shape);
 	
 	startTransform.setIdentity();
@@ -117,11 +130,44 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 //	MyMotionState* motionState = new MyMotionState(snode);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo); 
+	body->setRestitution(restitution);
 	body->setUserPointer((void *) (snode));
+
+        //body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+        //body->setActivationState(DISABLE_DEACTIVATION);
 
 	dynamicsWorld->addRigidBody(body); 
 	
 	return body;
+}
+//---------------------------------------------------------------------------
+btPairCachingGhostObject* Physics::setKinematicCharacter(Ogre::SceneNode *snode,
+                Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass)
+{
+        //shape = new btBoxShape(btVector3(sr*shapeDim.x/2.0, sr*shapeDim.y/2.0, sr*shapeDim.z/2.0));
+        //collisionShapes.push_back(shape);
+
+        startTransform.setIdentity();
+        startTransform.setOrigin(btVector3(origin.x, origin.y, origin.z));
+
+	btPairCachingGhostObject* ghost = new btPairCachingGhostObject();
+	ghost->setWorldTransform(startTransform);
+	btScalar characterHeight=1.75;
+	btScalar characterWidth =1.75;
+	btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
+	//btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
+	ghost->setCollisionShape (capsule);
+	ghost->setCollisionFlags (btCollisionObject::CF_CHARACTER_OBJECT);
+	ghost->setActivationState(DISABLE_DEACTIVATION);
+	ghost->setUserPointer((void *) (snode));
+
+	btScalar stepHeight = btScalar(0.35);
+	btKinematicCharacterController* character = new btKinematicCharacterController (ghost,capsule,stepHeight);
+
+        dynamicsWorld->addCollisionObject(ghost,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
+	dynamicsWorld->addAction(character);
+
+	return ghost;
 }
 void Physics::setBallRestitution(double restit) 
 {

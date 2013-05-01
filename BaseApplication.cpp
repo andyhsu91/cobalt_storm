@@ -19,6 +19,8 @@ This source file is part of the
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <macUtils.h>
 #endif
+
+using namespace std;
  
 //-------------------------------------------------------------------------------------
 BaseApplication::BaseApplication(void)
@@ -35,7 +37,8 @@ BaseApplication::BaseApplication(void)
 	mShutDown(false),
 	mInputManager(0),
 	mMouse(0),
-	mKeyboard(0)
+	mKeyboard(0),
+	mJoyStick(0)
 {
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     m_ResourcePath = Ogre::macBundlePath() + "/Contents/Resources/";
@@ -111,9 +114,15 @@ void BaseApplication::createFrameListener(void)
  
 	mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject( OIS::OISKeyboard, true ));
 	mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject( OIS::OISMouse, true ));
+	if(mInputManager->getNumberOfDevices(OIS::OISJoyStick)>0)
+	{
+	mJoyStick = static_cast<OIS::JoyStick*>(mInputManager->createInputObject( OIS::OISJoyStick, true ));
+    }
  
 	mMouse->setEventCallback(this);
 	mKeyboard->setEventCallback(this);
+	if(mInputManager->getNumberOfDevices(OIS::OISJoyStick)>0)
+	mJoyStick->setEventCallback(this);
  
 	//Set initial mouse clipping size
 	windowResized(mWindow);
@@ -274,6 +283,8 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	//Need to capture/update each device
 	mKeyboard->capture();
 	mMouse->capture();
+	if(mInputManager->getNumberOfDevices(OIS::OISJoyStick)>0)
+	mJoyStick->capture();
  
 	mTrayMgr->frameRenderingQueued(evt);
  
@@ -386,7 +397,8 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 	}
 	else if (arg.key == OIS::KC_W)
 	{
-		
+		cout<<mInputManager->getNumberOfDevices(OIS::OISJoyStick)<<endl;
+ 	printf("hellodddddd!!!!\n");
 	}
 	else if (arg.key == OIS::KC_S)
         {
@@ -431,6 +443,41 @@ bool BaseApplication::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButto
 	mCameraMan->injectMouseUp(arg, id);
 	return true;
 }
+
+
+ bool BaseApplication::povMoved( const OIS::JoyStickEvent &e, int pov )
+ {
+ 	cout<<pov<<endl;
+ 	printf("hello!!!!\n");
+    return true;
+return true;
+ }
+ bool BaseApplication::axisMoved( const OIS::JoyStickEvent &e, int axis )
+ {
+ 	cout<<axis<<": "<<((float)e.state.mAxes[axis].abs)/32767<<endl;
+ 	printf("hello!!!!\n");
+    return true;
+ }
+ bool BaseApplication::sliderMoved( const OIS::JoyStickEvent &e, int sliderID )
+ {
+ 	cout<<sliderID<<endl;
+ 	printf("hello!!!!\n");
+    return true;
+return true;
+ }
+ bool BaseApplication::buttonPressed( const OIS::JoyStickEvent &e, int button )
+ {
+	cout<<button<<endl;
+ 	printf("hellodddddd!!!!\n");
+ 	return true;
+ }
+ bool BaseApplication::buttonReleased( const OIS::JoyStickEvent &e, int button )
+ {
+ 	cout<<button<<endl;
+ 	printf("hello!!!!\n");
+    return true;
+return true;
+ }
  
 //Adjust mouse clipping area
 void BaseApplication::windowResized(Ogre::RenderWindow* rw)
@@ -454,6 +501,8 @@ void BaseApplication::windowClosed(Ogre::RenderWindow* rw)
 		{
 			mInputManager->destroyInputObject( mMouse );
 			mInputManager->destroyInputObject( mKeyboard );
+			if(mInputManager->getNumberOfDevices(OIS::OISJoyStick)>0)
+			mInputManager->destroyInputObject( mJoyStick );
  
 			OIS::InputManager::destroyInputSystem(mInputManager);
 			mInputManager = 0;

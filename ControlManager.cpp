@@ -12,7 +12,7 @@ ControlManager::ControlManager(void)
         fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
         exit(1);
     }
-    //SDL_SetVideoMode (320, 200, 8, 0);
+    SDL_Surface *screen = SDL_SetVideoMode(640, 480, 0, SDL_OPENGL);
     printf("%i joysticks were found.\n\n", SDL_NumJoysticks() );
     printf("The names of the joysticks are:\n");
 		int i=0;

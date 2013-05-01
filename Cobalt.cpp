@@ -10,7 +10,7 @@ using namespace std;
 
 static Physics mBullet;
 static Environment mEnv;
-static ControlManager CtrlManager;
+//static ControlManager CtrlManager;
  
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
@@ -68,40 +68,85 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 	mBullet.updateWorld(evt);
 	mEnv.frmqUpdate(evt, mTrayMgr);
-	int test = CtrlManager.GetControlState().axis1LR;
+	/*int test = CtrlManager.GetControlState().axis1LR;
     if(test != 0)
     {
     	cerr<< test << endl;
-    }
+    }*/
 
 	return ret;
 }
 
 //-------------------------------------------------------------------------------------
-/*bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
+bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
 {
-	
+	mCameraMan->injectKeyDown(arg);
+	return true;
 }
 //-------------------------------------------------------------------------------------
 bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
 {
-
+mCameraMan->injectKeyUp(arg);
+	return true;
 }
 //-------------------------------------------------------------------------------------
 bool Cobalt::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
-
+    if (mTrayMgr->injectMouseDown(arg, id)) return true;
+	mCameraMan->injectMouseDown(arg, id);
+	return true;
 }
 //-------------------------------------------------------------------------------------
 bool Cobalt::mouseMoved( const OIS::MouseEvent &arg )
 {
-
+    if (mTrayMgr->injectMouseMove(arg)) return true;
+	mCameraMan->injectMouseMove(arg);
 }
 //-------------------------------------------------------------------------------------
 bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
+    if (mTrayMgr->injectMouseUp(arg, id)) return true;
+	mCameraMan->injectMouseUp(arg, id);
+	return true;
+}
 
-}*/
+
+//for buttons 1,2,3,4 on the left hand controller (probably broken)
+ bool Cobalt::povMoved( const OIS::JoyStickEvent &e, int pov )
+ {
+ 	/*printf("povMoved:\n");
+ 	cout<<pov<<endl;*/
+    return true;
+ }
+
+ /*The axis are LCONTROLX,LCONTROLY,RCONTROLX,RCONTROLY for the
+ different joystick axis, they vary from MIN_AXIS TO MAX_AXIS from Left to Right
+ and Up to Down,   LTRIG and RTRIG are the same input and vary from
+ 0 to MIN_AXIS, and 0 to MAX_AXIS but are added together(if you push both down
+ then the sum will be 0)*/
+ bool Cobalt::axisMoved( const OIS::JoyStickEvent &e, int axis )
+ {
+ 	/*printf("axisMoved\n");
+ 	cout<<axis<<": "<<((float)e.state.mAxes[axis].abs)/32767<<endl;*/
+    return true;
+ }
+
+/*the different buttons are LBUMP,RBUMP, LJOYCLICK, RJOYCLICK
+ RBUTTON1, RBUTTON2, RBUTTON3, RBUTTON4, LMIDBUTTON, RMIDBUTTON */
+ bool Cobalt::buttonPressed( const OIS::JoyStickEvent &e, int button )
+ {
+ 	/*printf("buttonPressed\n");
+	cout<<button<<endl;*/
+
+ 	return true;
+ }
+ bool Cobalt::buttonReleased( const OIS::JoyStickEvent &e, int button )
+ {
+ 	/*printf("buttonReleased\n");
+ 	cout<<button<<endl;*/
+    return true;
+
+ }
 
  
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE

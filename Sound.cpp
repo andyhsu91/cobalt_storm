@@ -1,8 +1,10 @@
 #include "Sound.h"
 #include <string>
+#include <string.h>
+#include <stdio.h>
 #include <iostream>
 
-
+//list of all allowed sound effects
 enum soundEffects{
 	Idle, Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Punch, enumElementCount
 };
@@ -104,7 +106,11 @@ void Sound::loadSounds(void){
 	
 	for(int i=0; i<enumElementCount; i++){
 		if(chunkIds[i] < 0){
-			chunkIds[i] = LoadChunk(getStringFromEnum(i).c_str());
+			const char* filename = getStringFromEnum(i).c_str();
+			int errCode = strcmp(filename, "Invalid");
+			if(errCode != 0){
+				chunkIds[i] = LoadChunk(filename);
+			}
 		}
 	}
 	

@@ -24,7 +24,7 @@ struct PlayerVars {
 
 	//Need to add projectile positions to client
 	//All projectile directions processed on server
-	float serverProjectilePos[3][3];
+	float serverProjectilePos[3][3]; //3 projectiles, 3 axises for each projectile
 	float serverProjectileDir[3][3];
 	float clientProjectilePos[3][3];
 	float clientProjectileDir[3][3];

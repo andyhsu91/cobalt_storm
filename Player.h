@@ -18,12 +18,16 @@ struct PlayerVars {
 	int weaponamt2;
 	int weaponamt3;
 	
-	bool playerState[10];
+	bool playerState[8];
 	float playerPosition[3];
 	
+
 	//Need to add projectile positions to client
 	//All projectile directions processed on server
-
+	float serverProjectilePos[3][3];
+	float serverProjectileDir[3][3];
+	float clientProjectilePos[3][3];
+	float clientProjectileDir[3][3];
 
 };
 

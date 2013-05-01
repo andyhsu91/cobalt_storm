@@ -137,22 +137,6 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 
 		mBullet->setRigidBoxBody(snode, shapeDim, position, 100.0);
 	}
-	//Kinematic------------------------------------------------------------------
-	{
-		Ogre::Vector3 shapeDim = Ogre::Vector3(50, 50, 50);
-		Ogre::Vector3 position = Ogre::Vector3(700, 450, -750);
-
-		Ogre::Entity* ent = mSceneMgr->createEntity("KinematicEntity","cube.mesh");
-		Ogre::SceneNode* snode = mSceneMgr->getRootSceneNode()->
-			createChildSceneNode("snode3", position);
-
-		snode->attachObject(ent);
-		snode->scale(.5, .5, .5);
-		ent->setMaterialName("Examples/Chrome");
-		ent->setCastShadows(true);
-
-		mBullet->setRigidBoxBody(snode, shapeDim, position, 250.0);
-	}
 	}
 	
 	Ogre::ColourValue fadeColour(0.9, 0.9, 0.9);

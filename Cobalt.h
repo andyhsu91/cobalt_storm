@@ -27,6 +27,7 @@ Filename:    Cobalt.h
 #include "BaseApplication.h"
 #include "Environment.h"
 #include "Physics.h"
+#include "ControlManager.h"
  
 class Cobalt : public BaseApplication
 {

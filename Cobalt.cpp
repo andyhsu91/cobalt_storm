@@ -10,10 +10,12 @@ using namespace std;
 
 static Physics mBullet;
 static Environment mEnv;
+static ControlManager CtrlManager;
  
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
 {
+
 }
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
@@ -66,6 +68,12 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 	mBullet.updateWorld(evt);
 	mEnv.frmqUpdate(evt, mTrayMgr);
+	int test = CtrlManager.GetControlState().axis1LR;
+    if(test != 0)
+    {
+    	cerr<< test << endl;
+    }
+
 	return ret;
 }
 

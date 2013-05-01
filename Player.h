@@ -25,7 +25,7 @@ struct PlayerVars {
 	//All projectile directions processed on server
 
 
-}
+};
 
 
 class Player

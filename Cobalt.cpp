@@ -48,8 +48,11 @@ void Cobalt::createScene(void)
 	
 	cerr << "Initing Env" << endl;
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
+
+	cerr << "Initing Player" << endl;
+    mPlayer.initPlayer(mSceneMgr, &mBullet, "pnode");
 	
-	
+
 	cerr << "Finished scene" << endl;	
 }
 

@@ -21,7 +21,7 @@ ControlManager::ControlManager(void)
         printf("    %s\n", SDL_JoystickName(i));
     }
 
-    SDL_Joystick *joystick;
+    //SDL_Joystick *joystick;
 
     SDL_JoystickEventState(SDL_ENABLE);
     joystick = SDL_JoystickOpen(0);
@@ -48,7 +48,7 @@ ControlManager::~ControlManager(void)
 controlState ControlManager::GetControlState(void)
 {
 SDL_JoystickUpdate();
-printf("%d\n" SDL_JoystickGetButton(SDL_Joystick *joystick, int button) );
+printf("%d \n", SDL_JoystickGetButton(joystick, 0) );
  //this should be called in the main loop
     while(SDL_PollEvent(&event))
     {  

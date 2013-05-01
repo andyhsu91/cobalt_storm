@@ -20,6 +20,7 @@ controlState GetControlState();
 private:
 SDL_Event event;
 controlState playerControls;
+SDL_Joystick *joystick;
 };
 
 

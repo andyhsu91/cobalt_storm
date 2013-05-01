@@ -18,12 +18,16 @@ struct PlayerVars {
 	int weaponamt2;
 	int weaponamt3;
 	
-	bool playerState[10];
+	bool playerState[8];
 	float playerPosition[3];
 	
+
 	//Need to add projectile positions to client
 	//All projectile directions processed on server
-
+	float serverProjectilePos[3][3];
+	float serverProjectileDir[3][3];
+	float clientProjectilePos[3][3];
+	float clientProjectileDir[3][3];
 
 };
 
@@ -31,7 +35,7 @@ struct PlayerVars {
 class Player
 {
 public:
-    Player(Ogre::SceneManager* pSceneMgr, PhysicsSimulator* sim, std::string node);
+    Player(Ogre::SceneManager* pSceneMgr, Physics* sim, std::string node);
     ~Player(void);
 	btRigidBody* getRigidBody(void);
 	void updatePosition(const Ogre::FrameEvent& evt);
@@ -40,7 +44,7 @@ public:
 
 private:
 	Ogre::SceneManager* mSceneMgr;
-	PhysicsSimulator* mBullet;
+	Physics* mBullet;
 	btRigidBody* mPlayer;
 	btTransform trans;
 	

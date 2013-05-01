@@ -78,7 +78,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 }
 
 //-------------------------------------------------------------------------------------
-bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
+/*bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
 {
 	
 }
@@ -101,7 +101,7 @@ bool Cobalt::mouseMoved( const OIS::MouseEvent &arg )
 bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
 
-}
+}*/
 
  
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE

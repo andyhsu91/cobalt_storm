@@ -25,13 +25,13 @@ struct PlayerVars {
 	//All projectile directions processed on server
 
 
-}
+};
 
 
 class Player
 {
 public:
-    Player(Ogre::SceneManager* pSceneMgr, PhysicsSimulator* sim, std::string node);
+    Player(Ogre::SceneManager* pSceneMgr, Physics* sim, std::string node);
     ~Player(void);
 	btRigidBody* getRigidBody(void);
 	void updatePosition(const Ogre::FrameEvent& evt);
@@ -40,7 +40,7 @@ public:
 
 private:
 	Ogre::SceneManager* mSceneMgr;
-	PhysicsSimulator* mBullet;
+	Physics* mBullet;
 	btRigidBody* mPlayer;
 	btTransform trans;
 	

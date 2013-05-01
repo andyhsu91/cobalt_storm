@@ -29,9 +29,9 @@ class Network {
 		void checkForClient();
 		bool checkForServer();
 		bool checkForPackets();
-		bool sendPacket(gameUpdate update);
+		bool sendPacket(PlayerVars update);
 		void broadcastToClients(const char* host);
-		gameUpdate* getGameUpdate();
+		PlayerVars* getGameUpdate();
 		bool isConnectionOpen();
 		bool isThisServer();
 		void waitForClientConnection();
@@ -52,8 +52,7 @@ class Network {
 		IPaddress *remoteIP; 		//other computer's ip address
 		int theirIp;				//Ip address read in from theirIp.txt, Server will broadcast to this Ip address as well if it exists
 		
-		char buffer[BUFFER_SIZE];	//buffer for gameUpdates to be copied into when packets are recieved
-		char* conversion;			//pointer to last intToIpAddr conversion to avoid memory leaks
+
 		
 };
 

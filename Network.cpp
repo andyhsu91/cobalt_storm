@@ -11,7 +11,7 @@ Filename:    Network.cpp
 
 //constants
 const unsigned int MAX_SOCKETS = 2;
-const unsigned int BUFFER_SIZE = sizeof(gameUpdate)+1;
+const unsigned int BUFFER_SIZE = sizeof(PlayerVars)+1;
 const unsigned int PORT_NUM = 57996; 	//36066 in network byte order, randomly chosen port num to use for Network 
 const unsigned short MAX_CLIENTS = MAX_SOCKETS - 1;
 const int serverSearchTimeout = 1; 		//number of seconds to search for server if client
@@ -19,6 +19,9 @@ const int clientSearchTimeout = 5;		//number of seconds to search for client if 
 const int clientResponseTimeout = 3; 	//milliseconds to wait for clients to respond to broadcast
 const int serverBroadcastTimeout = 500;	//milliseconds to wait between server rebroadcasts
 const bool NM_debug = true;				//toggles debug print statements
+
+char buffer[BUFFER_SIZE];	//buffer for gameUpdates to be copied into when packets are recieved
+char* conversion;			//pointer to last intToIpAddr conversion to avoid memory leaks
 
 long packetsReceived = 0;
 long packetsSent = 0;
@@ -326,12 +329,12 @@ void Network::checkForClient(){
 
 }
 
-gameUpdate* Network::getGameUpdate(){
-	gameUpdate* latestUpdate = (gameUpdate*) buffer; 
+PlayerVars* Network::getGameUpdate(){
+	PlayerVars* latestUpdate = (PlayerVars*) buffer; 
 	return latestUpdate;
 }
 
-bool Network::sendPacket(gameUpdate update){	
+bool Network::sendPacket(PlayerVars update){	
 
 	if(connectionOpen){
 		char* byteArray = static_cast<char*>(static_cast<void*>(&update)); //cast gameUpdate to byteArray
@@ -407,7 +410,7 @@ void Network::readPacketToBuffer(){
 		std::cout<<"Exiting readPacketToBuffer()."<<std::endl;
 		return;
 	}
-	else if(numBytesReceived == sizeof(gameUpdate)){
+	else if(numBytesReceived == sizeof(PlayerVars)){
 		if(NM_debug && packetsReceived%1000 == 0){
 			std::cout<<"Received "<<packetsReceived+1<<" packets and Sent "<<packetsSent<<" packets so far."<<std::endl;
 		}

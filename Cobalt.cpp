@@ -12,7 +12,11 @@ static Physics mBullet;
 static Environment mEnv;
 static Player mPlayer;
 //static ControlManager CtrlManager;
- 
+ bool isMultiplayer;
+ bool isConnected;
+ bool isServer;
+ Network nManager;
+
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
 {
@@ -55,6 +59,7 @@ void Cobalt::createScene(void)
 	
 
 	cerr << "Finished scene" << endl;	
+
 }
 
 //-------------------------------------------------------------------------------------
@@ -72,11 +77,8 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 	mBullet.updateWorld(evt);
 	mEnv.frmqUpdate(evt, mTrayMgr);
-	/*int test = CtrlManager.GetControlState().axis1LR;
-    if(test != 0)
-    {
-    	cerr<< test << endl;
-    }*/
+
+	mPlayer.updatePosition(evt);
 
 	return ret;
 }

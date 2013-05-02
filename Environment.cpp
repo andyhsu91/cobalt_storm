@@ -46,6 +46,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
  
 	mTerrainGroup = OGRE_NEW Ogre::TerrainGroup(mSceneMgr, Ogre::Terrain::ALIGN_X_Z, 513, 12000.0f);
 	mTerrainGroup->setFilenameConvention(Ogre::String("GTFinal"), Ogre::String("dat"));
+	//mTerrainGroup->setFilenameConvention(Ogre::String("BasicTutorial3Terrain"), Ogre::String("dat"));
 	mTerrainGroup->setOrigin(Ogre::Vector3::ZERO);
  
 	configureTerrainDefaults(light);

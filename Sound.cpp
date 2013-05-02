@@ -1,12 +1,9 @@
 #include "Sound.h"
-#include <string>
-#include <string.h>
-#include <stdio.h>
-#include <iostream>
+
 
 //list of all allowed sound effects
 enum soundEffects{
-	Idle, Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Punch, enumElementCount
+	Idle, Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Punch, enumElementCount //enumElementCount should always be the last
 };
 
 //
@@ -59,9 +56,9 @@ void Sound::init(void){
 	
 }
 
-std::string getStringFromEnum(int soundEffect)
-{
-  switch (soundEffect)
+std::string Sound::getSoundFileFromEnum(int soundEffectEnum){
+
+  switch (soundEffectEnum)
   {
   	case Shoot1: 	return "media/sounds/robot/shoot1.wav";
 		
@@ -92,7 +89,7 @@ void Sound::loadSounds(void){
 	
 	for(int i=0; i<enumElementCount; i++){
 		if(chunkIds[i] < 0){
-			const char* filename = getStringFromEnum(i).c_str();
+			const char* filename = getSoundFileFromEnum(i).c_str();
 			int errCode = strcmp(filename, "Invalid");
 			if(errCode != 0){
 				chunkIds[i] = LoadChunk(filename);
@@ -102,7 +99,7 @@ void Sound::loadSounds(void){
 	
 	
 	if(backgroundMusic==NULL){
-			const char* background_filename = getStringFromEnum(Background).c_str();
+			const char* background_filename = getSoundFileFromEnum(Background).c_str();
 			int errCode = strcmp(background_filename, "Invalid");
 			if(errCode != 0){
 				backgroundMusic=Mix_LoadMUS(background_filename);
@@ -199,9 +196,13 @@ void Sound::LoopMusic(Mix_Music* music, int loops){
 	}
 }
  
-void Sound::PlaySound(int chunkID) {
+void Sound::playSoundFromEnum(int soundEffectEnum){
+	playSoundFromChunk(chunkIds[soundEffectEnum]);
+}
+
+void Sound::playSoundFromChunk(int chunkID) {
 	
-	if(debug){std::cout<<"Entered PlaySound("<<chunkID<<")"<<std::endl;}
+	if(debug){std::cout<<"Entered playSoundFromChunk("<<chunkID<<")"<<std::endl;}
     if(chunkID < 0){
     	std::cout<<"Invalid. ID < 0"<<std::endl;
     	return;
@@ -215,7 +216,7 @@ void Sound::PlaySound(int chunkID) {
     	return;
     }
     Mix_PlayChannel(-1, SoundList[chunkID], 0);
-    if(debug){std::cout<<"Exiting PlaySound()"<<std::endl;}
+    if(debug){std::cout<<"Exiting playSoundFromChunk()"<<std::endl;}
 }
 
 void Sound::toggleMute(void){
@@ -238,7 +239,7 @@ void Sound::playFailure(void){
 
 		if(debug){std::cout<<"entered playFailure()"<<std::endl;}
 
-		PlaySound(chunkIds[Failure]);
+		playSoundFromChunk(chunkIds[Failure]);
 		if(debug){std::cout<<"exiting playFailure()"<<std::endl;}
 	}
 }
@@ -247,14 +248,14 @@ void Sound::playSuccess(void){
 	if(!mute){
 
 		if(debug){std::cout<<"entered playSuccess("<<chunkIds[Success]<<")"<<std::endl;}
-		PlaySound(chunkIds[Success]);
+		playSoundFromChunk(chunkIds[Success]);
 		if(debug){std::cout<<"Exiting playSuccess()"<<std::endl;}
 	}
 }
  
 void Sound::playGun(void){
 	if(!mute){
-		PlaySound(chunkIds[Shoot1]);
+		playSoundFromChunk(chunkIds[Shoot1]);
 	}
 }
 
@@ -267,7 +268,7 @@ void Sound::playBackground(int numLoops, int ms){
 	if(!mute){
 		if(debug){std::cout<<"entered playBackground()"<<std::endl;}
 		if(backgroundMusic==NULL){
-			const char* background_filename = getStringFromEnum(Background).c_str();
+			const char* background_filename = getSoundFileFromEnum(Background).c_str();
 			int errCode = strcmp(background_filename, "Invalid");
 			if(errCode != 0){
 				backgroundMusic=Mix_LoadMUS(background_filename);

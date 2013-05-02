@@ -5,7 +5,11 @@
 //#include <SDL.h>
 #include <SDL/SDL_mixer.h>
 #include <vector>
- 
+ #include <string>
+#include <string.h>
+#include <stdio.h>
+#include <iostream>
+
 class Sound {
     public:   
         Sound();
@@ -17,7 +21,8 @@ class Sound {
         int LoadChunk(const char* File);
         void fadeInLoopMusic(Mix_Music* music, int loops, int ms);
         void LoopMusic(Mix_Music* music, int loops);
-        void PlaySound(int chunkID);
+        void playSoundFromEnum(int soundEffectEnum);
+        void playSoundFromChunk(int chunkID);
         void toggleMute(void);
         void setMute(bool val);
         void playFailure(void);
@@ -36,6 +41,7 @@ class Sound {
 		void init(void);
 		void Cleanup();
 		void loadSounds(void);
+    std::string getSoundFileFromEnum(int soundEffectEnum);
 };
  
 #endif

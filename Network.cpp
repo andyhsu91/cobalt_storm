@@ -4,7 +4,7 @@ Filename:    Network.cpp
 -----------------------------------------------------------------------------
 */
 #include "Network.h"
-
+#include <assert.h>
 //modified from http://content.gpwiki.org/index.php/SDL:Tutorial:Using_SDL_net#Server_side
 //	and http://r3dux.org/2011/01/a-simple-sdl_net-chat-server-client/
 //  and http://stackoverflow.com/questions/5362730/finding-out-udp-broadcast-source-ip-with-sdl-net
@@ -27,7 +27,13 @@ long packetsReceived = 0;
 long packetsSent = 0;
 
 Network::Network() {
-	
+	connectionOpen = false;
+	isServer=false;
+	UdpSocket = NULL;
+	socketSet = NULL;
+	serverSocket = NULL;
+	peerSocket = NULL;
+	theirIp = -1;
 }
 
 Network::~Network() {
@@ -39,6 +45,10 @@ Network::~Network() {
 	if(serverSocket != NULL){
 		SDLNet_TCP_DelSocket(socketSet, serverSocket);
 		SDLNet_TCP_Close(serverSocket);
+	}
+	if(UdpSocket != NULL){
+			SDLNet_UDP_Close(UdpSocket);
+			UdpSocket = NULL;
 	}
 	SDLNet_Quit();
 	//SDL_Quit();
@@ -54,8 +64,6 @@ bool Network::isThisServer(){
 }
 
 void Network::init(){
-	connectionOpen=false;
-	theirIp = -1;
 	if(NM_debug){std::cout<<"Entered init()"<<std::endl;}
 	
 	//check for server, and attempt to become client
@@ -195,22 +203,28 @@ bool Network::checkForServer(){
 	
 	/* Listen for a broadcasted a UDP packet to all devices on the local network.
 	   If a UDP packet is received then the other computer is the server.
+	   Return true if server packet received, false otherwise
 	*/
 	
 	if(UdpSocket==NULL){	
-		UdpSocket = SDLNet_UDP_Open(PORT_NUM);
+		UdpSocket = SDLNet_UDP_Open(PORT_NUM); //returns valid UDP socket on success, NULL otherwise
+		if(UdpSocket == NULL){
+			std::cout<<"Error: could not create UDP socket"<<std::endl;
+			return false;
+		}
 	}
-	
-	UDPpacket* packet = SDLNet_AllocPacket(sizeof(IPaddress));
-	
-	
+	UDPpacket* packet = SDLNet_AllocPacket(sizeof(IPaddress)+1); //returns pointer to empty UDPpacket, NULL otherwise
 	IPaddress packetData;
 	
-	if(UdpSocket == NULL){
-		std::cout<<"Error: could not create UDP socket"<<std::endl;
-		return false;
+	if(packet==NULL){
+		//try again
+		packet = SDLNet_AllocPacket(sizeof(IPaddress)+1); //allocate enough space to receive server's ip address
+		if(packet==NULL){
+			//could not recover
+			std::cout<<"Error: SDLNet could not allocate memory for packet"<<std::endl;
+			return false;
+		}
 	}
-	
 	
 	int millisec = 0;
 	bool serverFound=false;
@@ -218,8 +232,13 @@ bool Network::checkForServer(){
 	if(NM_debug){std::cout<<"Listening "<<serverSearchTimeout<<" seconds for server broadcast packets..."<<std::endl;}
 	//check for server broadcast packet
 	while(millisec<(serverSearchTimeout*1000) && !serverFound){
+		
+		std::cout<<"UdpSocket: "<<UdpSocket<<"   packet: "<<packet<<std::endl;
+		//std::cout<<"UdpSocket: "<< UdpSocket* <<"   packet: "<< packet* <<std::endl;
+		assert (UdpSocket != NULL);
+		assert (packet != NULL);
 		std::cout<<"Calling UDP_Recv()"<<std::endl;
-		int errorCode = SDLNet_UDP_Recv(UdpSocket, packet);
+		int errorCode = SDLNet_UDP_Recv(UdpSocket, packet); //this line causes random segfaults...
 		std::cout<<"exited UDP_Recv()"<<std::endl;
 		if(errorCode == 1){
 			//successfully recieved UDP packet, copy packet data to local packet data
@@ -237,8 +256,8 @@ bool Network::checkForServer(){
 			}
 		}
 		if(!serverFound){
-			millisec+=10; //add 10 milliseconds
-			usleep(10000); //sleep for 10000 microseconds = 10 milliseconds
+			millisec+=1; //add 1 milliseconds
+			usleep(1000); //sleep for 1000 microseconds = 1 milliseconds
 		}
 	}
 	

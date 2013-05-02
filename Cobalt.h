@@ -28,6 +28,7 @@ Filename:    Cobalt.h
 #include "Environment.h"
 #include "Physics.h"
 #include "ControlManager.h"
+#include "Player.h"
 
 #define LCONTROLX 0
 #define LCONTROLY 1

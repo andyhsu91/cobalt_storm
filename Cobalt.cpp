@@ -10,6 +10,7 @@ using namespace std;
 
 static Physics mBullet;
 static Environment mEnv;
+static Player mPlayer;
 //static ControlManager CtrlManager;
  
 //-------------------------------------------------------------------------------------
@@ -122,7 +123,7 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
     return true;
  }
 
- /*The axis are LCONTROLX,LCONTROLY,RCONTROLX,RCONTROLY for the
+/*The axis are LCONTROLX,LCONTROLY,RCONTROLX,RCONTROLY for the
  different joystick axis, they vary from MIN_AXIS TO MAX_AXIS from Left to Right
  and Up to Down,   LTRIG and RTRIG are the same input and vary from
  0 to MIN_AXIS, and 0 to MAX_AXIS but are added together(if you push both down

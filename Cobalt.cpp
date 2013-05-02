@@ -133,17 +133,50 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 //-------------------------------------------------------------------------------------
 bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
 {	
-
-	if(arg.key == OIS::KC_ESCAPE){ 
+	if(arg.key == OIS::KC_ESCAPE)
+		{ 
         mShutDown = true;
-    }
-	mCameraMan->injectKeyDown(arg);
+    	}
+    else if (arg.key == OIS::KC_W)
+		{
+			serverPlayer->updateControlAxis(LCONTROLY, -1);
+		}
+	else if (arg.key == OIS::KC_A)
+        {
+			serverPlayer->updateControlAxis(LCONTROLX, -1);
+        }
+	else if (arg.key == OIS::KC_S)
+        {
+			serverPlayer->updateControlAxis(LCONTROLY, 1);
+        }
+	else if (arg.key == OIS::KC_D)
+        {
+			serverPlayer->updateControlAxis(LCONTROLX, 1);
+        }
+       //this command will move the camera
+	//mCameraMan->injectKeyDown(arg);
 	return true;
 }
 //-------------------------------------------------------------------------------------
 bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
 {
-mCameraMan->injectKeyUp(arg);
+     if (arg.key == OIS::KC_W)
+		{
+			serverPlayer->updateControlAxis(LCONTROLY, 0);
+		}
+	else if (arg.key == OIS::KC_A)
+        {
+			serverPlayer->updateControlAxis(LCONTROLX, 0);
+        }
+	else if (arg.key == OIS::KC_S)
+        {
+			serverPlayer->updateControlAxis(LCONTROLY, 0);
+        }
+	else if (arg.key == OIS::KC_D)
+        {
+			serverPlayer->updateControlAxis(LCONTROLX, 0);
+        }
+//mCameraMan->injectKeyUp(arg);
 	return true;
 }
 //-------------------------------------------------------------------------------------
@@ -183,8 +216,20 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  then the sum will be 0)*/
  bool Cobalt::axisMoved( const OIS::JoyStickEvent &e, int axis )
  {
- 	printf("axisMoved %f\n",((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
- 	serverPlayer->updateControlAxis(axis, ((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
+ 	float axisValue = ((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS;
+ 	//printf("axisMoved %f\n",((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
+
+ 	if(axis == LCONTROLX)
+	 	{
+	 	serverPlayer->updateControlAxis(axis, axisValue);
+	 	}
+ 	else if (axis == LCONTROLY)
+	 	{
+	 	//the Y value on the Controller goes from up(-1) to Down(1)
+	 	//and we map this to the world environment from Z forward(1)
+	 	//to Z backwards/towards you(-1)
+	 	serverPlayer->updateControlAxis(axis, -axisValue);
+	 	}
     return true;
  }
 

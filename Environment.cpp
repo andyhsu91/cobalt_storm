@@ -24,6 +24,7 @@ Environment::~Environment(void)
 void Environment::initEnvironment(Ogre::SceneManager* SceneMgr, 
 		Ogre::RenderWindow* mWindow, Physics* Bullet)
 {	
+	cout<<"Entered initEnvironment()"<<endl;
 	mSceneMgr = SceneMgr;
 	mBullet = Bullet;
 	
@@ -68,7 +69,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
  
 	mTerrainGroup->freeTemporaryResources();
 	
-	{
+	
 		int dim = 1000;
 		
     	//Water-----------------------------------------------------------------------
@@ -136,8 +137,8 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 		ent->setCastShadows(true);
 
 		mBullet->setRigidBoxBody(snode, shapeDim, position, 100.0);
-	}
-	}
+	
+		}
 	
 	Ogre::ColourValue fadeColour(0.9, 0.9, 0.9);
 	//Ogre::ColourValue fadeColour(0.2, 0.2, 0.2);
@@ -150,7 +151,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
  
 	//mSceneMgr->setSkyDome(true, "Examples/CloudySky", 5, 8, 500);
 	mSceneMgr->setSkyPlane(true, plane, "Examples/CloudySky", 500, 75, true, 0.5, 150, 150);
-	
+	cout<<"Exiting initEnvironment()"<<endl;
 }
 //-------------------------------------------------------------------------------------
 void Environment::frmqUpdate(const Ogre::FrameEvent& evt, OgreBites::SdkTrayManager* mTrayMgr)
@@ -205,7 +206,7 @@ void Environment::configureTerrainDefaults(Ogre::Light* light)
 	defaultimp.minBatchSize = 33;
 	defaultimp.maxBatchSize = 65;
 
-/*	// textures
+	// textures
 	defaultimp.layerList.resize(3);
 	defaultimp.layerList[0].worldSize = 100;
 	defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_diffusespecular.dds");
@@ -216,7 +217,7 @@ void Environment::configureTerrainDefaults(Ogre::Light* light)
 	defaultimp.layerList[2].worldSize = 200;
 	defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_diffusespecular.dds");
 	defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_normalheight.dds");
-*/
+
 }
 //-------------------------------------------------------------------------------------
 void Environment::defineTerrain(long x, long y)

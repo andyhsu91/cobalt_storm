@@ -151,7 +151,7 @@ int Sound::LoadChunk(const char* File) {
     }
  	if(debug){std::cout<<"SoundList.size() Before:"<<SoundList.size()<<std::endl;}
     SoundList.push_back(TempSound);
-    std::cout<<File<<" has been loaded."<<std::endl;
+    std::cout<<"Sound: "<<File<<" has been loaded."<<std::endl;
  	if(debug){std::cout<<"SoundList.size() After:"<<SoundList.size()<<std::endl;}
  	if(debug){ std::cout<<"Exiting LoadChunk()"<<std::endl;}
  	

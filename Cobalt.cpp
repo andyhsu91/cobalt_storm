@@ -59,7 +59,7 @@ void Cobalt::createScene(void)
 
 	//Initialize Network Manager
 	nManager = new Network();
-	nManager->init();
+	//nManager->init();
 	isConnected = nManager->isConnectionOpen();
 	isServer = nManager->isThisServer();
 	
@@ -77,7 +77,7 @@ void Cobalt::createScene(void)
 	
 
 	cerr << "Initing Player" << endl;
-    mPlayer.initPlayer(mSceneMgr, &mBullet, "pnode");
+    serverPlayer->initPlayer(mSceneMgr, &mBullet, "pnode");
 	cerr << "Finished scene" << endl;	
 
 }
@@ -119,7 +119,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		mBullet.updateWorld(evt);
 		mEnv.frmqUpdate(evt, mTrayMgr);
 
-		mPlayer.updatePosition(evt);
+		serverPlayer->updatePosition(evt);
 
 	}
 	
@@ -180,9 +180,8 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  then the sum will be 0)*/
  bool Cobalt::axisMoved( const OIS::JoyStickEvent &e, int axis )
  {
- 	//printf("axisMoved\n");
-
- 	cout<<axis<<": "<<((float)e.state.mAxes[axis].abs)/MAX_AXIS<<endl;
+ 	printf("axisMoved %d\n",((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
+ 	serverPlayer->updateControlAxis(axis, ((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
     return true;
  }
 
@@ -190,14 +189,76 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  RBUTTON1, RBUTTON2, RBUTTON3, RBUTTON4, LMIDBUTTON, RMIDBUTTON */
  bool Cobalt::buttonPressed( const OIS::JoyStickEvent &e, int button )
  {
- 	/*printf("buttonPressed\n");
-	cout<<button<<endl;*/
+ 	printf("buttonPressed %d\n",button);
+ 	switch(button)
+ 	{
+		case LBUMP:
+		serverPlayer->updatePlayerState(SHOOTING1, true);
+		break;
+		case RBUMP:
+		serverPlayer->updatePlayerState(SHOOTING2, true);
+		break;
+		case LJOYCLICK:
+		serverPlayer->updatePlayerState(JUMPING, true);
+		break;
+		case RJOYCLICK:
+		serverPlayer->updatePlayerState(JUMPING, true);
+		break;
+
+		//these are not currently used
+		case RBUTTON1:
+		break;
+		case RBUTTON2:
+		break;
+		case RBUTTON3:
+		break;
+		case RBUTTON4:
+		break;
+		case LMIDBUTTON:
+		break;
+		case RMIDBUTTON:
+		break;
+		default:
+		break;
+ 	}
+
+	
  	return true;
  }
  bool Cobalt::buttonReleased( const OIS::JoyStickEvent &e, int button )
  {
- 	/*printf("buttonReleased\n");
- 	cout<<button<<endl;*/
+ 	//printf("buttonReleased\n");
+ 	switch(button)
+ 	{
+		case LBUMP:
+		serverPlayer->updatePlayerState(SHOOTING1, false);
+		break;
+		case RBUMP:
+		serverPlayer->updatePlayerState(SHOOTING2, false);
+		break;
+		case LJOYCLICK:
+		serverPlayer->updatePlayerState(JUMPING, false);
+		break;
+		case RJOYCLICK:
+		serverPlayer->updatePlayerState(JUMPING, false);
+		break;
+
+		//these are not currently used
+		case RBUTTON1:
+		break;
+		case RBUTTON2:
+		break;
+		case RBUTTON3:
+		break;
+		case RBUTTON4:
+		break;
+		case LMIDBUTTON:
+		break;
+		case RMIDBUTTON:
+		break;
+		default:
+		break;
+ 	}
     return true;
 
  }

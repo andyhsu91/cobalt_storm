@@ -12,17 +12,19 @@ Filename:    Player.h
 #include <stdio.h>
 #include "Physics.h"
 
-#define STANDING 0
-#define WALKING  1
-#define RUNNING  2
-#define DASHING  3
-#define JUMPING  4
-#define SHOOTING 5
-#define FALLING  6
-#define MELEEING 7
-#define HIT      8
-#define DOWN     9
-#define DEATH    10
+enum States { STANDING,
+ WALKING,
+ RUNNING,
+ DASHING,
+ JUMPING,
+ SHOOTING1,
+ SHOOTING2,
+ SHOOTING3,
+ FALLING,
+ MELEEING,
+ HIT, 
+ DOWN,
+ DEATH};
 
 #define X        0
 #define Y        1
@@ -94,14 +96,15 @@ private:
 	btKinematicCharacterController* mPlayer;
 	btTransform trans;
 	
+	Ogre::SceneNode* pnode;
+	Ogre::Vector3 mDirection;
 	PlayerVars* mPlayerState;
-	CurrentControllerState* mCurrentControls;
 	bool forceUpdate;
 
 	/*holds the current controller/keyboardstate of the player
 	these values will then be used to update the player movement based on
 	frametime in the updatePosition method. LCONTROLX, LCONTROLY, RCONTROLX, RCONTROLY*/
-	float mCurrentControllerState[4];
+	float mCurrentControllerState[5];
 
 };
 

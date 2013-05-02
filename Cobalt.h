@@ -57,7 +57,8 @@ protected:
     virtual bool buttonReleased( const OIS::JoyStickEvent &e, int button );
 	
 private:
-    Player* serverPlayer, clientPlayer;	
+    Player* serverPlayer;
+    Player* clientPlayer;	
 
 };
  

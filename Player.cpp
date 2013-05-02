@@ -25,13 +25,16 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mSceneMgr = SceneMgr;
         mBullet = Bullet;
         mPlayerState = new PlayerVars;
-        mCurrentControllerState = {0,0,0,0};
+        for (int i = 0; i < 5; ++i)
+        {
+                mCurrentControllerState[i] = 0;
+        }
 
         Ogre::Vector3 shapeDim = Ogre::Vector3(50, 50, 50);
         Ogre::Vector3 position = Ogre::Vector3(700, 450, -750);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("PlayerEntity","cube.mesh");
-        Ogre::SceneNode* pnode = mSceneMgr->getRootSceneNode()->
+         pnode = mSceneMgr->getRootSceneNode()->
                 createChildSceneNode(node, position);
 
         pnode->attachObject(ent);
@@ -54,23 +57,28 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mPlayerState->playerPosition[Y] = position.y;
         mPlayerState->playerPosition[Z] = position.z;
 
+        mDirection = Ogre::Vector3::ZERO;
+
 		//cerr << "Finishing init player" << endl;
 }
 
+
+//TODO: use mCurrentControllerState to update the position 
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {
+mDirection.z += mCurrentControllerState[LCONTROLY]*250;
+mDirection.x += mCurrentControllerState[LCONTROLX]*250;
 
-
-
+pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
 }
 
-//used to update the currentControlAxis
-void updateControlAxis(int axis, float value)
+void Player::updateControlAxis(int axis, float value)
 {
+        printf("updating %d to %d\n", axis ,value);
         mCurrentControllerState[axis]=value;
 }
 
-void updatePlayerState(int state, bool value)
+void Player::updatePlayerState(int state, bool value)
 {
-        mPlayerState.playerState[state]=value;
+        mPlayerState->playerState[state]=value;
 }

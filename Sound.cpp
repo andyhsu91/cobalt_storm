@@ -9,18 +9,13 @@ enum soundEffects{
 	Idle, Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Punch, enumElementCount
 };
 
-/*const std::string SUCCESS = "media/sounds/Success/success5.wav";
-const std::string FAILURE = "media/sounds/Failure/failure4.wav";
-const std::string BOUNCE = "media/sounds/Bounce/bounce1.wav";*/
+//
 const std::string BACKGROUND = "media/sounds/robot_background2.wav";
 
+//Sound Effect Ids
 int chunkIds[enumElementCount];
 
-//sound effect ids
-/*int successId; 	
-int failureId; 	
-int bounceId; 
-*/
+
 std::vector<Mix_Chunk*> SoundList;
 Mix_Music* backgroundMusic;
 
@@ -50,9 +45,7 @@ void Sound::resetIDs(void){
 	for(int i=0; i<enumElementCount; i++){
 		chunkIds[i]=-1;
 	}
-	/*successId=-1; 	
-	failureId=-1; 	
-	bounceId=-1; */	
+	
 }
 
 void Sound::init(void){
@@ -97,11 +90,6 @@ void Sound::loadSounds(void){
 	//load default sound effects
 	if(debug){
 		std::cout<<"Entered loadSounds()"<<std::endl;
-		/*std::cout<<"success:"<<successId<<
-			", failure:"<<failureId<<
-			",bounce:"<<bounceId<<
-			std::endl;
-			*/
 	}
 	
 	for(int i=0; i<enumElementCount; i++){
@@ -114,24 +102,13 @@ void Sound::loadSounds(void){
 		}
 	}
 	
-	/*if(successId<0){
-		successId = LoadChunk(SUCCESS.c_str());
-	}
-	if(failureId<0){
-		failureId = LoadChunk(FAILURE.c_str());
-	}
-	if(bounceId<0){
-		bounceId = LoadChunk(BOUNCE.c_str());
-	}*/
+	
 	if(backgroundMusic==NULL){
 		backgroundMusic=Mix_LoadMUS(BACKGROUND.c_str());
 	}
 	if(debug){
 		std::cout<<"Exiting loadSounds()"<<std::endl;
-		/*std::cout<<"success:"<<successId<<
-			", failure:"<<failureId<<
-			",bounce:"<<bounceId<<
-			std::endl;*/
+		
 	}
 }
 
@@ -272,16 +249,12 @@ void Sound::playSuccess(void){
 	}
 }
  
-/*void Sound::playBounce(void){
+void Sound::playGun(void){
 	if(!mute){
-		if(debug){
-			std::cout<<"entered playBounce()"<<std::endl;
-		}
-		PlaySound(bounceId);
-		
-		if(debug){std::cout<<"exiting playBounce()"<<std::endl;}
+		PlaySound(chunkIds[Shoot1]);
 	}
-} */
+}
+
 
 void Sound::playBackground(int numLoops){
 	playBackground(numLoops, 0);

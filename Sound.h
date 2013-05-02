@@ -22,7 +22,7 @@ class Sound {
         void setMute(bool val);
         void playFailure(void);
       	void playSuccess(void);
-     	//void playBounce(void);
+      	void playGun(void);
       	void playBackground(int numOfLoops);
       	void playBackground(int numOfLoops, int ms);
       	void pauseSounds(void);

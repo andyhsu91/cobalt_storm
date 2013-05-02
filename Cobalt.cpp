@@ -15,7 +15,7 @@ Player mPlayer;
  bool isMultiplayer;
  bool isConnected;
  bool isServer;
- Network nManager;
+ Network* nManager;
 
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
@@ -27,6 +27,7 @@ Cobalt::Cobalt(void)
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
 {
+	delete nManager;
 }
 //-------------------------------------------------------------------------------------
 void Cobalt::createCamera(void)
@@ -43,7 +44,7 @@ void Cobalt::createCamera(void)
 	{
 		mCamera->setFarClipDistance(0);   // enable infinite far clip distance if we can
 	}	
- 
+ 	
 	mCameraMan = new OgreBites::SdkCameraMan(mCamera);   // create a default camera controller
 }
 //-------------------------------------------------------------------------------------
@@ -56,10 +57,27 @@ void Cobalt::createScene(void)
 	cerr << "Initing Env" << endl;
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
 
-	cerr << "Initing Player" << endl;
-    mPlayer.initPlayer(mSceneMgr, &mBullet, "pnode");
+	//Initialize Network Manager
+	nManager = new Network();
+	nManager->init();
+	isConnected = nManager->isConnectionOpen();
+	isServer = nManager->isThisServer();
+	
+	isMultiplayer = false; //change to true when ready
+
+	if(isMultiplayer && isServer && !isConnected){
+		nManager->waitForClientConnection();
+		isConnected = nManager->isConnectionOpen();
+	}
+
+	if(!isConnected){
+		isMultiplayer = false;
+	}
+	cout<<"Current State: isConnected="<<boolalpha<<isConnected<<", isMutliplayer="<<isMultiplayer<<", isServer="<<isServer<<endl;
 	
 
+	cerr << "Initing Player" << endl;
+    mPlayer.initPlayer(mSceneMgr, &mBullet, "pnode");
 	cerr << "Finished scene" << endl;	
 
 }
@@ -74,20 +92,48 @@ void Cobalt::createFrameListener(void)
 }
 //-------------------------------------------------------------------------------------
 bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
-{
+{	//return True to continue rendering, false to drop out of the rendering loop
 	bool ret = BaseApplication::frameRenderingQueued(evt);
 
-	mBullet.updateWorld(evt);
-	mEnv.frmqUpdate(evt, mTrayMgr);
+	if(isMultiplayer){
+		bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
+		isConnected = nManager->isConnectionOpen();
+		PlayerVars* gameUpdate = NULL;
+		if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
+		if(packetReceived){ gameUpdate = nManager->getGameUpdate(); }
 
-	mPlayer.updatePosition(evt);
+		if(isServer){
+			//I am server
+
+
+		}else{
+			//I am client
+			
+
+		}
+		
+
+	}else{
+		//single player mode
+
+		mBullet.updateWorld(evt);
+		mEnv.frmqUpdate(evt, mTrayMgr);
+
+		mPlayer.updatePosition(evt);
+
+	}
+	
 
 	return ret;
 }
 
 //-------------------------------------------------------------------------------------
 bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
-{
+{	
+
+	if(arg.key == OIS::KC_ESCAPE){ 
+        mShutDown = true;
+    }
 	mCameraMan->injectKeyDown(arg);
 	return true;
 }

@@ -10,7 +10,7 @@ using namespace std;
 
 static Physics mBullet;
 static Environment mEnv;
-static Player mPlayer;
+Player mPlayer;
 //static ControlManager CtrlManager;
  bool isMultiplayer;
  bool isConnected;
@@ -20,7 +20,9 @@ static Player mPlayer;
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
 {
-
+//0 is the Server
+	serverPlayer = new Player();
+	clientPlayer = new Player();
 }
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
@@ -132,8 +134,9 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  then the sum will be 0)*/
  bool Cobalt::axisMoved( const OIS::JoyStickEvent &e, int axis )
  {
- 	/*printf("axisMoved\n");
- 	cout<<axis<<": "<<((float)e.state.mAxes[axis].abs)/32767<<endl;*/
+ 	//printf("axisMoved\n");
+
+ 	cout<<axis<<": "<<((float)e.state.mAxes[axis].abs)/MAX_AXIS<<endl;
     return true;
  }
 
@@ -143,7 +146,6 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  {
  	/*printf("buttonPressed\n");
 	cout<<button<<endl;*/
-
  	return true;
  }
  bool Cobalt::buttonReleased( const OIS::JoyStickEvent &e, int button )

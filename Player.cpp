@@ -25,6 +25,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mSceneMgr = SceneMgr;
         mBullet = Bullet;
         mPlayerState = new PlayerVars;
+        mCurrentControllerState = {0,0,0,0};
 
         Ogre::Vector3 shapeDim = Ogre::Vector3(50, 50, 50);
         Ogre::Vector3 position = Ogre::Vector3(700, 450, -750);
@@ -59,4 +60,17 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {
 
+
+
+}
+
+//used to update the currentControlAxis
+void updateControlAxis(int axis, float value)
+{
+        mCurrentControllerState[axis]=value;
+}
+
+void updatePlayerState(int state, bool value)
+{
+        mPlayerState.playerState[state]=value;
 }

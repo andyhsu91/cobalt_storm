@@ -16,6 +16,7 @@ Player mPlayer;
  bool isConnected;
  bool isServer;
  Network* nManager;
+ Sound* sManager;
 
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
@@ -27,7 +28,8 @@ Cobalt::Cobalt(void)
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
 {
-	delete nManager;
+	if(nManager){delete nManager;}
+	if(sManager){delete sManager;}
 }
 //-------------------------------------------------------------------------------------
 void Cobalt::createCamera(void)
@@ -75,8 +77,8 @@ void Cobalt::createScene(void)
 		isMultiplayer = false;
 	}
 	cout<<"Current State: isConnected="<<boolalpha<<isConnected<<", isMutliplayer="<<isMultiplayer<<", isServer="<<isServer<<endl;
-	
-
+	sManager = new Sound();
+	sManager->playBackground(-1);
 	cerr << "Initing Player" << endl;
     serverPlayer->initPlayer(mSceneMgr, &mBullet, "pnode");
 	cerr << "Finished scene" << endl;	

@@ -10,7 +10,6 @@ enum soundEffects{
 };
 
 //
-const std::string BACKGROUND = "media/sounds/robot_background2.wav";
 
 //Sound Effect Ids
 int chunkIds[enumElementCount];
@@ -64,22 +63,21 @@ std::string getStringFromEnum(int soundEffect)
 {
   switch (soundEffect)
   {
-	
-  	case Shoot1: 	return "media/sounds/robot_shoot1.wav";
+  	case Shoot1: 	return "media/sounds/robot/shoot1.wav";
 		
-	case Shoot2: 	return "media/sounds/robot_shoot1.wav";
+	case Shoot2: 	return "media/sounds/robot/shoot1.wav";
 		
-	case Walk: 		return "media/sounds/robot_footstep2.wav";
+	case Walk: 		return "media/sounds/robot/footstep2.wav";
 
-	case Run: 		return "media/sounds/robot_footstep2.wav";
+	case Run: 		return "media/sounds/robot/footstep2.wav";
 
-	case Success: 	return "media/sounds/robot_success1.aiff";
+	case Success: 	return "media/sounds/robot/success1.mp3";
 
-	case Failure: 	return "media/sounds/robot_failur1.wav";
+	case Failure: 	return "media/sounds/robot/failure1.wav";
 
-	case Background:return "media/sounds/robot_background2.wav";
+	case Background:return "media/sounds/background/beepboop3.wav";
 
-	case Punch: 	return "media/sounds/robot_punch1.wav";
+	case Punch: 	return "media/sounds/robot/punch1.wav";
 	
 	default: 		return "Invalid";
 	
@@ -104,7 +102,11 @@ void Sound::loadSounds(void){
 	
 	
 	if(backgroundMusic==NULL){
-		backgroundMusic=Mix_LoadMUS(BACKGROUND.c_str());
+			const char* background_filename = getStringFromEnum(Background).c_str();
+			int errCode = strcmp(background_filename, "Invalid");
+			if(errCode != 0){
+				backgroundMusic=Mix_LoadMUS(background_filename);
+			}
 	}
 	if(debug){
 		std::cout<<"Exiting loadSounds()"<<std::endl;
@@ -149,6 +151,7 @@ int Sound::LoadChunk(const char* File) {
     }
  	if(debug){std::cout<<"SoundList.size() Before:"<<SoundList.size()<<std::endl;}
     SoundList.push_back(TempSound);
+    std::cout<<File<<" has been loaded."<<std::endl;
  	if(debug){std::cout<<"SoundList.size() After:"<<SoundList.size()<<std::endl;}
  	if(debug){ std::cout<<"Exiting LoadChunk()"<<std::endl;}
  	
@@ -264,7 +267,12 @@ void Sound::playBackground(int numLoops, int ms){
 	if(!mute){
 		if(debug){std::cout<<"entered playBackground()"<<std::endl;}
 		if(backgroundMusic==NULL){
-			backgroundMusic=Mix_LoadMUS(BACKGROUND.c_str());
+			const char* background_filename = getStringFromEnum(Background).c_str();
+			int errCode = strcmp(background_filename, "Invalid");
+			if(errCode != 0){
+				backgroundMusic=Mix_LoadMUS(background_filename);
+			}
+			//backgroundMusic=Mix_LoadMUS(BACKGROUND.c_str());
 		}
 		fadeInLoopMusic(backgroundMusic, numLoops, ms);
 		if(debug){std::cout<<"exiting playBackground()"<<std::endl;}

@@ -30,7 +30,7 @@ Filename:    Cobalt.h
 #include "ControlManager.h"
 #include "Player.h"
 #include "Network.h"
-
+#include "Sound.h"
  
 class Cobalt : public BaseApplication
 {

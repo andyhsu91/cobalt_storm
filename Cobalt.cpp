@@ -67,7 +67,6 @@ void Cobalt::createScene(void)
 		nManager->waitForClientConnection();
 		isConnected = nManager->isConnectionOpen();
 	}
-
 	if(isConnected){
 		isServer = nManager->isThisServer();
 	} else{

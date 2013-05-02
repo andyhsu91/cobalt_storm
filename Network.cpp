@@ -126,13 +126,13 @@ int Network::getTheirIp(){
 	if(gotString){
 		//convert string to 32 bit integer
 		int retVal = inet_addr(line.c_str());
-		if(NM_debug){std::cout<<"ifconfig says myIp="<<line<<", converted to "<<retVal<<std::endl;}
+		if(NM_debug){std::cout<<"ifconfig says theirIp="<<line<<", converted to "<<retVal<<std::endl;}
 		theirIp = retVal;
 		//return 32 bit ip address in network byte order
 		return retVal;
 	}
 	else{
-		if(NM_debug){std::cout<<"Could not read file."<<line<<std::endl;}
+		if(NM_debug){std::cout<<"Could not read theirIp.txt"<<line<<std::endl;}
 		return -1;
 	}
 
@@ -168,7 +168,7 @@ int Network::getMyIp(){
 		return retVal;
 	}
 	else{
-		if(NM_debug){std::cout<<"Could not read file."<<line<<std::endl;}
+		if(NM_debug){std::cout<<"Could not read myIp.txt"<<line<<std::endl;}
 		return -1;
 	}
 }

@@ -27,9 +27,36 @@ long packetsReceived = 0;
 long packetsSent = 0;
 
 Network::Network() {
+	
+}
+
+Network::~Network() {
+	if(conversion){delete conversion;}
+	if(peerSocket != NULL){
+		SDLNet_TCP_DelSocket(socketSet, peerSocket);
+		SDLNet_TCP_Close(peerSocket);
+	}
+	if(serverSocket != NULL){
+		SDLNet_TCP_DelSocket(socketSet, serverSocket);
+		SDLNet_TCP_Close(serverSocket);
+	}
+	SDLNet_Quit();
+	//SDL_Quit();
+	
+}
+
+bool Network::isConnectionOpen(){
+	return connectionOpen;
+}
+
+bool Network::isThisServer(){
+	return isServer;
+}
+
+void Network::init(){
 	connectionOpen=false;
 	theirIp = -1;
-	if(NM_debug){std::cout<<"Entered Network ()"<<std::endl;}
+	if(NM_debug){std::cout<<"Entered init()"<<std::endl;}
 	
 	//check for server, and attempt to become client
 	bool serverFound = checkForServer();
@@ -70,18 +97,8 @@ Network::Network() {
 
 	
 	
-	if(NM_debug){std::cout<<"Exiting Network ()"<<std::endl;}
+	if(NM_debug){std::cout<<"Exiting init()"<<std::endl;}
 }
-
-bool Network::isConnectionOpen(){
-	return connectionOpen;
-}
-
-bool Network::isThisServer(){
-	return isServer;
-}
-
-
 int Network::getTheirIp(){
 
 	//read theirIp.txt to get ip address as string
@@ -195,15 +212,15 @@ bool Network::checkForServer(){
 	}
 	
 	
-	int count = 0;
+	int millisec = 0;
 	bool serverFound=false;
 	
 	if(NM_debug){std::cout<<"Listening "<<serverSearchTimeout<<" seconds for server broadcast packets..."<<std::endl;}
 	//check for server broadcast packet
-	while(count<(serverSearchTimeout*1000) && !serverFound){
-	
+	while(millisec<(serverSearchTimeout*1000) && !serverFound){
+		//std::cout<<"Calling UDP_Recv()"<<std::endl;
 		int errorCode = SDLNet_UDP_Recv(UdpSocket, packet);
-		
+		//std::cout<<"exited UDP_Recv()"<<std::endl;
 		if(errorCode == 1){
 			//successfully recieved UDP packet, copy packet data to local packet data
 			memcpy(&packetData, packet->data, sizeof(IPaddress));
@@ -220,8 +237,8 @@ bool Network::checkForServer(){
 			}
 		}
 		if(!serverFound){
-			count++;
-			usleep(1000); //sleep for 1000 microseconds = 1 millisecond
+			millisec+=10; //add 10 milliseconds
+			usleep(10000); //sleep for 10000 microseconds = 10 milliseconds
 		}
 	}
 	
@@ -420,18 +437,5 @@ void Network::readPacketToBuffer(){
 	
 }
 
-Network::~Network() {
-	if(conversion){delete conversion;}
-	if(peerSocket != NULL){
-		SDLNet_TCP_DelSocket(socketSet, peerSocket);
-		SDLNet_TCP_Close(peerSocket);
-	}
-	if(serverSocket != NULL){
-		SDLNet_TCP_DelSocket(socketSet, serverSocket);
-		SDLNet_TCP_Close(serverSocket);
-	}
-	SDLNet_Quit();
-	//SDL_Quit();
-	
-}
+
 

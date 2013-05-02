@@ -249,6 +249,12 @@ void Sound::playSuccess(void){
 	}
 }
  
+void Sound::playGun(void){
+	if(!mute){
+		PlaySound(chunkIds[Shoot1]);
+	}
+}
+
 
 void Sound::playBackground(int numLoops){
 	playBackground(numLoops, 0);

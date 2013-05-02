@@ -15,7 +15,7 @@ static Player mPlayer;
  bool isMultiplayer;
  bool isConnected;
  bool isServer;
- Network nManager;
+ Network* nManager;
 
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
@@ -25,6 +25,7 @@ Cobalt::Cobalt(void)
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
 {
+	delete nManager;
 }
 //-------------------------------------------------------------------------------------
 void Cobalt::createCamera(void)
@@ -41,7 +42,7 @@ void Cobalt::createCamera(void)
 	{
 		mCamera->setFarClipDistance(0);   // enable infinite far clip distance if we can
 	}	
- 
+ 	
 	mCameraMan = new OgreBites::SdkCameraMan(mCamera);   // create a default camera controller
 }
 //-------------------------------------------------------------------------------------
@@ -54,10 +55,27 @@ void Cobalt::createScene(void)
 	cerr << "Initing Env" << endl;
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
 
-	cerr << "Initing Player" << endl;
-    mPlayer.initPlayer(mSceneMgr, &mBullet, "pnode");
+	//Initialize Network Manager
+	nManager = new Network();
+	nManager->init();
+	isConnected = nManager->isConnectionOpen();
+	isServer = nManager->isThisServer();
+	
+	isMultiplayer = false; //change this line to true when ready
+
+	if(isMultiplayer && isServer && !isConnected){
+		nManager->waitForClientConnection();
+		isConnected = nManager->isConnectionOpen();
+	}
+
+	if(!isConnected){
+		isMultiplayer = false;
+	}
+	cout<<"Current State: isConnected="<<boolalpha<<isConnected<<", isMutliplayer="<<isMultiplayer<<", isServer="<<isServer<<endl;
 	
 
+	cerr << "Initing Player" << endl;
+    mPlayer.initPlayer(mSceneMgr, &mBullet, "pnode");
 	cerr << "Finished scene" << endl;	
 
 }
@@ -85,7 +103,11 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 //-------------------------------------------------------------------------------------
 bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
-{
+{	
+
+	if(arg.key == OIS::KC_ESCAPE){ 
+        mShutDown = true;
+    }
 	mCameraMan->injectKeyDown(arg);
 	return true;
 }

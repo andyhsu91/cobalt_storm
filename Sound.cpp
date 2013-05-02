@@ -72,7 +72,7 @@ std::string Sound::getSoundFileFromEnum(int soundEffectEnum){
 
 	case Failure: 	return "media/sounds/robot/failure1.wav";
 
-	case Background:return "media/sounds/background/beepboop3.wav";
+	case Background:return "media/sounds/background/japanese1.mp3";
 
 	case Punch: 	return "media/sounds/robot/punch1.wav";
 	
@@ -204,11 +204,11 @@ void Sound::playSoundFromChunk(int chunkID) {
 	
 	if(debug){std::cout<<"Entered playSoundFromChunk("<<chunkID<<")"<<std::endl;}
     if(chunkID < 0){
-    	std::cout<<"Invalid. ID < 0"<<std::endl;
+    	std::cout<<"Invalid: ID < 0"<<std::endl;
     	return;
     }
     if(chunkID >= SoundList.size()){ 
-    	std::cout<<"Invalid. ID >= SoundList.size() = "<<SoundList.size()<<std::endl;
+    	std::cout<<"Invalid: ID >= SoundList.size() = "<<SoundList.size()<<std::endl;
     	return;
     }
     if(SoundList[chunkID] == NULL){

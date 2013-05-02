@@ -30,16 +30,16 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
                 mCurrentControllerState[i] = 0;
         }
 
-        Ogre::Vector3 shapeDim = Ogre::Vector3(50, 50, 50);
-        Ogre::Vector3 position = Ogre::Vector3(700, 450, -750);
+        Ogre::Vector3 shapeDim = Ogre::Vector3(5, 5, 5);
+        Ogre::Vector3 position = Ogre::Vector3(700, 250, -750);
 
-        Ogre::Entity* ent = mSceneMgr->createEntity("PlayerEntity","cube.mesh");
+        Ogre::Entity* ent = mSceneMgr->createEntity("PlayerEntity","robot.mesh");
          pnode = mSceneMgr->getRootSceneNode()->
                 createChildSceneNode(node, position);
 
         pnode->attachObject(ent);
         pnode->scale(.5, .5, .5);
-        ent->setMaterialName("Examples/Chrome");
+        ent->setMaterialName("Examples/Robot");
         ent->setCastShadows(true);
 
         mBullet->setRigidBoxBody(pnode, shapeDim, position, 250.0);

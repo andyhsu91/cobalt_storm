@@ -61,7 +61,7 @@ void Cobalt::createScene(void)
 	isConnected = nManager->isConnectionOpen();
 	isServer = nManager->isThisServer();
 	
-	isMultiplayer = false; //change this line to true when ready
+	isMultiplayer = false; //change to true when ready
 
 	if(isMultiplayer && isServer && !isConnected){
 		nManager->waitForClientConnection();
@@ -90,13 +90,37 @@ void Cobalt::createFrameListener(void)
 }
 //-------------------------------------------------------------------------------------
 bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
-{
+{	//return True to continue rendering, false to drop out of the rendering loop
 	bool ret = BaseApplication::frameRenderingQueued(evt);
 
-	mBullet.updateWorld(evt);
-	mEnv.frmqUpdate(evt, mTrayMgr);
+	if(isMultiplayer){
+		bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
+		isConnected = nManager->isConnectionOpen();
+		PlayerVars* gameUpdate = NULL;
+		if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
+		if(packetReceived){ gameUpdate = nManager->getGameUpdate(); }
 
-	mPlayer.updatePosition(evt);
+		if(isServer){
+			//I am server
+
+
+		}else{
+			//I am client
+			
+
+		}
+		
+
+	}else{
+		//single player mode
+
+		mBullet.updateWorld(evt);
+		mEnv.frmqUpdate(evt, mTrayMgr);
+
+		mPlayer.updatePosition(evt);
+
+	}
+	
 
 	return ret;
 }

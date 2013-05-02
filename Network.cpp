@@ -218,9 +218,9 @@ bool Network::checkForServer(){
 	if(NM_debug){std::cout<<"Listening "<<serverSearchTimeout<<" seconds for server broadcast packets..."<<std::endl;}
 	//check for server broadcast packet
 	while(millisec<(serverSearchTimeout*1000) && !serverFound){
-		//std::cout<<"Calling UDP_Recv()"<<std::endl;
+		std::cout<<"Calling UDP_Recv()"<<std::endl;
 		int errorCode = SDLNet_UDP_Recv(UdpSocket, packet);
-		//std::cout<<"exited UDP_Recv()"<<std::endl;
+		std::cout<<"exited UDP_Recv()"<<std::endl;
 		if(errorCode == 1){
 			//successfully recieved UDP packet, copy packet data to local packet data
 			memcpy(&packetData, packet->data, sizeof(IPaddress));

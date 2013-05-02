@@ -55,3 +55,8 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
 		//cerr << "Finishing init player" << endl;
 }
+
+void Player::updatePosition(const Ogre::FrameEvent& evt)
+{
+
+}

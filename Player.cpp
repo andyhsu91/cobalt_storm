@@ -74,7 +74,7 @@ pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
 
 void Player::updateControlAxis(int axis, float value)
 {
-        printf("updating %d to %d\n", axis ,value);
+        printf("updating %d to %f\n", axis ,value);
         mCurrentControllerState[axis]=value;
 }
 

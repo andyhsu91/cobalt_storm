@@ -181,7 +181,7 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  then the sum will be 0)*/
  bool Cobalt::axisMoved( const OIS::JoyStickEvent &e, int axis )
  {
- 	printf("axisMoved %d\n",((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
+ 	printf("axisMoved %f\n",((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
  	serverPlayer->updateControlAxis(axis, ((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
     return true;
  }

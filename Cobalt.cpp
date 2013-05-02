@@ -68,7 +68,9 @@ void Cobalt::createScene(void)
 		isConnected = nManager->isConnectionOpen();
 	}
 
-	if(!isConnected){
+	if(isConnected){
+		isServer = nManager->isThisServer();
+	} else{
 		isMultiplayer = false;
 	}
 	cout<<"Current State: isConnected="<<boolalpha<<isConnected<<", isMutliplayer="<<isMultiplayer<<", isServer="<<isServer<<endl;

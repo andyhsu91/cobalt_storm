@@ -63,18 +63,20 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 }
 
 
-//TODO: use mCurrentControllerState to update the position 
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {
-mDirection.z += mCurrentControllerState[LCONTROLY]*250;
-mDirection.x += mCurrentControllerState[LCONTROLX]*250;
 
-pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
+mDirection.z = mCurrentControllerState[LCONTROLY]*250;
+mDirection.x = mCurrentControllerState[LCONTROLX]*250;
+
+
+pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
+printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
 }
 
 void Player::updateControlAxis(int axis, float value)
 {
-        printf("updating %d to %f\n", axis ,value);
+       // printf("updating %d to %f\n", axis ,value);
         mCurrentControllerState[axis]=value;
 }
 

@@ -61,6 +61,7 @@ struct PlayerVars {
 	bool playerState[15];
 	float playerPosition[3];
 	
+	
 
 	//Need to add projectile positions to client
 	//All projectile directions processed on server

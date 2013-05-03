@@ -12,6 +12,7 @@ static Physics mBullet;
 static Environment mEnv;
 Player mPlayer;
 //static ControlManager CtrlManager;
+static GUI mGUICtrl;
  bool isMultiplayer;
  bool isConnected;
  bool isServer;
@@ -58,6 +59,9 @@ void Cobalt::createScene(void)
 	
 	cerr << "Initing Env" << endl;
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
+	
+	cerr << "Initing GUI" << endl;
+	mGUICtrl.initGUI(mSceneMgr);
 
 	//Initialize Network Manager
 	nManager = new Network();

@@ -126,7 +126,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		//single player mode
 		
 		Ogre::Vector3 playerVector = serverPlayer->getPlayerPosistion();
-		printf("playerVector.x %f cameraTarget.x %f playerVector.z %f cameraTarget.z %f\n",playerVector.x, cameraTarget.x,playerVector.z, cameraTarget.z);
+		//printf("playerVector.x %f cameraTarget.x %f playerVector.z %f cameraTarget.z %f\n",playerVector.x, cameraTarget.x,playerVector.z, cameraTarget.z);
 		 //playerVector = Ogre::Vector3((playerVector.x - cameraTarget.x)+50,100,(playerVector.z - cameraTarget.z)+50);
 		Ogre::Real ctDistance = Ogre::Math::Sqrt(Ogre::Math::Sqr(playerVector.x - cameraTarget.x) + Ogre::Math::Sqr(playerVector.z - cameraTarget.z));
 
@@ -134,7 +134,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		 Ogre::Vector3 CameraVector = Ogre::Vector3(playerVector.x + (((playerVector.x - cameraTarget.x)/ctDistance)*80),320,
 		 playerVector.z + (((playerVector.z - cameraTarget.z)/ctDistance)*80) );
 
-		 printf("X:%f Dist:%f  X/Dist:%f\n", (playerVector.x - cameraTarget.x),ctDistance,(playerVector.x - cameraTarget.x)/ctDistance);
+		 //printf("X:%f Dist:%f  X/Dist:%f\n", (playerVector.x - cameraTarget.x),ctDistance,(playerVector.x - cameraTarget.x)/ctDistance);
 		
 		mCamera->setPosition(CameraVector);
 

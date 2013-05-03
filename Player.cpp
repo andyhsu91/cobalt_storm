@@ -70,7 +70,7 @@ mDirection.z = mCurrentControllerState[LCONTROLY]*250;
 mDirection.x = mCurrentControllerState[LCONTROLX]*250;
 
 
-pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
+pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
 printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
 }
 

@@ -31,7 +31,7 @@ Filename:    Cobalt.h
 #include "Player.h"
 #include "Network.h"
 #include "Sound.h"
-#include "GUI.h"
+//#include "GUI.h"
  
 class Cobalt : public BaseApplication
 {

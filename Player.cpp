@@ -85,12 +85,13 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
     mBody->getMotionState()->getWorldTransform(trans);
     btVector3 ori = trans.getOrigin();
-    btVector3 move = btVector3(mDirection.x * evt.timeSinceLastFrame, 0, mDirection.y * evt.timeSinceLastFrame);
+    btVector3 move = btVector3(mDirection.x * evt.timeSinceLastFrame, 0, mDirection.z * evt.timeSinceLastFrame);
     ori += move;
     trans.setOrigin(ori);
     mBody->getMotionState()->setWorldTransform(trans);
     pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
     printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
+    printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);
 }
 
 void Player::updateControlAxis(int axis, float value)

@@ -24,8 +24,8 @@ public:
 	void initPhysics();
 	void updateWorld(const Ogre::FrameEvent& evt);
 	btRigidBody* setRigidBoxBody(Ogre::SceneNode *snode, 
-		Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass);
-	btPairCachingGhostObject* setKinematicCharacter(Ogre::SceneNode *snode,
+		Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass, bool kino, bool bull);
+	btGhostObject* setKinematicCharacter(Ogre::SceneNode *snode,
                 Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass);
 	void setBallRestitution(double restit);
 

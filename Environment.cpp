@@ -119,26 +119,33 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 		ent->setMaterialName("Examples/RustySteel");
     		ent->setCastShadows(true);
 
-		mBullet->setRigidBoxBody(snode, shapeDim, position, 0.0);
+		mBullet->setRigidBoxBody(snode, shapeDim, position, 0.0, false, false);
     	}
         //Dynamic--------------------------------------------------------------------
         {
 		//Ogre::Vector3 shapeDim = Ogre::Vector3(.5, .5, .5);
 		Ogre::Vector3 shapeDim = Ogre::Vector3(10, 10, 10);
-		Ogre::Vector3 position = Ogre::Vector3(700, 500, -700);
 
-		Ogre::Entity* ent = mSceneMgr->createEntity("DynamicEntity","cube.mesh");
-		Ogre::SceneNode* snode = mSceneMgr->getRootSceneNode()->
-			createChildSceneNode("snode2", position);
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				Ogre::Vector3 position = Ogre::Vector3(650 + (i * 10), 500, -750 + (j * 10));
+				Ogre::String entname = "DynamicEntity" + Ogre::StringConverter::toString(i)
+				                        + Ogre::StringConverter::toString(j);
+				Ogre::String nodename = "snode" + Ogre::StringConverter::toString(i)
+				                    	+ Ogre::StringConverter::toString(j);
+				Ogre::Entity* ent = mSceneMgr->createEntity(entname,"cube.mesh");
+				Ogre::SceneNode* snode = mSceneMgr->getRootSceneNode()->
+					createChildSceneNode(nodename, position);
 
-		snode->attachObject(ent);
+				snode->attachObject(ent);
 		//snode->scale(shapeDim.x, shapeDim.y, shapeDim.z);
-		snode->scale(.1, .1, .1);
-		ent->setMaterialName("Examples/Rocky");
-		ent->setCastShadows(true);
+				snode->scale(.1, .1, .1);
+				ent->setMaterialName("Examples/Chrome");
+				ent->setCastShadows(true);
 
-		mBullet->setRigidBoxBody(snode, shapeDim, position, 100.0);
-	
+				mBullet->setRigidBoxBody(snode, shapeDim, position, 200.0, false, false);
+			}
+		}
 		}
 	
 	Ogre::ColourValue fadeColour(0.9, 0.9, 0.9);

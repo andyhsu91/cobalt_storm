@@ -112,9 +112,12 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 }
 //---------------------------------------------------------------------------
 btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode, 
-		Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass)
-{	
-	shape = new btBoxShape(btVector3(sr*shapeDim.x/2.0, sr*shapeDim.y/2.0, sr*shapeDim.z/2.0));
+		Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass, bool kino, bool bull)
+{
+	if (bull)
+		shape = new btSphereShape(sr*shapeDim.x/2.0);
+	else
+		shape = new btBoxShape(btVector3(sr*shapeDim.x/2.0, sr*shapeDim.y/2.0, sr*shapeDim.z/2.0));
 	collisionShapes.push_back(shape);
 	
 	startTransform.setIdentity();
@@ -133,39 +136,43 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 	body->setRestitution(restitution);
 	body->setUserPointer((void *) (snode));
 
-        //body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-        //body->setActivationState(DISABLE_DEACTIVATION);
+	if (kino) {
+        body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+        body->setActivationState(DISABLE_DEACTIVATION);
+	}
+
+	if (bull) {
+		body->setLinearVelocity(btVector3(200.0, 100.0, 200.0));
+	}
 
 	dynamicsWorld->addRigidBody(body); 
 	
 	return body;
 }
 //---------------------------------------------------------------------------
-btPairCachingGhostObject* Physics::setKinematicCharacter(Ogre::SceneNode *snode,
+btGhostObject* Physics::setKinematicCharacter(Ogre::SceneNode *snode,
                 Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass)
 {
-        //shape = new btBoxShape(btVector3(sr*shapeDim.x/2.0, sr*shapeDim.y/2.0, sr*shapeDim.z/2.0));
-        //collisionShapes.push_back(shape);
+	shape = new btBoxShape(btVector3(sr*shapeDim.x/2.0, sr*shapeDim.y/2.0, sr*shapeDim.z/2.0));
+    collisionShapes.push_back(shape);
 
-        startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(origin.x, origin.y, origin.z));
+    startTransform.setIdentity();
+    startTransform.setOrigin(btVector3(origin.x, origin.y, origin.z));
 
-	btPairCachingGhostObject* ghost = new btPairCachingGhostObject();
+	btGhostObject* ghost = new btGhostObject();
 	ghost->setWorldTransform(startTransform);
-	btScalar characterHeight=1.75;
-	btScalar characterWidth =1.75;
-	btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
 	//btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
-	ghost->setCollisionShape (capsule);
-	ghost->setCollisionFlags (btCollisionObject::CF_CHARACTER_OBJECT);
+	ghost->setCollisionShape (shape);
+	ghost->setCollisionFlags (ghost->getCollisionFlags() | btCollisionObject::CF_CHARACTER_OBJECT);
 	ghost->setActivationState(DISABLE_DEACTIVATION);
 	ghost->setUserPointer((void *) (snode));
 
-	btScalar stepHeight = btScalar(0.35);
-	btKinematicCharacterController* character = new btKinematicCharacterController (ghost,capsule,stepHeight);
+	//btScalar stepHeight = btScalar(0.35);
+	//btKinematicCharacterController* character = new btKinematicCharacterController (ghost,capsule,stepHeight);
 
-        dynamicsWorld->addCollisionObject(ghost,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
-	dynamicsWorld->addAction(character);
+	//dynamicsWorld->addCollisionObject(ghost,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
+	dynamicsWorld->addCollisionObject(ghost,btBroadphaseProxy::SensorTrigger,btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger);
+	//dynamicsWorld->addAction(character);
 
 	return ghost;
 }

@@ -25,13 +25,13 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mSceneMgr = SceneMgr;
         mBullet = Bullet;
         mPlayerState = new PlayerVars;
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < 11; ++i)
         {
                 mCurrentControllerState[i] = 0;
         }
 
-        Ogre::Vector3 shapeDim = Ogre::Vector3(5, 5, 5);
-        Ogre::Vector3 position = Ogre::Vector3(700, 250, -750);
+        Ogre::Vector3 shapeDim = Ogre::Vector3(20, 40, 20);
+        Ogre::Vector3 position = Ogre::Vector3(700, 230, -700);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("PlayerEntity","robot.mesh");
         pnode = mSceneMgr->getRootSceneNode()->
@@ -42,10 +42,9 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         ent->setMaterialName("Examples/Robot");
         ent->setCastShadows(true);
 
-        //mGhost = mBullet->setKinematicCharacter(pnode, shapeDim, position, 250.0);
         //mBullet->setKinematicCharacter(pnode, shapeDim, position, 250.0);
-        mBody = mBullet->setRigidBoxBody(pnode, shapeDim, position, 250.0);
-        mBody->setCollisionFlags(mBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+        //mBullet->setKinematicCharacter(pnode, shapeDim, position, 250.0);
+        mBody = mBullet->setRigidBoxBody(pnode, shapeDim, position, 200.0, true, false);
 
         mPlayerState->health = 100;
         mPlayerState->weaponamt1 = -1;
@@ -62,6 +61,8 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         mDirection = Ogre::Vector3::ZERO;
 
+        bullet = 0;
+
 		//cerr << "Finishing init player" << endl;
 }
 
@@ -69,11 +70,11 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {
 
-    mDirection.z = mCurrentControllerState[LCONTROLY]*250;
-    mDirection.x = mCurrentControllerState[LCONTROLX]*250;
+    mDirection.z = mCurrentControllerState[LCONTROLY]*200;
+    mDirection.x = mCurrentControllerState[LCONTROLX]*200;
 
 
-    pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
+    //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
     printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
 
     //trans = mGhost->getWorldTransform();
@@ -83,7 +84,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     orn *= btMatrix3x3(btQuaternion(btVector3(0,1,0),-0.01));
     mBody->getWorldTransform ().setBasis(orn);*/
 
-    mBody->getMotionState()->getWorldTransform(trans);
+    /*mBody->getMotionState()->getWorldTransform(trans);
     btVector3 ori = trans.getOrigin();
     btVector3 move = btVector3(mDirection.x * evt.timeSinceLastFrame, 0, mDirection.z * evt.timeSinceLastFrame);
     ori += move;
@@ -91,7 +92,32 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     mBody->getMotionState()->setWorldTransform(trans);
     pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
     printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
-    printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);
+    printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);*/
+
+    pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
+    Ogre::Vector3 pos = pnode->getPosition();
+    trans.setOrigin(btVector3(pos.x, pos.y, pos.z));
+    Ogre::Quaternion qt = pnode->getOrientation();
+    trans.setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
+    mBody->getMotionState()->setWorldTransform(trans);
+
+    if (mCurrentControllerState[RBUMP]) {
+        Ogre::Vector3 shapeDim = Ogre::Vector3(10, 10, 10);
+        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x, pnode->getPosition().y + 40, pnode->getPosition().z);
+
+        Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
+                                                    "sphere.mesh");
+        Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
+                createChildSceneNode("bNode" + Ogre::StringConverter::toString(bullet++), position);
+
+        bnode->attachObject(ent);
+        bnode->scale(.05, .05, .05);
+        ent->setMaterialName("Examples/Chrome");
+        ent->setCastShadows(true);
+        mBullet->setRigidBoxBody(bnode, shapeDim, position, 50.0, false, true);
+
+        mCurrentControllerState[RBUMP] = 0;
+    }
 }
 
 void Player::updateControlAxis(int axis, float value)

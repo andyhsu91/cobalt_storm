@@ -10,6 +10,7 @@ using namespace std;
 
 static Physics mBullet;
 static Environment mEnv;
+static GUI mGUI;
  
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
@@ -47,7 +48,8 @@ void Cobalt::createScene(void)
 	cerr << "Initing Env" << endl;
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
 	
-	
+	cerr << "Initing GUI" << endl;
+	mGUI.initGUI();
 	cerr << "Finished scene" << endl;	
 }
 

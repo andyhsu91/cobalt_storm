@@ -95,6 +95,8 @@ private:
 	Ogre::SceneManager* mSceneMgr;
 	Physics* mBullet;
 	btKinematicCharacterController* mPlayer;
+	//btPairCachingGhostObject* mGhost;
+	btRigidBody* mBody;
 	btTransform trans;
 	
 	Ogre::SceneNode* pnode;

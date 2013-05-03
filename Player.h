@@ -89,6 +89,8 @@ public:
 	void updateControlAxis(int axis, float value);
 	void updatePlayerState(int action, bool value);
 
+	Ogre::Vector3 getPlayerPosition(void);
+
 	PlayerVars* getPlayerState(void);
 
 private:

@@ -24,7 +24,7 @@ Cobalt::Cobalt(void)
 {
 //0 is the Server
 	serverPlayer = new Player();
-	clientPlayer = new Player();
+	//clientPlayer = new Player();
 }
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
@@ -38,10 +38,12 @@ void Cobalt::createCamera(void)
 	// Create the camera
 	mCamera = mSceneMgr->createCamera("PlayerCam");
 	
-	mCamera->setPosition(Ogre::Vector3(700, 600, -100));
-	mCamera->lookAt(Ogre::Vector3(500, 50, -600));
+	mCamera->setPosition(Ogre::Vector3(700, 500, -300));
+	mCamera->lookAt(Ogre::Vector3(700, 250, -550));
 	mCamera->setNearClipDistance(0.1);
 	mCamera->setFarClipDistance(50000);
+
+	cameraTarget = Ogre::Vector3(700, 250, -700);
 
 	if (mRoot->getRenderSystem()->getCapabilities()->hasCapability(Ogre::RSC_INFINITE_FAR_PLANE))
 	{
@@ -122,6 +124,27 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 	}else{
 		//single player mode
+		
+		Ogre::Vector3 playerVector = serverPlayer->getPlayerPosition();
+		//printf("playerVector.x %f cameraTarget.x %f playerVector.z %f cameraTarget.z %f\n",playerVector.x, cameraTarget.x,playerVector.z, cameraTarget.z);
+		 //playerVector = Ogre::Vector3((playerVector.x - cameraTarget.x)+50,100,(playerVector.z - cameraTarget.z)+50);
+		Ogre::Real ctDistance = Ogre::Math::Sqrt(Ogre::Math::Sqr(playerVector.x - cameraTarget.x) + Ogre::Math::Sqr(playerVector.z - cameraTarget.z));
+
+		if (ctDistance == 0.0) {
+			ctDistance = .01;
+		}
+		Ogre::Vector3 CameraVector = Ogre::Vector3(
+		 		playerVector.x + (((playerVector.x - cameraTarget.x)/ctDistance)*80),
+		 		320,
+				playerVector.z + (((playerVector.z - cameraTarget.z)/ctDistance)*80) );
+
+		 //printf("X:%f Dist:%f  X/Dist:%f\n", (playerVector.x - cameraTarget.x),ctDistance,(playerVector.x - cameraTarget.x)/ctDistance);
+		
+		mCamera->setPosition(CameraVector);
+		//mCamera->setPosition(Ogre::Vector3(playerVector.x, playerVector.y, playerVector.z));
+
+		//mCamera->lookAt(cameraTarget);
+
 
 		mBullet.updateWorld(evt);
 		mEnv.frmqUpdate(evt, mTrayMgr);
@@ -230,18 +253,8 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  {
  	float axisValue = ((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS;
  	//printf("axisMoved %f\n",((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
-
- 	if(axis == LCONTROLX)
-	 	{
 	 	serverPlayer->updateControlAxis(axis, axisValue);
-	 	}
- 	else if (axis == LCONTROLY)
-	 	{
-	 	//the Y value on the Controller goes from up(-1) to Down(1)
-	 	//and we map this to the world environment from Z forward(1)
-	 	//to Z backwards/towards you(-1)
-	 	serverPlayer->updateControlAxis(axis, -axisValue);
-	 	}
+
     return true;
  }
 

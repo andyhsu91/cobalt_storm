@@ -142,7 +142,7 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 	}
 
 	if (bull) {
-		body->setLinearVelocity(btVector3(200.0, 100.0, 200.0));
+		body->setLinearVelocity(btVector3(200.0, 100.0, 0.0));
 	}
 
 	dynamicsWorld->addRigidBody(body); 

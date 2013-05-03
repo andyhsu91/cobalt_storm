@@ -31,7 +31,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         }
 
         Ogre::Vector3 shapeDim = Ogre::Vector3(20, 40, 20);
-        Ogre::Vector3 position = Ogre::Vector3(700, 230, -700);
+        Ogre::Vector3 position = Ogre::Vector3(700, 230, -750);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("PlayerEntity","robot.mesh");
         pnode = mSceneMgr->getRootSceneNode()->
@@ -63,9 +63,14 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         bullet = 0;
 
-		//cerr << "Finishing init player" << endl;
+		cout << "Finishing init player" << endl;
 }
 
+
+Ogre::Vector3 Player::getPlayerPosition(void)
+{
+   return pnode->getPosition();
+}
 
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {
@@ -76,6 +81,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
     printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
+    //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
+    //printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
 
     //trans = mGhost->getWorldTransform();
     //trans *= new btQuaternion(btVector3(0,1,0),0.01);
@@ -118,6 +125,12 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
         mCurrentControllerState[RBUMP] = 0;
     }
+    mPlayerState->playerPosition[X] = pnode->getPosition().x;
+    mPlayerState->playerPosition[Y] = pnode->getPosition().y;
+    mPlayerState->playerPosition[Z] = pnode->getPosition().z;
+    //printf("getPOSX %f \n",mPlayerState->playerPosition[X]);
+    //printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
+    //printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);
 }
 
 void Player::updateControlAxis(int axis, float value)
@@ -130,3 +143,4 @@ void Player::updatePlayerState(int state, bool value)
 {
         mPlayerState->playerState[state]=value;
 }
+

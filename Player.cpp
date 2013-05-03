@@ -66,6 +66,11 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 }
 
 
+Ogre::Vector3 Player::getPlayerPosistion(void)
+{
+   return pnode->getPosition();
+}
+
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {
 
@@ -74,7 +79,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
 
     pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
-    printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
+    //printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
 
     //trans = mGhost->getWorldTransform();
     //trans *= new btQuaternion(btVector3(0,1,0),0.01);
@@ -90,8 +95,12 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     trans.setOrigin(ori);
     mBody->getMotionState()->setWorldTransform(trans);
     pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
-    printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
-    printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);
+    mPlayerState->playerPosition[X] = pnode->getPosition().x;
+    mPlayerState->playerPosition[Y] = pnode->getPosition().y;
+    mPlayerState->playerPosition[Z] = pnode->getPosition().z;
+    //printf("getPOSX %f \n",mPlayerState->playerPosition[X]);
+    //printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
+    //printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);
 }
 
 void Player::updateControlAxis(int axis, float value)
@@ -104,3 +113,4 @@ void Player::updatePlayerState(int state, bool value)
 {
         mPlayerState->playerState[state]=value;
 }
+

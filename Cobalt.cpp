@@ -38,8 +38,8 @@ void Cobalt::createCamera(void)
 	// Create the camera
 	mCamera = mSceneMgr->createCamera("PlayerCam");
 	
-	mCamera->setPosition(Ogre::Vector3(700, 600, -100));
-	mCamera->lookAt(Ogre::Vector3(500, 50, -600));
+	mCamera->setPosition(Ogre::Vector3(700, 500, -300));
+	mCamera->lookAt(Ogre::Vector3(700, 250, -550));
 	mCamera->setNearClipDistance(0.1);
 	mCamera->setFarClipDistance(50000);
 
@@ -222,18 +222,8 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  {
  	float axisValue = ((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS;
  	//printf("axisMoved %f\n",((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
-
- 	if(axis == LCONTROLX)
-	 	{
 	 	serverPlayer->updateControlAxis(axis, axisValue);
-	 	}
- 	else if (axis == LCONTROLY)
-	 	{
-	 	//the Y value on the Controller goes from up(-1) to Down(1)
-	 	//and we map this to the world environment from Z forward(1)
-	 	//to Z backwards/towards you(-1)
-	 	serverPlayer->updateControlAxis(axis, -axisValue);
-	 	}
+
     return true;
  }
 

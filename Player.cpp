@@ -31,7 +31,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         }
 
         Ogre::Vector3 shapeDim = Ogre::Vector3(5, 5, 5);
-        Ogre::Vector3 position = Ogre::Vector3(700, 250, -750);
+        Ogre::Vector3 position = Ogre::Vector3(700, 250, -600);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("PlayerEntity","robot.mesh");
         pnode = mSceneMgr->getRootSceneNode()->

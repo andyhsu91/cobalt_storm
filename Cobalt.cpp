@@ -37,7 +37,7 @@ void Cobalt::createCamera(void)
 	// Create the camera
 	mCamera = mSceneMgr->createCamera("PlayerCam");
 	
-	mCamera->setPosition(Ogre::Vector3(1200, 600, -700));
+	mCamera->setPosition(Ogre::Vector3(700, 600, -100));
 	mCamera->lookAt(Ogre::Vector3(500, 50, -600));
 	mCamera->setNearClipDistance(0.1);
 	mCamera->setFarClipDistance(50000);

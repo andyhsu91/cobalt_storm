@@ -62,8 +62,18 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         bullet = 0;
 
+        lockedOn = false;
+
+        cameraTarget = Ogre::Vector3(700, 250, -700);
+
 		cout << "Finishing init player" << endl;
+
+        distanceToTarget = 1;//Ogre::Math::Sqrt(Ogre::Math::Sqr(playerVector.x - cameraTarget.x) + Ogre::Math::Sqr(playerVector.z - cameraTarget.z));
+
+        playerTargetCosTheta = 0;
+        playerTargetSinTheta = 0;
 }
+
 
 
 Ogre::Vector3 Player::getPlayerPosition(void)
@@ -71,12 +81,50 @@ Ogre::Vector3 Player::getPlayerPosition(void)
    return pnode->getPosition();
 }
 
+float Player::getDistanceToTarget(void)
+{
+   return distanceToTarget;
+}
+
+bool Player::getLockedOn(void)
+{
+    return lockedOn;
+}
+
+float Player::getPlayerTargetCosTheta(void)
+{
+    return playerTargetCosTheta;
+}
+
+float Player::getPlayerTargetSinTheta(void)
+{
+    return playerTargetSinTheta;
+}
+
+Ogre::Vector3 Player::getCameraTarget(void)
+{
+    return cameraTarget;
+}
+
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {
-
-    mDirection.z = mCurrentControllerState[LCONTROLY]*200;
     mDirection.x = mCurrentControllerState[LCONTROLX]*200;
+    mDirection.z = mCurrentControllerState[LCONTROLY]*200;
 
+    Ogre::Vector3 playerVector = getPlayerPosition();
+
+    distanceToTarget = Ogre::Math::Sqrt(Ogre::Math::Sqr(playerVector.x - cameraTarget.x) + Ogre::Math::Sqr(playerVector.z - cameraTarget.z));
+
+        playerTargetCosTheta = ((playerVector.x - cameraTarget.x)/distanceToTarget);
+        playerTargetSinTheta = ((playerVector.z - cameraTarget.z)/distanceToTarget);
+    if(lockedOn)
+    {   
+
+        //TODO:: fix movement
+       
+        mDirection.x = (mDirection.x*playerTargetCosTheta) - (mDirection.z*playerTargetSinTheta);
+        mDirection.z = (mDirection.x*playerTargetSinTheta) + (mDirection.z*playerTargetCosTheta);
+    }
 
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
     printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);

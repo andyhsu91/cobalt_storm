@@ -92,7 +92,12 @@ public:
 	Ogre::Vector3 getPlayerPosition(void);
 
 	PlayerVars* getPlayerState(void);
+	float getDistanceToTarget(void);
+	Ogre::Vector3 getCameraTarget(void);
+	bool getLockedOn(void);
 
+	float getPlayerTargetCosTheta(void);
+	float getPlayerTargetSinTheta(void);
 private:
 	Ogre::SceneManager* mSceneMgr;
 	Physics* mBullet;
@@ -107,6 +112,14 @@ private:
 	PlayerVars* mPlayerState;
 	bool forceUpdate;
 	int bullet;
+	bool lockedOn;
+
+	float playerTargetCosTheta;
+    float playerTargetSinTheta;
+	Ogre::Vector3 cameraTarget;
+
+    Ogre::Real distanceToTarget;
+    
 
 	/*holds the current controller/keyboardstate of the player
 	these values will then be used to update the player movement based on

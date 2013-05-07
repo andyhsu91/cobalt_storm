@@ -119,7 +119,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 		ent->setMaterialName("Examples/RustySteel");
     		ent->setCastShadows(true);
 
-		mBullet->setRigidBoxBody(snode, shapeDim, position, 0.0, false, false);
+		mBullet->setRigidBoxBody(snode, shapeDim, position, 0.0, false);
     	}
         //Dynamic--------------------------------------------------------------------
         {
@@ -143,7 +143,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 				ent->setMaterialName("Examples/Chrome");
 				ent->setCastShadows(true);
 
-				mBullet->setRigidBoxBody(snode, shapeDim, position, 200.0, false, false);
+				mBullet->setRigidBoxBody(snode, shapeDim, position, 200.0, false);
 			}
 		}
 		}

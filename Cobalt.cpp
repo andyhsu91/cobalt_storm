@@ -184,6 +184,10 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
         {
 			serverPlayer->updateControlAxis(RBUMP, 1);
         }
+    else if (arg.key == OIS::KC_P)
+    	{
+    		serverPlayer->updateControlAxis(LBUMP, 1);
+    	}
        //this command will move the camera
 	//mCameraMan->injectKeyDown(arg);
 	return true;
@@ -210,6 +214,10 @@ bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
     else if (arg.key == OIS::KC_O)
         {
 			serverPlayer->updateControlAxis(RBUMP, 0);
+        }
+    else if (arg.key == OIS::KC_P)
+        {
+			serverPlayer->updateControlAxis(LBUMP, 0);
         }
 //mCameraMan->injectKeyUp(arg);
 	return true;

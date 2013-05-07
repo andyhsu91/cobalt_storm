@@ -103,6 +103,7 @@ private:
 	
 	Ogre::SceneNode* pnode;
 	Ogre::Vector3 mDirection;
+	Ogre::Vector3 mLook;
 	PlayerVars* mPlayerState;
 	bool forceUpdate;
 	int bullet;

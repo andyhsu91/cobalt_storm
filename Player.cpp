@@ -43,8 +43,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         ent->setCastShadows(true);
 
         //mBullet->setKinematicCharacter(pnode, shapeDim, position, 250.0);
-        //mBullet->setKinematicCharacter(pnode, shapeDim, position, 250.0);
-        mBody = mBullet->setRigidBoxBody(pnode, shapeDim, position, 200.0, true, false);
+        mBody = mBullet->setRigidBoxBody(pnode, shapeDim, position, 5000.0, true);
 
         mPlayerState->health = 100;
         mPlayerState->weaponamt1 = -1;
@@ -59,7 +58,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mPlayerState->playerPosition[Y] = position.y;
         mPlayerState->playerPosition[Z] = position.z;
 
-        mDirection = Ogre::Vector3::ZERO;
+        mLook = Ogre::Vector3(1.0, 0.0, 0.0);
 
         bullet = 0;
 
@@ -109,8 +108,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     mBody->getMotionState()->setWorldTransform(trans);
 
     if (mCurrentControllerState[RBUMP]) {
-        Ogre::Vector3 shapeDim = Ogre::Vector3(10, 10, 10);
-        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x, pnode->getPosition().y + 40, pnode->getPosition().z);
+        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z+10);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
                                                     "sphere.mesh");
@@ -118,16 +116,44 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
                 createChildSceneNode("bNode" + Ogre::StringConverter::toString(bullet++), position);
 
         bnode->attachObject(ent);
-        bnode->scale(.05, .05, .05);
-        ent->setMaterialName("Examples/Chrome");
+        bnode->scale(.03, .03, .03);
+        Ogre::MaterialPtr bMat = ent->getSubEntity(0)->getMaterial()->clone("newBallColor");
+        bMat->getTechnique(0)->getPass(0)->setAmbient(1.0, 0.8, 0.0);
+        bMat->getTechnique(0)->getPass(0)->setDiffuse(1.0, 0.8, 0.0, 1.0);
+        ent->setMaterialName(bMat->getName());
+        // ent->setMaterialName("Examples/Chrome");
         ent->setCastShadows(true);
-        mBullet->setRigidBoxBody(bnode, shapeDim, position, 50.0, false, true);
+        
+        mBullet->createBullet(bnode, 1, position, mLook);
 
         mCurrentControllerState[RBUMP] = 0;
+    }
+    if (mCurrentControllerState[LBUMP]) {
+        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
+
+        Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
+                                                    "sphere.mesh");
+        Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
+                createChildSceneNode("bNode" + Ogre::StringConverter::toString(bullet++), position);
+
+        bnode->attachObject(ent);
+        bnode->scale(.07, .07, .07);
+        Ogre::MaterialPtr gMat = ent->getSubEntity(0)->getMaterial()->clone("newBombColor");
+        gMat->getTechnique(0)->getPass(0)->setAmbient(0.2, 0.8, 0.2);
+        gMat->getTechnique(0)->getPass(0)->setDiffuse(0.1, 0.8, 0.2, 1.0);
+        ent->setMaterialName(gMat->getName());
+        // ent->setMaterialName("Examples/Chrome");
+        ent->setCastShadows(true);
+        
+        mBullet->createBullet(bnode, 2, position, mLook);
+
+        mCurrentControllerState[LBUMP] = 0;
     }
     mPlayerState->playerPosition[X] = pnode->getPosition().x;
     mPlayerState->playerPosition[Y] = pnode->getPosition().y;
     mPlayerState->playerPosition[Z] = pnode->getPosition().z;
+
+    // mBody->applyDamping(evt.timeSinceLastFrame);
     //printf("getPOSX %f \n",mPlayerState->playerPosition[X]);
     //printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
     //printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);

@@ -113,21 +113,30 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
     Ogre::Vector3 playerVector = getPlayerPosition();
 
-    distanceToTarget = Ogre::Math::Sqrt(Ogre::Math::Sqr(playerVector.x - cameraTarget.x) + Ogre::Math::Sqr(playerVector.z - cameraTarget.z));
 
-        playerTargetCosTheta = ((playerVector.x - cameraTarget.x)/distanceToTarget);
-        playerTargetSinTheta = ((playerVector.z - cameraTarget.z)/distanceToTarget);
+    Ogre::Real diffX = playerVector.x - cameraTarget.x;
+    Ogre::Real diffY = playerVector.y - cameraTarget.y;
+    distanceToTarget = Ogre::Math::Sqrt(Ogre::Math::Sqr(diffX) + Ogre::Math::Sqr(diffY));
+
+    //printf("mDirection.x * evt: %f\n", (mDirection.x*evt.timeSinceLastFrame));
+    //printf("mDirection.z * evt: %f\n", (mDirection.z*evt.timeSinceLastFrame));
+
+    playerTargetCosTheta = ((playerVector.x - cameraTarget.x)/distanceToTarget);
+    playerTargetSinTheta = ((playerVector.z - cameraTarget.z)/distanceToTarget);
+
     if(lockedOn)
-    {   
+    {
 
         //TODO:: fix movement
-       
+
+
+
         mDirection.x = (mDirection.x*playerTargetCosTheta) - (mDirection.z*playerTargetSinTheta);
         mDirection.z = (mDirection.x*playerTargetSinTheta) + (mDirection.z*playerTargetCosTheta);
     }
 
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
-    printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
+    //printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
     //printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
 
@@ -161,7 +170,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
                                                     "sphere.mesh");
         Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
-                createChildSceneNode("bNode" + Ogre::StringConverter::toString(bullet++), position);
+                createChildSceneNode("bnode" + Ogre::StringConverter::toString(bullet++), position);
 
         bnode->attachObject(ent);
         bnode->scale(.03, .03, .03);
@@ -182,7 +191,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
                                                     "sphere.mesh");
         Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
-                createChildSceneNode("bNode" + Ogre::StringConverter::toString(bullet++), position);
+                createChildSceneNode("bnode" + Ogre::StringConverter::toString(bullet++), position);
 
         bnode->attachObject(ent);
         bnode->scale(.07, .07, .07);

@@ -22,6 +22,7 @@ public:
     Physics(void);
     virtual ~Physics(void);
 	void initPhysics();
+	void DestroyAllAttachedMovableObjects( Ogre::SceneNode* i_pSceneNode );
 	void updateWorld(const Ogre::FrameEvent& evt);
 	btRigidBody* setRigidBoxBody(Ogre::SceneNode *snode, 
 		Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass, bool kino);

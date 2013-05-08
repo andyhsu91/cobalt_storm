@@ -55,6 +55,60 @@ Physics::~Physics(void)
 	//next line is optional: it will be cleared by the destructor when the array goes out of scope
 	collisionShapes.clear();
 }
+
+//code from http://www.ogre3d.org/forums/viewtopic.php?f=2&t=53647&start=0 by Jabberwocky
+/*void Physics::DestroyAllAttachedMovableObjects( Ogre::SceneNode* i_pSceneNode )
+{
+	if ( !i_pSceneNode )
+	{
+		ASSERT( false );
+		return;
+	}
+
+	// Destroy all the attached objects
+	Ogre::SceneNode::ObjectIterator itObject = i_pSceneNode->getAttachedObjectIterator();
+
+	while ( itObject.hasMoreElements() )
+	{
+		MovableObject* pObject = static_cast<MovableObject*>(itObject.getNext());
+		i_pSceneNode->getCreator()->destroyMovableObject( pObject );
+	}
+
+	// Recurse to child SceneNodes
+	Ogre::SceneNode::ChildNodeIterator itChild = i_pSceneNode->getChildIterator();
+
+	while ( itChild.hasMoreElements() )
+	{
+		SceneNode* pChildNode = static_cast<SceneNode*>(itChild.getNext());
+		DestroyAllAttachedMovableObjects( pChildNode );
+	}
+}*/
+
+//code from https://github.com/alanjrogers/bullet-physics/blob/master/Demos/ConcaveDemo/ConcavePhysicsDemo.cpp     http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?p=&f=9&t=1943
+static bool myContactAddedCallback(btManifoldPoint& cp,const btCollisionObject* colObj0, int partId0, int index0, const btCollisionObject* colObj1, int partId1, int index1)
+{
+	Ogre::SceneNode *obj0 = static_cast<Ogre::SceneNode*>(colObj0->getUserPointer());
+	Ogre::SceneNode* obj1 = static_cast<Ogre::SceneNode*>(colObj1->getUserPointer());
+
+	std::string obj0_name = (obj0->getName().c_str());
+	std::string obj1_name = (obj1->getName().c_str());
+
+	if (obj0_name.find("bnode")) {
+
+	}
+	else if (obj0_name.find("pnode")) {
+
+	}
+	else if (obj0_name.find("snode")) {
+
+	}
+
+
+	return true;
+}
+
+extern ContactAddedCallback gContactAddedCallback;
+
 //---------------------------------------------------------------------------
 void Physics::initPhysics()
 {
@@ -71,9 +125,12 @@ void Physics::initPhysics()
 	
 	dynamicsWorld->setGravity(btVector3(0, gravity, 0));
 	//dynamicsWorld->setInternalGhostPairCallback(new btGhostPairCallback());
+
+	gContactAddedCallback = myContactAddedCallback;
 	
 	cerr << "Finished bullet init" << endl;
 }
+
 //---------------------------------------------------------------------------
 void Physics::updateWorld(const Ogre::FrameEvent& evt)
 {
@@ -85,7 +142,10 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 		//obj->setRestitution(restitution);
 		btRigidBody* body = btRigidBody::upcast(obj);
-		if (obj->getCollisionFlags() == btCollisionObject::CF_CHARACTER_OBJECT) {
+		//body->applyGravity();
+		btScalar timeStep = evt.timeSinceLastFrame;
+		body->applyDamping(timeStep);
+		/*if (obj->getCollisionFlags() == btCollisionObject::CF_CHARACTER_OBJECT) {
 			btGhostObject* ghost = btGhostObject::upcast(obj);
 			Ogre::SceneNode *mNode = static_cast<Ogre::SceneNode *>(body->getUserPointer());
 			if (mNode) {
@@ -96,12 +156,13 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 				mNode->setOrientation(rot.w(), rot.x(), rot.y(), rot.z());
 				mNode->setPosition(pos.x(), pos.y(), pos.z());
 			}
-		}
-		else if (body && body->getMotionState())
+		}*/
+		if (body && body->getMotionState())
 		{
 			Ogre::SceneNode *mNode = static_cast<Ogre::SceneNode *>(body->getUserPointer());
 			btTransform trans;
 			body->getMotionState()->getWorldTransform(trans);
+			//body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT );
 			btQuaternion rot = trans.getRotation();
 			btVector3 pos = trans.getOrigin();
 
@@ -130,14 +191,17 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 //	MyMotionState* motionState = new MyMotionState(snode);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo);
-	//body->setDamping(0.0f, 1.0f);
+	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+	//body->setCcdMotionThreshold(0);
+	//body->setCcdSweptSphereRadius(0.2f);
+	body->setDamping(0.0f, 5.0f);
 	//body->forceActivationState(DISABLE_DEACTIVATION);
 	body->setRestitution(restitution);
 	body->setUserPointer((void *) (snode));
 
 	if (kino) {
-        body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT); // Use a dynamic and apply force (calculate)
-        body->setActivationState(DISABLE_DEACTIVATION);
+        //body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+        body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 	}
 
 	dynamicsWorld->addRigidBody(body); 
@@ -171,16 +235,19 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 	btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo);
+	body->setCollisionFlags(body->getCollisionFlags());
 	//body->setDamping(0.0f, 1.0f);
 	//body->forceActivationState(DISABLE_DEACTIVATION);
 	body->setRestitution(restitution);
 	body->setUserPointer((void *) (snode));
 
+	dynamicsWorld->addRigidBody(body);
 	if (weapon_type == 1)
 		body->setLinearVelocity(btVector3(direction.x * 2000.0, direction.y * 2000.0 + 20.0, direction.z * 1000.0));
-	else if (weapon_type == 2)
-		body->setLinearVelocity(btVector3(direction.x * 175.0, 200.0, direction.z * 175.0));
-	dynamicsWorld->addRigidBody(body);
+	else if (weapon_type == 2) {
+		body->setLinearVelocity(btVector3(direction.x * 400.0, 400.0, direction.z * 400.0));
+		body->setGravity(btVector3(0, -700, 0));
+	}
 
 	return body;
 }

@@ -18,6 +18,7 @@ Player mPlayer;
  bool isServer;
  Network* nManager;
  Sound* sManager;
+ const float timeLimit = 60.0;
 
 
 
@@ -57,6 +58,7 @@ void Cobalt::createCamera(void)
 //-------------------------------------------------------------------------------------
 void Cobalt::createScene(void)
 {
+	timeElapsed = 0;
 	// create your scene here :)
 	cerr << "Initing Bullet" << endl;	
 	mBullet.initPhysics();
@@ -106,6 +108,8 @@ void Cobalt::createFrameListener(void)
 //-------------------------------------------------------------------------------------
 bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {	//return True to continue rendering, false to drop out of the rendering loop
+	timeElapsed += evt.timeSinceLastFrame;
+	mGUI.setTime(timeLimit-timeElapsed);
 	bool ret = BaseApplication::frameRenderingQueued(evt);
 
 	if(isMultiplayer){

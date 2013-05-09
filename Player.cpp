@@ -124,15 +124,16 @@ Ogre::Vector3 Player::getNewCameraPos(void){
     float scalingFactor = (cameraRadius/distToTarget);
     float slope = (clientPos.z - serverPos.z)/(clientPos.x - serverPos.x); //m=(y2-y1)/(x2-x1)
     float zIntercept = serverPos.z - slope*serverPos.x; //b = z - mx
-    cout<<"serverPos:"<<serverPos<<endl;
-    cout<<"clientPos:"<<clientPos<<endl;
-    cout<<"ScalingFactor:"<<scalingFactor<<endl;
-    cout<<"Dist:"<<distToTarget<<endl;
-    cout<<"xDist:"<<xDist<<endl;
-    cout<<"zDist:"<<zDist<<endl;
-    cout<<"Camera X Pos:"<< serverPos.x + xDist*scalingFactor<<endl;
-    cout<<"Camera Z Pos:"<<serverPos.z + zDist*scalingFactor<<endl;
-
+    /*
+        cout<<"serverPos:"<<serverPos<<endl;
+        cout<<"clientPos:"<<clientPos<<endl;
+        cout<<"ScalingFactor:"<<scalingFactor<<endl;
+        cout<<"Dist:"<<distToTarget<<endl;
+        cout<<"xDist:"<<xDist<<endl;
+        cout<<"zDist:"<<zDist<<endl;
+        cout<<"Camera X Pos:"<< serverPos.x + xDist*scalingFactor<<endl;
+        cout<<"Camera Z Pos:"<<serverPos.z + zDist*scalingFactor<<endl;
+    */
     if (distToTarget == 0.0) {
             distToTarget = .01; //stop divide by zero errors
         }
@@ -152,32 +153,54 @@ Ogre::Vector3 Player::getCameraTarget(void)
 }
 
 void Player::updatePosition(const Ogre::FrameEvent& evt)
-{
-    mDirection.x = mCurrentControllerState[LCONTROLX]*200;
-    mDirection.z = mCurrentControllerState[LCONTROLY]*200;
+{   
+    float distPerSec = 200;
+    mDirection.x = mCurrentControllerState[LCONTROLX]*distPerSec;
+    mDirection.z = mCurrentControllerState[LCONTROLY]*distPerSec;
 
     Ogre::Vector3 playerVector = getPlayerPosition();
 
 
     Ogre::Real diffX = playerVector.x - cameraTarget.x;
-    Ogre::Real diffY = playerVector.y - cameraTarget.y;
-    distanceToTarget = Ogre::Math::Sqrt(Ogre::Math::Sqr(diffX) + Ogre::Math::Sqr(diffY));
+    Ogre::Real diffZ = playerVector.z - cameraTarget.z;
+    distanceToTarget = Ogre::Math::Sqrt(Ogre::Math::Sqr(diffX) + Ogre::Math::Sqr(diffZ));
 
     //printf("mDirection.x * evt: %f\n", (mDirection.x*evt.timeSinceLastFrame));
     //printf("mDirection.z * evt: %f\n", (mDirection.z*evt.timeSinceLastFrame));
 
-    playerTargetCosTheta = ((playerVector.x - cameraTarget.x)/distanceToTarget);
-    playerTargetSinTheta = ((playerVector.z - cameraTarget.z)/distanceToTarget);
+    
 
     if(lockedOn)
     {
-
+        //playerTargetCosTheta = ((playerVector.x - cameraTarget.x)/distanceToTarget);
+        //playerTargetSinTheta = ((playerVector.z - cameraTarget.z)/distanceToTarget);
         //TODO:: fix movement
+        mDirection.x = 0.0;
+        mDirection.z = 0.0;
 
+        float scalingFactor = distPerSec/distanceToTarget;
+        //towards and away from enemy
+        mDirection.x += mCurrentControllerState[LCONTROLY]*diffX*scalingFactor;
+        mDirection.z += mCurrentControllerState[LCONTROLY]*diffZ*scalingFactor;
 
+        //left and right (Doesn't work yet)
+        //Using http://math.stackexchange.com/questions/53875/calculating-point-around-circumference-of-circle-given-distance-travelled
+        double pi = 3.14159265359;
+        //double circumference = 2*pi*distanceToTarget;
+        double d = distPerSec * evt.timeSinceLastFrame;
+        double r = distanceToTarget;
+        double theta = d/r;
+        double a = cameraTarget.x;
+        double b = cameraTarget.z;
+        double x = playerVector.x;
+        double y = playerVector.z;
 
-        //mDirection.x = (mDirection.x*playerTargetCosTheta) - (mDirection.z*playerTargetSinTheta);
-        //mDirection.z = (mDirection.x*playerTargetSinTheta) + (mDirection.z*playerTargetCosTheta);
+        //mDirection.x += mCurrentControllerState[LCONTROLX]*(a+(x-a)*cos(theta)-(y-b)*sin(theta));
+        //mDirection.z += mCurrentControllerState[LCONTROLX]*(b+(x-a)*sin(theta)+(y-b)*cos(theta));
+
+        mDirection.x += mCurrentControllerState[LCONTROLX]*(a+(x-a)*cos(theta)-(y-b)*sin(theta));
+        mDirection.z += mCurrentControllerState[LCONTROLX]*(b+(x-a)*sin(theta)+(y-b)*cos(theta));
+
     }
 
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);

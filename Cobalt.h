@@ -58,8 +58,15 @@ protected:
     virtual bool buttonReleased( const OIS::JoyStickEvent &e, int button );
 	
 private:
+    
     Player* serverPlayer;
     Player* clientPlayer;	
+    
+    
+
+
+    Ogre::Vector3 CameraVector;
+    Ogre::Vector3 playerVector;
 
 };
  

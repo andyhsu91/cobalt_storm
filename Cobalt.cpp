@@ -24,7 +24,7 @@ Cobalt::Cobalt(void)
 {
 //0 is the Server
 	serverPlayer = new Player();
-	clientPlayer = new Player();
+	//clientPlayer = new Player();
 }
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
@@ -42,6 +42,8 @@ void Cobalt::createCamera(void)
 	mCamera->lookAt(Ogre::Vector3(700, 250, -550));
 	mCamera->setNearClipDistance(0.1);
 	mCamera->setFarClipDistance(50000);
+
+	
 
 	if (mRoot->getRenderSystem()->getCapabilities()->hasCapability(Ogre::RSC_INFINITE_FAR_PLANE))
 	{
@@ -124,6 +126,29 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 	}else{
 		//single player mode
+		
+		playerVector = serverPlayer->getPlayerPosition();
+		//printf("playerVector.x %f cameraTarget.x %f playerVector.z %f cameraTarget.z %f\n",playerVector.x, cameraTarget.x,playerVector.z, cameraTarget.z);
+		 //playerVector = Ogre::Vector3((playerVector.x - cameraTarget.x)+50,100,(playerVector.z - cameraTarget.z)+50);
+		float distanceToTarget = serverPlayer->getDistanceToTarget();
+
+		if (distanceToTarget == 0.0) {
+			distanceToTarget = .01;
+		}
+
+		CameraVector = Ogre::Vector3(
+		 		playerVector.x + (serverPlayer->getPlayerTargetCosTheta()*80),
+		 		320,
+				playerVector.z + (serverPlayer->getPlayerTargetSinTheta()*80));
+
+		 //printf("X:%f Dist:%f  X/Dist:%f\n", (playerVector.x - cameraTarget.x),ctDistance,(playerVector.x - cameraTarget.x)/ctDistance);
+		
+		mCamera->setPosition(CameraVector);
+		//mCamera->setPosition(Ogre::Vector3(playerVector.x, playerVector.y, playerVector.z));
+		if(serverPlayer->getLockedOn())
+			{
+			mCamera->lookAt(serverPlayer->getCameraTarget());
+			}
 
 		mBullet.updateWorld(evt);
 		mEnv.frmqUpdate(evt, mTrayMgr);
@@ -159,6 +184,14 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
         {
 			serverPlayer->updateControlAxis(LCONTROLX, 1);
         }
+    else if (arg.key == OIS::KC_O)
+        {
+			serverPlayer->updateControlAxis(RBUMP, 1);
+        }
+    else if (arg.key == OIS::KC_P)
+    	{
+    		serverPlayer->updateControlAxis(LBUMP, 1);
+    	}
        //this command will move the camera
 	//mCameraMan->injectKeyDown(arg);
 	return true;
@@ -181,6 +214,14 @@ bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
 	else if (arg.key == OIS::KC_D)
         {
 			serverPlayer->updateControlAxis(LCONTROLX, 0);
+        }
+    else if (arg.key == OIS::KC_O)
+        {
+			serverPlayer->updateControlAxis(RBUMP, 0);
+        }
+    else if (arg.key == OIS::KC_P)
+        {
+			serverPlayer->updateControlAxis(LBUMP, 0);
         }
 //mCameraMan->injectKeyUp(arg);
 	return true;
@@ -223,6 +264,8 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  bool Cobalt::axisMoved( const OIS::JoyStickEvent &e, int axis )
  {
  	float axisValue = ((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS;
+
+
  	//printf("axisMoved %f\n",((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
 	 	serverPlayer->updateControlAxis(axis, axisValue);
 

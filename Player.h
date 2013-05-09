@@ -38,19 +38,19 @@ enum States { STANDING,
 #define LTRIG 2
 #define RTRIG 2
 
-#define LBUMP 4
-#define RBUMP 5
+#define LBUMP 5
+#define RBUMP 6
 
-#define LJOYCLICK 8
-#define RJOYCLICK 9
+#define LJOYCLICK 9
+#define RJOYCLICK 10
 
 #define RBUTTON1 0
 #define RBUTTON2 1
 #define RBUTTON3 2
 #define RBUTTON4 3
 
-#define LMIDBUTTON 6
-#define RMIDBUTTON 7
+#define LMIDBUTTON 7
+#define RMIDBUTTON 8
 
 struct PlayerVars {
 	int health;
@@ -89,8 +89,15 @@ public:
 	void updateControlAxis(int axis, float value);
 	void updatePlayerState(int action, bool value);
 
-	PlayerVars* getPlayerState(void);
+	Ogre::Vector3 getPlayerPosition(void);
 
+	PlayerVars* getPlayerState(void);
+	float getDistanceToTarget(void);
+	Ogre::Vector3 getCameraTarget(void);
+	bool getLockedOn(void);
+
+	float getPlayerTargetCosTheta(void);
+	float getPlayerTargetSinTheta(void);
 private:
 	Ogre::SceneManager* mSceneMgr;
 	Physics* mBullet;
@@ -101,13 +108,23 @@ private:
 	
 	Ogre::SceneNode* pnode;
 	Ogre::Vector3 mDirection;
+	Ogre::Vector3 mLook;
 	PlayerVars* mPlayerState;
 	bool forceUpdate;
+	int bullet;
+	bool lockedOn;
+
+	float playerTargetCosTheta;
+    float playerTargetSinTheta;
+	Ogre::Vector3 cameraTarget;
+
+    Ogre::Real distanceToTarget;
+    
 
 	/*holds the current controller/keyboardstate of the player
 	these values will then be used to update the player movement based on
 	frametime in the updatePosition method. LCONTROLX, LCONTROLY, RCONTROLX, RCONTROLY*/
-	float mCurrentControllerState[5];
+	float mCurrentControllerState[11];
 
 };
 

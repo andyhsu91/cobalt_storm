@@ -23,6 +23,7 @@ class GUI
 		void setEnemyHealth(float);
 		void setAmmo(int, int);
 		void setTime(Ogre::Real);
+		void initMainMenu(Ogre::SceneManager*);
 
 	protected:	
 	

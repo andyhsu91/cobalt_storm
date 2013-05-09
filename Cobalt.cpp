@@ -65,6 +65,7 @@ void Cobalt::createScene(void)
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
 	
 	cerr << "Initing GUI" << endl;
+	mGUI.initMainMenu(mSceneMgr);
 	mGUI.initGUI(mSceneMgr);
 
 	//Initialize Network Manager

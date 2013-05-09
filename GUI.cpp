@@ -10,8 +10,7 @@ GUI::GUI(void)
 GUI::~GUI(void)
 {
 }
-//---------------------------------------------------------------------------
-void GUI::initGUI(Ogre::SceneManager* pSceneMgr)
+void GUI::initMainMenu(Ogre::SceneManager* pSceneMgr)
 {
 	//CEGUI init
 	mSceneMgr = pSceneMgr;
@@ -30,6 +29,11 @@ void GUI::initGUI(Ogre::SceneManager* pSceneMgr)
 	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
 
 	sheet = wmgr.createWindow("DefaultWindow", "CEGUIMainMenu/Sheet");
+}
+//---------------------------------------------------------------------------
+void GUI::initGUI(Ogre::SceneManager* pSceneMgr)
+{
+
 
 	//Create a health HUD
 	CEGUI::Window *hud = wmgr.createWindow("TaharezLook/FrameWindow", "CEGUI/HudWindow");

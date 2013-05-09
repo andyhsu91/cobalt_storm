@@ -73,7 +73,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         bullet = 0;
 
-        lockedOn = false;
+        lockedOn = true;
 
         cameraTarget = Ogre::Vector3(0, 250, -1000);
 
@@ -264,8 +264,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
         double newXCoord = (a+(x-a)*cos(theta)-(y-b)*sin(theta)); //raw x-z coordinate point
         double newYCoord = (b+(x-a)*sin(theta)+(y-b)*cos(theta)); //raw x-z coordinate point
-        mDirection.x += mCurrentControllerState[LCONTROLX]*(newXCoord-x); //amount of translation needed
-        mDirection.z += mCurrentControllerState[LCONTROLX]*(newYCoord-y); //amount of translation needed
+        mDirection.x -= mCurrentControllerState[LCONTROLX]*(newXCoord-x); //amount of translation needed
+        mDirection.z -= mCurrentControllerState[LCONTROLX]*(newYCoord-y); //amount of translation needed
 
     }
 

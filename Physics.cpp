@@ -243,7 +243,7 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 
 	dynamicsWorld->addRigidBody(body);
 	if (weapon_type == 1)
-		body->setLinearVelocity(btVector3(direction.x * 2000.0, direction.y * 2000.0 + 20.0, direction.z * 1000.0));
+		body->setLinearVelocity(btVector3(direction.x * 2000.0, direction.y * 2000.0 + 20.0, direction.z * 2000.0));
 	else if (weapon_type == 2) {
 		body->setLinearVelocity(btVector3(direction.x * 400.0, 400.0, direction.z * 400.0));
 		body->setGravity(btVector3(0, -700, 0));

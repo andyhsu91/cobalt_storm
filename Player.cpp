@@ -8,8 +8,8 @@ Filename:    Player.cpp
 
 using namespace std;
 const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
-const float shootTimeout = 2.0/3.0;
-float shootTimeRemaining = 0.0;
+const float shootTimeout = 2.0/3.0; //amount of seconds that the shooting animation takes
+float shootTimeRemaining = 0.0; //shoot animation has to be set to loop in order to repeat the animation multiple times
 
 enum robotStates { Die, Idle, Shoot, Slump, Walk, animEnumCount }; //animEnumCount should always be last
 
@@ -212,11 +212,15 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     
 
     if(mCurrentControllerState[LCONTROLX] != 0.0){
-        enableState(Walk, true, true);
+        if(stateActive[Walk]==false){
+            enableState(Walk, true, true);
+        }
         mDirection.x = mCurrentControllerState[LCONTROLX]*distPerSec;
     }
     if(mCurrentControllerState[LCONTROLY] != 0.0){
-        enableState(Walk, true, true);
+        if(stateActive[Walk]==false){
+            enableState(Walk, true, true);
+        }
         mDirection.z = mCurrentControllerState[LCONTROLY]*distPerSec;
     }
     if(mCurrentControllerState[LCONTROLY] == 0.0 && mCurrentControllerState[LCONTROLX] == 0.0){
@@ -234,7 +238,11 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     //printf("mDirection.x * evt: %f\n", (mDirection.x*evt.timeSinceLastFrame));
     //printf("mDirection.z * evt: %f\n", (mDirection.z*evt.timeSinceLastFrame));
 
-    
+    /* Ogre::Vector3 newCameraPos = Ogre::Vector3(
+            serverPos.x - xDist*scalingFactor,
+            300,
+            serverPos.z - zDist*scalingFactor);
+    */
 
     if(lockedOn)
     {
@@ -252,8 +260,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         //left and right (Doesn't work yet)
         //Using http://math.stackexchange.com/questions/53875/calculating-point-around-circumference-of-circle-given-distance-travelled
         double pi = 3.14159265359;
-        //double circumference = 2*pi*distanceToTarget;
-        double d = distPerSec * evt.timeSinceLastFrame;
+        double circumference = 2*pi*distanceToTarget;
+        double d = distPerSec * evt.timeSinceLastFrame*50.0;
         double r = distanceToTarget;
         double theta = d/r;
         double a = cameraTarget.x;
@@ -261,11 +269,11 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         double x = playerVector.x;
         double y = playerVector.z;
 
-        //mDirection.x += mCurrentControllerState[LCONTROLX]*(a+(x-a)*cos(theta)-(y-b)*sin(theta));
-        //mDirection.z += mCurrentControllerState[LCONTROLX]*(b+(x-a)*sin(theta)+(y-b)*cos(theta));
 
-        mDirection.z += mCurrentControllerState[LCONTROLX]*(a+(x-a)*cos(theta)-(y-b)*sin(theta));
-        mDirection.x += mCurrentControllerState[LCONTROLX]*(b+(x-a)*sin(theta)+(y-b)*cos(theta));
+        double newXCoord = (a+(x-a)*cos(theta)-(y-b)*sin(theta)); //raw x-y coordinate point
+        double newYCoord = (b+(x-a)*sin(theta)+(y-b)*cos(theta)); //raw x-y coordinate point
+        mDirection.x += mCurrentControllerState[LCONTROLX]*(newXCoord-x); //amount of translation needed
+        mDirection.z += mCurrentControllerState[LCONTROLX]*(newYCoord-y); //amount of translation needed
 
     }
 

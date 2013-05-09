@@ -19,6 +19,8 @@ This source file is part of the
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <macUtils.h>
 #endif
+
+using namespace std;
  
 //-------------------------------------------------------------------------------------
 BaseApplication::BaseApplication(void)
@@ -30,12 +32,12 @@ BaseApplication::BaseApplication(void)
 	mPluginsCfg(Ogre::StringUtil::BLANK),
 	mTrayMgr(0),
 	mCameraMan(0),
-	mDetailsPanel(0),
 	mCursorWasVisible(false),
 	mShutDown(false),
 	mInputManager(0),
 	mMouse(0),
-	mKeyboard(0)
+	mKeyboard(0),
+	mJoyStick(0)
 {
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     m_ResourcePath = Ogre::macBundlePath() + "/Contents/Resources/";
@@ -66,7 +68,7 @@ bool BaseApplication::configure(void)
 	{
 		// If returned true, user clicked OK so initialise
 		// Here we choose to let the system create a default rendering window by passing 'true'
-		mWindow = mRoot->initialise(true, "I'm a window");
+		mWindow = mRoot->initialise(true, "Cobalt Storm");
  
 		return true;
 	}
@@ -111,9 +113,15 @@ void BaseApplication::createFrameListener(void)
  
 	mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject( OIS::OISKeyboard, true ));
 	mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject( OIS::OISMouse, true ));
+	if(mInputManager->getNumberOfDevices(OIS::OISJoyStick)>0)
+	{
+	mJoyStick = static_cast<OIS::JoyStick*>(mInputManager->createInputObject( OIS::OISJoyStick, true ));
+    }
  
 	mMouse->setEventCallback(this);
 	mKeyboard->setEventCallback(this);
+	if(mInputManager->getNumberOfDevices(OIS::OISJoyStick)>0)
+	mJoyStick->setEventCallback(this);
  
 	//Set initial mouse clipping size
 	windowResized(mWindow);
@@ -122,8 +130,6 @@ void BaseApplication::createFrameListener(void)
 	Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
  
 	mTrayMgr = new OgreBites::SdkTrayManager("InterfaceName", mWindow, mMouse, this);
-	mTrayMgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
-	mTrayMgr->showLogo(OgreBites::TL_BOTTOMRIGHT);
 	mTrayMgr->hideCursor();
  
 	// create a params panel for displaying sample details
@@ -139,11 +145,6 @@ void BaseApplication::createFrameListener(void)
 	items.push_back("");
 	items.push_back("Filtering");
 	items.push_back("Poly Mode");
- 
-	mDetailsPanel = mTrayMgr->createParamsPanel(OgreBites::TL_NONE, "DetailsPanel", 200, items);
-	mDetailsPanel->setParamValue(9, "Bilinear");
-	mDetailsPanel->setParamValue(10, "Solid");
-	mDetailsPanel->hide();
  
 	mRoot->addFrameListener(this);
 }
@@ -274,22 +275,15 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	//Need to capture/update each device
 	mKeyboard->capture();
 	mMouse->capture();
+	if(mInputManager->getNumberOfDevices(OIS::OISJoyStick)>0)
+	mJoyStick->capture();
  
 	mTrayMgr->frameRenderingQueued(evt);
  
 	if (!mTrayMgr->isDialogVisible())
 	{
 		mCameraMan->frameRenderingQueued(evt);   // if dialog isn't up, then update the camera
-		if (mDetailsPanel->isVisible())   // if details panel is visible, then update its contents
-		{
-			mDetailsPanel->setParamValue(0, Ogre::StringConverter::toString(mCamera->getDerivedPosition().x));
-			mDetailsPanel->setParamValue(1, Ogre::StringConverter::toString(mCamera->getDerivedPosition().y));
-			mDetailsPanel->setParamValue(2, Ogre::StringConverter::toString(mCamera->getDerivedPosition().z));
-			mDetailsPanel->setParamValue(4, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().w));
-			mDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().x));
-			mDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().y));
-			mDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().z));
-		}
+
 	}
  
 	return true;
@@ -303,51 +297,15 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 	{
 		mTrayMgr->toggleAdvancedFrameStats();
 	}
-	else if (arg.key == OIS::KC_G)   // toggle visibility of even rarer debugging details
-	{
-		if (mDetailsPanel->getTrayLocation() == OgreBites::TL_NONE)
-		{
-			mTrayMgr->moveWidgetToTray(mDetailsPanel, OgreBites::TL_TOPRIGHT, 0);
-			mDetailsPanel->show();
-		}
-		else
-		{
-			mTrayMgr->removeWidgetFromTray(mDetailsPanel);
-			mDetailsPanel->hide();
-		}
-	}
 	else if (arg.key == OIS::KC_T)   // cycle polygon rendering mode
 	{
 		Ogre::String newVal;
 		Ogre::TextureFilterOptions tfo;
 		unsigned int aniso;
  
-		switch (mDetailsPanel->getParamValue(9).asUTF8()[0])
-		{
-		case 'B':
-			newVal = "Trilinear";
-			tfo = Ogre::TFO_TRILINEAR;
-			aniso = 1;
-			break;
-		case 'T':
-			newVal = "Anisotropic";
-			tfo = Ogre::TFO_ANISOTROPIC;
-			aniso = 8;
-			break;
-		case 'A':
-			newVal = "None";
-			tfo = Ogre::TFO_NONE;
-			aniso = 1;
-			break;
-		default:
-			newVal = "Bilinear";
-			tfo = Ogre::TFO_BILINEAR;
-			aniso = 1;
-		}
- 
+		
 		Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
 		Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(aniso);
-		mDetailsPanel->setParamValue(9, newVal);
 	}
 	else if (arg.key == OIS::KC_R)   // cycle polygon rendering mode
 	{
@@ -370,7 +328,6 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 		}
  
 		mCamera->setPolygonMode(pm);
-		mDetailsPanel->setParamValue(10, newVal);
 	}
 	else if (arg.key == OIS::KC_F5)   // refresh all textures
 	{
@@ -386,7 +343,8 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 	}
 	else if (arg.key == OIS::KC_W)
 	{
-		
+		cout<<mInputManager->getNumberOfDevices(OIS::OISJoyStick)<<endl;
+ 	printf("hellodddddd!!!!\n");
 	}
 	else if (arg.key == OIS::KC_S)
         {
@@ -431,6 +389,41 @@ bool BaseApplication::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButto
 	mCameraMan->injectMouseUp(arg, id);
 	return true;
 }
+
+
+ bool BaseApplication::povMoved( const OIS::JoyStickEvent &e, int pov )
+ {
+ 	cout<<pov<<endl;
+ 	printf("hello!!!!\n");
+    return true;
+return true;
+ }
+ bool BaseApplication::axisMoved( const OIS::JoyStickEvent &e, int axis )
+ {
+ 	cout<<axis<<": "<<((float)e.state.mAxes[axis].abs)/32767<<endl;
+ 	printf("hello!!!!\n");
+    return true;
+ }
+ bool BaseApplication::sliderMoved( const OIS::JoyStickEvent &e, int sliderID )
+ {
+ 	cout<<sliderID<<endl;
+ 	printf("hello!!!!\n");
+    return true;
+return true;
+ }
+ bool BaseApplication::buttonPressed( const OIS::JoyStickEvent &e, int button )
+ {
+	cout<<button<<endl;
+ 	printf("hellodddddd!!!!\n");
+ 	return true;
+ }
+ bool BaseApplication::buttonReleased( const OIS::JoyStickEvent &e, int button )
+ {
+ 	cout<<button<<endl;
+ 	printf("hello!!!!\n");
+    return true;
+return true;
+ }
  
 //Adjust mouse clipping area
 void BaseApplication::windowResized(Ogre::RenderWindow* rw)
@@ -454,6 +447,8 @@ void BaseApplication::windowClosed(Ogre::RenderWindow* rw)
 		{
 			mInputManager->destroyInputObject( mMouse );
 			mInputManager->destroyInputObject( mKeyboard );
+			if(mInputManager->getNumberOfDevices(OIS::OISJoyStick)>0)
+			mInputManager->destroyInputObject( mJoyStick );
  
 			OIS::InputManager::destroyInputSystem(mInputManager);
 			mInputManager = 0;

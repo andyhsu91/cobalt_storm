@@ -31,7 +31,7 @@ This source file is part of the
 #  include <OIS/OISInputManager.h>
 #  include <OIS/OISKeyboard.h>
 #  include <OIS/OISMouse.h>
- 
+#  include <OIS/JoyStick.h>
 #  include <OGRE/SdkTrays.h>
 #  include <OGRE/SdkCameraMan.h>
 #else
@@ -39,7 +39,7 @@ This source file is part of the
 #  include <OISInputManager.h>
 #  include <OISKeyboard.h>
 #  include <OISMouse.h>
- 
+#  include <OISJoyStick.h>
 #  include <SdkTrays.h>
 #  include <SdkCameraMan.h>
 #endif
@@ -65,7 +65,7 @@ This source file is part of the
 #  include "OgreStaticPluginLoader.h"
 #endif
  
-class BaseApplication : public Ogre::FrameListener, public Ogre::WindowEventListener, public OIS::KeyListener, public OIS::MouseListener, OgreBites::SdkTrayListener
+class BaseApplication : public Ogre::FrameListener, public Ogre::WindowEventListener, public OIS::KeyListener, public OIS::MouseListener, public OIS::JoyStickListener, OgreBites::SdkTrayListener
 {
 public:
 	BaseApplication(void);
@@ -92,6 +92,12 @@ protected:
 	virtual bool mouseMoved( const OIS::MouseEvent &arg );
 	virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 	virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+
+	virtual bool povMoved( const OIS::JoyStickEvent &e, int pov );
+    virtual bool axisMoved( const OIS::JoyStickEvent &e, int axis );
+    virtual bool sliderMoved( const OIS::JoyStickEvent &e, int sliderID );
+    virtual bool buttonPressed( const OIS::JoyStickEvent &e, int button );
+    virtual bool buttonReleased( const OIS::JoyStickEvent &e, int button );
  
 	//Adjust mouse clipping area
 	virtual void windowResized(Ogre::RenderWindow* rw);
@@ -108,7 +114,6 @@ protected:
 	// OgreBites
 	OgreBites::SdkTrayManager*	mTrayMgr;
 	OgreBites::SdkCameraMan* mCameraMan;     	// basic camera controller
-	OgreBites::ParamsPanel* mDetailsPanel;   	// sample details panel
 	bool mCursorWasVisible;						// was cursor visible before dialog appeared
 	bool mShutDown;
  
@@ -116,6 +121,7 @@ protected:
 	OIS::InputManager* mInputManager;
 	OIS::Mouse*    mMouse;
 	OIS::Keyboard* mKeyboard;
+	OIS::JoyStick* mJoyStick;
  
 	// Added for Mac compatibility
 	Ogre::String                 m_ResourcePath;

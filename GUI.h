@@ -18,15 +18,26 @@ class GUI
 	public:
     	GUI(void);
     	virtual ~GUI(void);
-		void initGUI(void);
+		void initGUI(Ogre::SceneManager*);
+		void setHealth(float);
+		void setAmmo(int, int);
+		void setTime(float);
 
 	protected:	
 	
 	private:
-		CEGUI::Window *sheet;
+		char timeString[16];
+		CEGUI::Window *timeDisplay;
 		CEGUI::OgreRenderer* mRenderer;
-		CEGUI::Window *startBut;
+		CEGUI::Window *sheet;
+		CEGUI::ProgressBar *health;
+		CEGUI::ProgressBar *ehealth;
+		CEGUI::ProgressBar *ammo1;
+		CEGUI::ProgressBar *ammo2;
+		CEGUI::ProgressBar *ammo3;
+
+		Ogre::SceneManager* mSceneMgr;
 	
 };
 
-#endif // #ifndef __Environment_h_
+#endif

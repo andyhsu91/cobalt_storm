@@ -26,6 +26,7 @@ class Network {
     public:   
 		Network();
 		virtual ~Network();
+		void init();
 		void checkForClient();
 		bool checkForServer();
 		bool checkForPackets();

@@ -28,6 +28,10 @@ Filename:    Cobalt.h
 #include "Environment.h"
 #include "Physics.h"
 #include "GUI.h"
+#include "ControlManager.h"
+#include "Player.h"
+#include "Network.h"
+#include "Sound.h"
  
 class Cobalt : public BaseApplication
 {
@@ -42,13 +46,20 @@ protected:
 	virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
 	virtual bool keyPressed( const OIS::KeyEvent &arg );
-        virtual bool keyReleased( const OIS::KeyEvent &arg );
-        virtual bool mouseMoved( const OIS::MouseEvent &arg );
-        virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
-        virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+    virtual bool keyReleased( const OIS::KeyEvent &arg );
+    virtual bool mouseMoved( const OIS::MouseEvent &arg );
+    virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+    virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+
+
+    virtual bool povMoved( const OIS::JoyStickEvent &e, int pov );
+    virtual bool axisMoved( const OIS::JoyStickEvent &e, int axis );
+    virtual bool buttonPressed( const OIS::JoyStickEvent &e, int button );
+    virtual bool buttonReleased( const OIS::JoyStickEvent &e, int button );
 	
 private:
-	
+    Player* serverPlayer;
+    Player* clientPlayer;	
 
 };
  

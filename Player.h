@@ -12,40 +12,103 @@ Filename:    Player.h
 #include <stdio.h>
 #include "Physics.h"
 
+enum States { STANDING,
+ WALKING,
+ RUNNING,
+ DASHING,
+ JUMPING,
+ SHOOTING1,
+ SHOOTING2,
+ SHOOTING3,
+ FALLING,
+ MELEEING,
+ HIT, 
+ DOWN,
+ DEATH};
+
+#define X        0
+#define Y        1
+#define Z        2
+
+#define LCONTROLX 0
+#define LCONTROLY 1
+#define RCONTROLX 3
+#define RCONTROLY 4
+
+#define LTRIG 2
+#define RTRIG 2
+
+#define LBUMP 4
+#define RBUMP 5
+
+#define LJOYCLICK 8
+#define RJOYCLICK 9
+
+#define RBUTTON1 0
+#define RBUTTON2 1
+#define RBUTTON3 2
+#define RBUTTON4 3
+
+#define LMIDBUTTON 6
+#define RMIDBUTTON 7
+
 struct PlayerVars {
 	int health;
 	int weaponamt1;
 	int weaponamt2;
 	int weaponamt3;
 	
-	bool playerState[10];
+	bool playerState[15];
 	float playerPosition[3];
 	
+	
+
 	//Need to add projectile positions to client
 	//All projectile directions processed on server
-
+	float serverProjectilePos[3][3]; //3 projectiles, 3 axises for each projectile
+	float serverProjectileDir[3][3];
+	float clientProjectilePos[3][3];
+	float clientProjectileDir[3][3];
 
 };
+
+
 
 
 class Player
 {
 public:
-    Player(Ogre::SceneManager* pSceneMgr, Physics* sim, std::string node);
+	Player();
     ~Player(void);
+    void initPlayer(Ogre::SceneManager* mSceneMgr,
+    	Physics* mBullet, std::string node);
 	btRigidBody* getRigidBody(void);
 	void updatePosition(const Ogre::FrameEvent& evt);
 	void updatePosition(const Ogre::FrameEvent& evt, PlayerVars* update);
+
+	void updateControlAxis(int axis, float value);
+	void updatePlayerState(int action, bool value);
+
 	PlayerVars* getPlayerState(void);
 
 private:
 	Ogre::SceneManager* mSceneMgr;
 	Physics* mBullet;
-	btRigidBody* mPlayer;
+	btKinematicCharacterController* mPlayer;
+	//btPairCachingGhostObject* mGhost;
+	btRigidBody* mBody;
 	btTransform trans;
 	
+	Ogre::SceneNode* pnode;
+	Ogre::Vector3 mDirection;
 	PlayerVars* mPlayerState;
 	bool forceUpdate;
+
+	/*holds the current controller/keyboardstate of the player
+	these values will then be used to update the player movement based on
+	frametime in the updatePosition method. LCONTROLX, LCONTROLY, RCONTROLX, RCONTROLY*/
+	float mCurrentControllerState[5];
+
 };
 
 #endif // #ifndef __Player_h_

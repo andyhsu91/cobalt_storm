@@ -26,15 +26,15 @@ void GUI::initMainMenu(Ogre::SceneManager* pSceneMgr)
 	CEGUI::SchemeManager::getSingleton().create("TaharezLook.scheme");
 	
 	CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
-	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+	
 
-	sheet = wmgr.createWindow("DefaultWindow", "CEGUIMainMenu/Sheet");
+	
 }
 //---------------------------------------------------------------------------
 void GUI::initGUI(Ogre::SceneManager* pSceneMgr)
 {
-
-
+	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+	sheet = wmgr.createWindow("DefaultWindow", "CEGUIMainMenu/Sheet");
 	//Create a health HUD
 	CEGUI::Window *hud = wmgr.createWindow("TaharezLook/FrameWindow", "CEGUI/HudWindow");
 	//adds the HUD to the sheet

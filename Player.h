@@ -11,6 +11,7 @@ Filename:    Player.h
 #include <Ogre.h>
 #include <stdio.h>
 #include "Physics.h"
+#include "Sound.h"
 
 enum States { STANDING,
  WALKING,
@@ -81,7 +82,7 @@ public:
 	Player();
     ~Player(void);
     void initPlayer(Ogre::SceneManager* mSceneMgr,
-    	Physics* mBullet, std::string entName, std::string node, bool isServer);
+    	Physics* mBullet, Sound* soundManager, std::string entName, std::string node, bool isServer);
 	btRigidBody* getRigidBody(void);
 	void updatePosition(const Ogre::FrameEvent& evt);
 	void updatePosition(const Ogre::FrameEvent& evt, PlayerVars* update);
@@ -109,6 +110,7 @@ private:
 	Ogre::Entity* ent;
 	Ogre::SceneManager* mSceneMgr;
 	Physics* mBullet;
+	Sound* sManager;
 	btKinematicCharacterController* mPlayer;
 	//btPairCachingGhostObject* mGhost;
 	btRigidBody* mBody;

@@ -1,16 +1,6 @@
 #include "Sound.h"
 
 
-//list of all allowed sound effects
-enum soundEffects{
-	Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Punch, soundEnumCount //soundEnumCount should always be the last
-};
-
-//
-
-//Sound Effect Ids
-int chunkIds[soundEnumCount];
-
 
 std::vector<Mix_Chunk*> SoundList;
 Mix_Music* backgroundMusic;
@@ -60,7 +50,7 @@ std::string Sound::getSoundFileFromEnum(int soundEffectEnum){
 
   switch (soundEffectEnum)
   {
-  	case Shoot1: 	return "media/sounds/robot/shoot1.wav";
+  	case Shoot1: 	return "media/sounds/robot/laser1.wav";
 		
 	case Shoot2: 	return "media/sounds/robot/shoot1.wav";
 		

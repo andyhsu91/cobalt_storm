@@ -90,8 +90,8 @@ void Cobalt::createScene(void)
 	sManager = new Sound();
 	sManager->playBackground(-1);
 	cerr << "Initing Player" << endl;
-    serverPlayer->initPlayer(mSceneMgr, &mBullet, "PlayerEntity", "pnode", true);
-    clientPlayer->initPlayer(mSceneMgr, &mBullet, "PlayerEntity2", "pnode2", false);
+    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode", true);
+    clientPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity2", "pnode2", false);
 
 	cerr << "Finished scene" << endl;	
 

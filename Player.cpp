@@ -24,12 +24,13 @@ Player::~Player(void)
 }
 //-------------------------------------------------------------------------------------
 void Player::initPlayer(Ogre::SceneManager* SceneMgr,
-                Physics* Bullet, std::string entName, std::string node, bool isServer)
+                Physics* Bullet, Sound* soundManager, std::string entName, std::string node, bool isServer)
 {
         //cerr << "Beginning init player" << endl;
 
         mSceneMgr = SceneMgr;
         mBullet = Bullet;
+        sManager = soundManager;
         mPlayerState = new PlayerVars;
         for (int i = 0; i < 11; ++i)
         {
@@ -130,7 +131,6 @@ void Player::attack(bool val){
     std::cout<<"Attacking"<<std::endl;
     shootTimeRemaining = shootTimeout;
     enableState(Shoot, val, true);
-
 }
 
 Ogre::Vector3 Player::getPlayerPosition(void)
@@ -301,6 +301,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
     if (mCurrentControllerState[RBUMP]) {
         attack(true);
+        sManager->playSoundFromEnum(Sound::Shoot1);
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z+10);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
@@ -323,6 +324,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     }
     if (mCurrentControllerState[LBUMP]) {
         attack(true);
+        sManager->playSoundFromEnum(Sound::Shoot2);
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),

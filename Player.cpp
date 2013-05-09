@@ -10,7 +10,6 @@ using namespace std;
 const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
 const float shootTimeout = 2.0/3.0; //amount of seconds that the shooting animation takes
 float shootTimeRemaining = 0.0; //shoot animation has to be set to loop in order to repeat the animation multiple times
-
 enum robotStates { Die, Idle, Shoot, Slump, Walk, animEnumCount }; //animEnumCount should always be last
 
 bool stateActive[animEnumCount];
@@ -166,6 +165,10 @@ float Player::getPlayerTargetSinTheta(void)
 void Player::setCameraTarget(Ogre::Vector3 pos){
 
     cameraTarget = pos;
+    mLook = cameraTarget - getPlayerPosition();
+    mLook.y = 0.0;
+    mLook.normalise();
+
 }
 
 Ogre::Vector3 Player::getNewCameraPos(void){
@@ -230,29 +233,23 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     }
     Ogre::Vector3 playerVector = getPlayerPosition();
 
+    double a = cameraTarget.x;
+    double b = cameraTarget.z;
+    double x = playerVector.x;
+    double y = playerVector.z;
+    double r = distanceToTarget;
 
-    Ogre::Real diffX = playerVector.x - cameraTarget.x;
-    Ogre::Real diffZ = playerVector.z - cameraTarget.z;
+    Ogre::Real diffX = x - a;
+    Ogre::Real diffZ = y - b;
     distanceToTarget = Ogre::Math::Sqrt(Ogre::Math::Sqr(diffX) + Ogre::Math::Sqr(diffZ));
 
-    //printf("mDirection.x * evt: %f\n", (mDirection.x*evt.timeSinceLastFrame));
-    //printf("mDirection.z * evt: %f\n", (mDirection.z*evt.timeSinceLastFrame));
-
-    /* Ogre::Vector3 newCameraPos = Ogre::Vector3(
-            serverPos.x - xDist*scalingFactor,
-            300,
-            serverPos.z - zDist*scalingFactor);
-    */
-
+    double facingAngle = acos(diffX/r); //radians of rotation from x axis to line segment connecting players where opponent is at origin
     if(lockedOn)
     {
-        //playerTargetCosTheta = ((playerVector.x - cameraTarget.x)/distanceToTarget);
-        //playerTargetSinTheta = ((playerVector.z - cameraTarget.z)/distanceToTarget);
-        //TODO:: fix movement
         mDirection.x = 0.0;
         mDirection.z = 0.0;
-
         float scalingFactor = distPerSec/distanceToTarget;
+
         //towards and away from enemy
         mDirection.x += mCurrentControllerState[LCONTROLY]*diffX*scalingFactor;
         mDirection.z += mCurrentControllerState[LCONTROLY]*diffZ*scalingFactor;
@@ -262,16 +259,11 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         double pi = 3.14159265359;
         double circumference = 2*pi*distanceToTarget;
         double d = distPerSec * evt.timeSinceLastFrame*50.0;
-        double r = distanceToTarget;
+        
         double theta = d/r;
-        double a = cameraTarget.x;
-        double b = cameraTarget.z;
-        double x = playerVector.x;
-        double y = playerVector.z;
 
-
-        double newXCoord = (a+(x-a)*cos(theta)-(y-b)*sin(theta)); //raw x-y coordinate point
-        double newYCoord = (b+(x-a)*sin(theta)+(y-b)*cos(theta)); //raw x-y coordinate point
+        double newXCoord = (a+(x-a)*cos(theta)-(y-b)*sin(theta)); //raw x-z coordinate point
+        double newYCoord = (b+(x-a)*sin(theta)+(y-b)*cos(theta)); //raw x-z coordinate point
         mDirection.x += mCurrentControllerState[LCONTROLX]*(newXCoord-x); //amount of translation needed
         mDirection.z += mCurrentControllerState[LCONTROLX]*(newYCoord-y); //amount of translation needed
 
@@ -300,6 +292,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);*/
 
     pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
+    pnode->lookAt(cameraTarget, Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_X);
     Ogre::Vector3 pos = pnode->getPosition();
     trans.setOrigin(btVector3(pos.x, pos.y, pos.z));
     Ogre::Quaternion qt = pnode->getOrientation();

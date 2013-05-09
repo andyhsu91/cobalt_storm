@@ -65,8 +65,9 @@ private:
     
 
 
-    Ogre::Vector3 CameraVector;
-    Ogre::Vector3 playerVector;
+    Ogre::Vector3 cameraPos;
+    Ogre::Vector3 serverPos;
+    Ogre::Vector3 clientPos;
 
 };
  

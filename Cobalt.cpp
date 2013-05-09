@@ -19,12 +19,14 @@ Player mPlayer;
  Network* nManager;
  Sound* sManager;
 
+
+
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
 {
 //0 is the Server
 	serverPlayer = new Player();
-	//clientPlayer = new Player();
+	clientPlayer = new Player();
 }
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
@@ -86,8 +88,8 @@ void Cobalt::createScene(void)
 	sManager = new Sound();
 	sManager->playBackground(-1);
 	cerr << "Initing Player" << endl;
-    serverPlayer->initPlayer(mSceneMgr, &mBullet, "pnode");
-
+    serverPlayer->initPlayer(mSceneMgr, &mBullet, "PlayerEntity", "pnode", true);
+    clientPlayer->initPlayer(mSceneMgr, &mBullet, "PlayerEntity2", "pnode2", false);
 
 	cerr << "Finished scene" << endl;	
 
@@ -127,28 +129,25 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	}else{
 		//single player mode
 		
-		playerVector = serverPlayer->getPlayerPosition();
+		serverPos = serverPlayer->getPlayerPosition();
+		clientPos = clientPlayer->getPlayerPosition();
 		//printf("playerVector.x %f cameraTarget.x %f playerVector.z %f cameraTarget.z %f\n",playerVector.x, cameraTarget.x,playerVector.z, cameraTarget.z);
 		 //playerVector = Ogre::Vector3((playerVector.x - cameraTarget.x)+50,100,(playerVector.z - cameraTarget.z)+50);
-		float distanceToTarget = serverPlayer->getDistanceToTarget();
+		
+		serverPlayer->setCameraTarget(clientPos);
+		cameraPos = serverPlayer->getNewCameraPos();
 
-		if (distanceToTarget == 0.0) {
-			distanceToTarget = .01;
-		}
 
-		CameraVector = Ogre::Vector3(
-		 		playerVector.x + (serverPlayer->getPlayerTargetCosTheta()*80),
-		 		320,
-				playerVector.z + (serverPlayer->getPlayerTargetSinTheta()*80));
-
+		
 		 //printf("X:%f Dist:%f  X/Dist:%f\n", (playerVector.x - cameraTarget.x),ctDistance,(playerVector.x - cameraTarget.x)/ctDistance);
 		
-		mCamera->setPosition(CameraVector);
+		mCamera->setPosition(cameraPos);
 		//mCamera->setPosition(Ogre::Vector3(playerVector.x, playerVector.y, playerVector.z));
+		//mCamera->lookAt(clientPos);
 		if(serverPlayer->getLockedOn())
-			{
-			mCamera->lookAt(serverPlayer->getCameraTarget());
-			}
+		{
+			mCamera->lookAt(clientPos);
+		}
 
 		mBullet.updateWorld(evt);
 		mEnv.frmqUpdate(evt, mTrayMgr);
@@ -191,6 +190,10 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
     else if (arg.key == OIS::KC_P)
     	{
     		serverPlayer->updateControlAxis(LBUMP, 1);
+    	}
+     else if (arg.key == OIS::KC_L)
+    	{
+    		serverPlayer->toggleLock();
     	}
        //this command will move the camera
 	//mCameraMan->injectKeyDown(arg);

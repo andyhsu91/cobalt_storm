@@ -7,7 +7,7 @@ Filename:    Player.cpp
 #include "Player.h"
 
 using namespace std;
-
+const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
 //-------------------------------------------------------------------------------------
 Player::Player(void)
 {
@@ -18,7 +18,7 @@ Player::~Player(void)
 }
 //-------------------------------------------------------------------------------------
 void Player::initPlayer(Ogre::SceneManager* SceneMgr,
-                Physics* Bullet, std::string node)
+                Physics* Bullet, std::string entName, std::string node, bool isServer)
 {
         //cerr << "Beginning init player" << endl;
 
@@ -31,9 +31,14 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         }
 
         Ogre::Vector3 shapeDim = Ogre::Vector3(20, 40, 20);
-        Ogre::Vector3 position = Ogre::Vector3(700, 230, -750);
+        Ogre::Vector3 position;
+        if(isServer){
+            position = Ogre::Vector3(700.0, 251.0, -750.0); //DO NOT SET Y POS TO 250.0!!!!!!
+        } else{
+            position = Ogre::Vector3(500.0, 251.0, -550.0); //DO NOT SET Y POS TO 250.0!!!!!!
+        }
 
-        Ogre::Entity* ent = mSceneMgr->createEntity("PlayerEntity","robot.mesh");
+        Ogre::Entity* ent = mSceneMgr->createEntity(entName,"robot.mesh");
         pnode = mSceneMgr->getRootSceneNode()->
                 createChildSceneNode(node, position);
 
@@ -86,6 +91,10 @@ float Player::getDistanceToTarget(void)
    return distanceToTarget;
 }
 
+void Player::toggleLock(void){
+    lockedOn = !lockedOn;
+}
+
 bool Player::getLockedOn(void)
 {
     return lockedOn;
@@ -99,6 +108,42 @@ float Player::getPlayerTargetCosTheta(void)
 float Player::getPlayerTargetSinTheta(void)
 {
     return playerTargetSinTheta;
+}
+
+void Player::setCameraTarget(Ogre::Vector3 pos){
+
+    cameraTarget = pos;
+}
+
+Ogre::Vector3 Player::getNewCameraPos(void){
+    Ogre::Vector3 clientPos = cameraTarget;
+    Ogre::Vector3 serverPos = getPlayerPosition();
+    float zDist = clientPos.z-serverPos.z;
+    float xDist = clientPos.x-serverPos.x;
+    float distToTarget = sqrt( pow(xDist, 2.0) + pow(zDist, 2.0) );
+    float scalingFactor = (cameraRadius/distToTarget);
+    float slope = (clientPos.z - serverPos.z)/(clientPos.x - serverPos.x); //m=(y2-y1)/(x2-x1)
+    float zIntercept = serverPos.z - slope*serverPos.x; //b = z - mx
+    cout<<"serverPos:"<<serverPos<<endl;
+    cout<<"clientPos:"<<clientPos<<endl;
+    cout<<"ScalingFactor:"<<scalingFactor<<endl;
+    cout<<"Dist:"<<distToTarget<<endl;
+    cout<<"xDist:"<<xDist<<endl;
+    cout<<"zDist:"<<zDist<<endl;
+    cout<<"Camera X Pos:"<< serverPos.x + xDist*scalingFactor<<endl;
+    cout<<"Camera Z Pos:"<<serverPos.z + zDist*scalingFactor<<endl;
+
+    if (distToTarget == 0.0) {
+            distToTarget = .01; //stop divide by zero errors
+        }
+
+    Ogre::Vector3 newCameraPos = Ogre::Vector3(
+            serverPos.x - xDist*scalingFactor,
+            300,
+            serverPos.z - zDist*scalingFactor);
+
+    return newCameraPos;
+
 }
 
 Ogre::Vector3 Player::getCameraTarget(void)
@@ -131,8 +176,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
 
 
-        mDirection.x = (mDirection.x*playerTargetCosTheta) - (mDirection.z*playerTargetSinTheta);
-        mDirection.z = (mDirection.x*playerTargetSinTheta) + (mDirection.z*playerTargetCosTheta);
+        //mDirection.x = (mDirection.x*playerTargetCosTheta) - (mDirection.z*playerTargetSinTheta);
+        //mDirection.z = (mDirection.x*playerTargetSinTheta) + (mDirection.z*playerTargetCosTheta);
     }
 
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);

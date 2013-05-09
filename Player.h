@@ -81,7 +81,7 @@ public:
 	Player();
     ~Player(void);
     void initPlayer(Ogre::SceneManager* mSceneMgr,
-    	Physics* mBullet, std::string node);
+    	Physics* mBullet, std::string entName, std::string node, bool isServer);
 	btRigidBody* getRigidBody(void);
 	void updatePosition(const Ogre::FrameEvent& evt);
 	void updatePosition(const Ogre::FrameEvent& evt, PlayerVars* update);
@@ -94,8 +94,10 @@ public:
 	PlayerVars* getPlayerState(void);
 	float getDistanceToTarget(void);
 	Ogre::Vector3 getCameraTarget(void);
+	void toggleLock(void);
 	bool getLockedOn(void);
-
+	void setCameraTarget(Ogre::Vector3 pos);
+	Ogre::Vector3 getNewCameraPos(void);
 	float getPlayerTargetCosTheta(void);
 	float getPlayerTargetSinTheta(void);
 private:
@@ -113,7 +115,7 @@ private:
 	bool forceUpdate;
 	int bullet;
 	bool lockedOn;
-
+	
 	float playerTargetCosTheta;
     float playerTargetSinTheta;
 	Ogre::Vector3 cameraTarget;

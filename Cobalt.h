@@ -61,7 +61,7 @@ private:
     
     Player* serverPlayer;
     Player* clientPlayer;	
-    
+    Ogre::Real timeElapsed;
     
 
 

@@ -60,7 +60,7 @@ struct PlayerVars {
 	
 	bool playerState[15];
 	float playerPosition[3];
-	
+	float timeRemaining;
 	
 
 	//Need to add projectile positions to client

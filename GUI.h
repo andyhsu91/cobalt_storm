@@ -20,13 +20,14 @@ class GUI
     	virtual ~GUI(void);
 		void initGUI(Ogre::SceneManager*);
 		void setHealth(float);
+		void setEnemyHealth(float);
 		void setAmmo(int, int);
-		void setTime(float);
+		void setTime(Ogre::Real);
 
 	protected:	
 	
 	private:
-		char timeString[16];
+		char timeString[65];
 		CEGUI::Window *timeDisplay;
 		CEGUI::OgreRenderer* mRenderer;
 		CEGUI::Window *sheet;

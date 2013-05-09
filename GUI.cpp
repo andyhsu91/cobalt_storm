@@ -41,6 +41,16 @@ void GUI::initGUI(Ogre::SceneManager* pSceneMgr)
 	hud->setPosition(CEGUI::UVector2(CEGUI::UDim(0.62,0),CEGUI::UDim(0.82, 0)));
 	hud->setAlpha(0.6f);
 
+	//Create a time HUD
+	CEGUI::Window *thud = wmgr.createWindow("TaharezLook/FrameWindow", "CEGUI/TimeHudWindow");
+	//adds the Time HUD to the sheet
+	sheet->addChildWindow(thud);
+	thud->setText("Time");
+	thud->disable();
+	thud->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.1, 0)));
+	thud->setPosition(CEGUI::UVector2(CEGUI::UDim(0.02,0),CEGUI::UDim(0.02, 0)));
+	thud->setAlpha(0.8f);
+
 	//Create a ammo HUD 1
 	CEGUI::Window *ahud1 = wmgr.createWindow("TaharezLook/FrameWindow", "CEGUI/AmmoHudWindow1");
 	//adds the HUD to the sheet
@@ -150,17 +160,17 @@ void GUI::initGUI(Ogre::SceneManager* pSceneMgr)
 	MenuImageset.defineImage("crosshair", CEGUI::Point(0.0f,0.0f), CEGUI::Size( 1.0f, 1.0f ), CEGUI::Point(0.0f,0.0f)); // Whole Image
 
 	//time
-	CEGUI::Window *timeDisplay = wmgr.createWindow("TaharezLook/StaticText", "CEGUI/TimeText");
+	timeDisplay = wmgr.createWindow("TaharezLook/StaticText", "CEGUI/TimeText");
 	//adds the text to the Sheet
-	sheet->addChildWindow(timeDisplay);
+	thud->addChildWindow(timeDisplay);
 	//disable the possibility to interact with the object
 	timeDisplay->disable();
 	timeDisplay->setProperty("FrameEnabled", "False");
 	timeDisplay->setProperty("BackgroundEnabled", "False");
 	timeDisplay->setProperty("HorzFormatting", "WordWrapCentred");
 	timeDisplay->setText("0");
-	timeDisplay->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.2, 0)));
-	timeDisplay->setPosition(CEGUI::UVector2(CEGUI::UDim(0.02,0),CEGUI::UDim(0.01, 0)));
+	timeDisplay->setSize(CEGUI::UVector2(CEGUI::UDim(0.4, 0), CEGUI::UDim(0.8, 0)));
+	timeDisplay->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3,0),CEGUI::UDim(0.1, 0)));
 	timeDisplay->setAlwaysOnTop(true);
 
 	/*
@@ -191,13 +201,19 @@ void GUI::initGUI(Ogre::SceneManager* pSceneMgr)
 	CEGUI::System::getSingleton().setGUISheet(sheet);
 }
 //---------------------------------------------------------------------------
-void GUI::setHealth(float health)
+void GUI::setHealth(float vhealth)
 {
-	this->health->setProgress(health);
+	this->health->setProgress(vhealth);
 }
-void GUI::setTime(float time)
+//---------------------------------------------------------------------------
+void GUI::setEnemyHealth(float vhealth)
 {
-	sprintf(timeString, "%f", time);
+	this->ehealth->setProgress(vhealth);
+}
+//---------------------------------------------------------------------------
+void GUI::setTime(Ogre::Real time)
+{
+	sprintf(timeString, "%.1f", time);
 	this->timeDisplay->setText(timeString);
 }
 //---------------------------------------------------------------------------

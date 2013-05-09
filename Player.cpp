@@ -8,6 +8,13 @@ Filename:    Player.cpp
 
 using namespace std;
 const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
+const float shootTimeout = 2.0/3.0;
+float shootTimeRemaining = 0.0;
+
+enum robotStates { Die, Idle, Shoot, Slump, Walk, animEnumCount }; //animEnumCount should always be last
+
+bool stateActive[animEnumCount];
+
 //-------------------------------------------------------------------------------------
 Player::Player(void)
 {
@@ -33,12 +40,12 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         Ogre::Vector3 shapeDim = Ogre::Vector3(20, 40, 20);
         Ogre::Vector3 position;
         if(isServer){
-            position = Ogre::Vector3(700.0, 251.0, -750.0); //DO NOT SET Y POS TO 250.0!!!!!!
+            position = Ogre::Vector3(700.0, 242.0, -750.0);
         } else{
-            position = Ogre::Vector3(500.0, 251.0, -550.0); //DO NOT SET Y POS TO 250.0!!!!!!
+            position = Ogre::Vector3(500.0, 242.0, -550.0);
         }
 
-        Ogre::Entity* ent = mSceneMgr->createEntity(entName,"robot.mesh");
+        ent = mSceneMgr->createEntity(entName,"robot.mesh");
         pnode = mSceneMgr->getRootSceneNode()->
                 createChildSceneNode(node, position);
 
@@ -69,7 +76,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         lockedOn = false;
 
-        cameraTarget = Ogre::Vector3(700, 250, -700);
+        cameraTarget = Ogre::Vector3(0, 250, -1000);
 
 		cout << "Finishing init player" << endl;
 
@@ -79,7 +86,53 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         playerTargetSinTheta = 0;
 }
 
+std::string Player::getStringFromEnum(int animStateEnum)
+{
+    //enum robotStates { Die, Idle, Shoot, Slump, Walk };
+  switch (animStateEnum)
+  {
+    case Die:       return "Die";
+    case Idle:      return "Idle";
+    case Shoot:     return "Shoot";
+    case Slump:     return "Slump";
+    case Walk:      return "Walk";
+    default:        return "Invalid";
+    
+  };
+}
 
+void Player::enableState(int animStateEnum, bool enabled, bool loop){
+    cout<<"AnimState: "<<getStringFromEnum(animStateEnum)<<", enabled: "<<boolalpha<<enabled<<", loop: "<<loop<<endl;
+    for(int i=0; i<animEnumCount; i++){
+        stateActive[i]=false;
+        std::string animationState = getStringFromEnum(i);
+        if(animationState != "Invalid"){
+            ent->getAnimationState(animationState)->setEnabled(false);
+            ent->getAnimationState(animationState)->setLoop(false);
+        }
+    }
+    
+    std::string animationState = getStringFromEnum(animStateEnum);
+    if(animationState != "Invalid"){
+        stateActive[animStateEnum]=enabled;
+        ent->getAnimationState(animationState)->setLoop(loop);
+        ent->getAnimationState(animationState)->setEnabled(enabled);
+    }
+}
+
+void Player::updateAnimation(int animStateEnum, double seconds){
+    std::string animationState = getStringFromEnum(animStateEnum);
+    if(animationState != "Invalid"){
+        ent->getAnimationState(animationState)->addTime(seconds);
+    }
+}
+
+void Player::attack(bool val){
+    std::cout<<"Attacking"<<std::endl;
+    shootTimeRemaining = shootTimeout;
+    enableState(Shoot, val, true);
+
+}
 
 Ogre::Vector3 Player::getPlayerPosition(void)
 {
@@ -155,9 +208,22 @@ Ogre::Vector3 Player::getCameraTarget(void)
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {   
     float distPerSec = 200;
-    mDirection.x = mCurrentControllerState[LCONTROLX]*distPerSec;
-    mDirection.z = mCurrentControllerState[LCONTROLY]*distPerSec;
+    mDirection = Ogre::Vector3(0.0,0.0,0.0);
+    
 
+    if(mCurrentControllerState[LCONTROLX] != 0.0){
+        enableState(Walk, true, true);
+        mDirection.x = mCurrentControllerState[LCONTROLX]*distPerSec;
+    }
+    if(mCurrentControllerState[LCONTROLY] != 0.0){
+        enableState(Walk, true, true);
+        mDirection.z = mCurrentControllerState[LCONTROLY]*distPerSec;
+    }
+    if(mCurrentControllerState[LCONTROLY] == 0.0 && mCurrentControllerState[LCONTROLX] == 0.0){
+        if(stateActive[Walk]==true){
+            enableState(Walk, false, false);
+        }
+    }
     Ogre::Vector3 playerVector = getPlayerPosition();
 
 
@@ -198,8 +264,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         //mDirection.x += mCurrentControllerState[LCONTROLX]*(a+(x-a)*cos(theta)-(y-b)*sin(theta));
         //mDirection.z += mCurrentControllerState[LCONTROLX]*(b+(x-a)*sin(theta)+(y-b)*cos(theta));
 
-        mDirection.x += mCurrentControllerState[LCONTROLX]*(a+(x-a)*cos(theta)-(y-b)*sin(theta));
-        mDirection.z += mCurrentControllerState[LCONTROLX]*(b+(x-a)*sin(theta)+(y-b)*cos(theta));
+        mDirection.z += mCurrentControllerState[LCONTROLX]*(a+(x-a)*cos(theta)-(y-b)*sin(theta));
+        mDirection.x += mCurrentControllerState[LCONTROLX]*(b+(x-a)*sin(theta)+(y-b)*cos(theta));
 
     }
 
@@ -233,6 +299,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     mBody->getMotionState()->setWorldTransform(trans);
 
     if (mCurrentControllerState[RBUMP]) {
+        attack(true);
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z+10);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
@@ -254,6 +321,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         mCurrentControllerState[RBUMP] = 0;
     }
     if (mCurrentControllerState[LBUMP]) {
+        attack(true);
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
@@ -273,6 +341,20 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         mBullet->createBullet(bnode, 2, position, mLook);
 
         mCurrentControllerState[LBUMP] = 0;
+    }
+
+    for(int i=0; i<animEnumCount; i++){
+        if(stateActive[i]==true){
+            if(i==Shoot){
+                if(shootTimeRemaining>0.0){
+                    updateAnimation(i, evt.timeSinceLastFrame);
+                    shootTimeRemaining-=evt.timeSinceLastFrame;
+                }
+
+            } else{
+                 updateAnimation(i, evt.timeSinceLastFrame);
+            }
+        }
     }
     mPlayerState->playerPosition[X] = pnode->getPosition().x;
     mPlayerState->playerPosition[Y] = pnode->getPosition().y;

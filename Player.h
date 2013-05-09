@@ -100,7 +100,13 @@ public:
 	Ogre::Vector3 getNewCameraPos(void);
 	float getPlayerTargetCosTheta(void);
 	float getPlayerTargetSinTheta(void);
+	std::string getStringFromEnum(int animStateEnum);
+	void enableState(int animStateEnum, bool enabled, bool loop);
+	void updateAnimation(int animStateEnum, double seconds);
+	void attack(bool val);
+
 private:
+	Ogre::Entity* ent;
 	Ogre::SceneManager* mSceneMgr;
 	Physics* mBullet;
 	btKinematicCharacterController* mPlayer;

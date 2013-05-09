@@ -3,13 +3,13 @@
 
 //list of all allowed sound effects
 enum soundEffects{
-	Idle, Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Punch, enumElementCount //enumElementCount should always be the last
+	Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Punch, soundEnumCount //soundEnumCount should always be the last
 };
 
 //
 
 //Sound Effect Ids
-int chunkIds[enumElementCount];
+int chunkIds[soundEnumCount];
 
 
 std::vector<Mix_Chunk*> SoundList;
@@ -38,7 +38,7 @@ Sound::~Sound() {
 }
  
 void Sound::resetIDs(void){
-	for(int i=0; i<enumElementCount; i++){
+	for(int i=0; i<soundEnumCount; i++){
 		chunkIds[i]=-1;
 	}
 	
@@ -87,7 +87,7 @@ void Sound::loadSounds(void){
 		std::cout<<"Entered loadSounds()"<<std::endl;
 	}
 	
-	for(int i=0; i<enumElementCount; i++){
+	for(int i=0; i<soundEnumCount; i++){
 		if(chunkIds[i] < 0){
 			const char* filename = getSoundFileFromEnum(i).c_str();
 			int errCode = strcmp(filename, "Invalid");

@@ -205,6 +205,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 				gameUpdate = nManager->getGameUpdate(); 
 				numPacketsReceived++;
 				enemy->updatePositionFromPacket(evt, gameUpdate);
+				mBullet.removeTempProjectiles();
 				mBullet.putProjectiles(gameUpdate->type1ProjectilePos, 1);
 				mBullet.putProjectiles(gameUpdate->type2ProjectilePos, 2);
 			}

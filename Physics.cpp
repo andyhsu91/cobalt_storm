@@ -247,9 +247,7 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 	//cout<<"Exiting Physics::updateWorld()"<<endl;
 }
 
-void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
-	//inefficient
-	//cout<<"Entered Physics::putProjectiles()"<<endl;
+void Physics::removeTempProjectiles(void){
 	//delete old temp projectiles from the network
 	for (int j=0; j<dynamicsWorld->getNumCollisionObjects(); j++)
 	{	
@@ -274,7 +272,12 @@ void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 			mSceneMgr->destroySceneNode(mNode);
 		}
 	}
+}
 
+
+void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
+	
+	//cout<<"Entered Physics::putProjectiles()"<<endl;
 	//put new temp projectiles from the network
 	for(int i=0; i<20; i++){
 		

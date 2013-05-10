@@ -97,7 +97,7 @@ void Cobalt::createScene(void)
 	sManager = new Sound();
 	sManager->playBackground(-1);
 	cerr << "Initing Player" << endl;
-    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode1", true);
+    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode", true);
     clientPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity2", "pnode2", false);
 
     if(isConnected && !isServer){
@@ -159,23 +159,11 @@ PlayerVars* Cobalt::createPacket(void){
 	mBullet.freeProjectiles(type1);
 	mBullet.freeProjectiles(type2);
 
-	int damageDone = mBullet.damageToPlayer(isServer);
-
-	if(isServer) {
-		if(damageDone>0){cout << "Client Old HP: " << gameUpdate->client_health << endl;}
-		myPlayerVars->client_health -= damageDone;
-		gameUpdate->client_health = myPlayerVars->client_health;
-		if(damageDone>0){cout << "Client New HP: " << gameUpdate->client_health << endl;}
-		mGUI.setEnemyHealth((myPlayerVars->client_health)/100.0);
+	if(isServer){
+		gameUpdate->client_health -= mBullet.damageToPlayer(isServer);
+	}else{
+		gameUpdate->server_health -= mBullet.damageToPlayer(isServer);
 	}
-	else {
-		if(damageDone>0){cout << "Server Old HP: " << gameUpdate->server_health << endl;}
-		myPlayerVars->server_health -= damageDone;
-		gameUpdate->server_health = myPlayerVars->server_health;
-		if(damageDone>0){cout << "Server New HP: " << gameUpdate->server_health << endl;}
-		mGUI.setEnemyHealth((myPlayerVars->server_health)/100.0);
-	}
-
 	return gameUpdate;
 }
 
@@ -190,7 +178,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		
 		timeElapsed += evt.timeSinceLastFrame;
 		mGUI.setTime(timeLimit-timeElapsed);
-		//mGUI.setHealth(timeLimit-timeElapsed);
+
 		*myPos = myself->getPlayerPosition();
 		*enemyPos = enemy->getPlayerPosition();
 
@@ -241,6 +229,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 			if(isServer){
 				//I am server
+				mGUI.setHealth(myself->getPlayerVars()->server_health/100.0);
 				if(packetWasReceived && receivedPacket->server_health <= 0){
 					//game over, I lose
 					gameOver=true;
@@ -254,6 +243,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 			}else{
 				//I am client
+				mGUI.setHealth(myself->getPlayerVars()->client_health/100.0);
 				if(packetWasReceived && receivedPacket->client_health <= 0){
 					//game over, I lose
 					gameOver = true;
@@ -311,6 +301,7 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
         }
     else if (arg.key == OIS::KC_O)
         {
+
 			myself->updateControlButton(RBUMP, 1);
         }
     else if (arg.key == OIS::KC_P)

@@ -229,11 +229,10 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			if(packetWasReceived){ 
 				receivedPacket = nManager->getGameUpdate(); 
 				numPacketsReceived++;
-				if(isServer){
-					myself->getPlayerVars()->server_health = min(receivedPacket->server_health,myself->getPlayerVars()->server_health);
-				} else{
-					myself->getPlayerVars()->client_health = min(receivedPacket->client_health,myself->getPlayerVars()->client_health);
-				}
+				
+				myself->getPlayerVars()->server_health = min( receivedPacket->server_health, myself->getPlayerVars()->server_health );
+				myself->getPlayerVars()->client_health = min( receivedPacket->client_health, myself->getPlayerVars()->client_health );
+				
 				enemy->updatePositionFromPacket(evt, receivedPacket);
 				mBullet.removeTempProjectiles();
 				mBullet.putProjectiles(receivedPacket->type1ProjectilePos, 1);

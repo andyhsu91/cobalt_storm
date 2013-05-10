@@ -20,6 +20,8 @@ double type1Mass = 50.0;
 double type2Mass = 275.0;
 double tempMass = 111.111;
 float invalid = -999.999;
+static int P1damageTrack = 0;
+static int P2damageTrack = 0;
 
 Physics::Physics(void)
 {
@@ -103,8 +105,20 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 	//cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
 	if (obj0_name.find("bnode") == 0) {
 		//cout << "Object 0 " << obj0_name.find("bnode") << endl;
-		if (obj1_name.find("pnode")) {
-			// Calculate damage
+		// Calculate damage
+		if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2")) {
+			if (obj0_name.find("bnode11"))
+				P2damageTrack += 5;
+			else if (obj0_name.find("bnode12")) {
+				P2damageTrack += 20;
+			}
+		}
+		else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode")){
+			if (obj0_name.find("bnode11"))
+				P1damageTrack += 5;
+			else if (obj0_name.find("bnode12")) {
+				P1damageTrack += 20;
+			}
 		}
 
 		btCollisionObject* bullet;
@@ -120,9 +134,22 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 	}
 	if (obj1_name.find("bnode") == 0) {
 		//cout << "Object 1 " << obj1_name.find("bnode") << endl;
-		/*if (obj1_name.find("pnode")) {
-			// Calculate damage
-		}*/
+		// Calculate damage
+		if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2")) {
+			if (obj0_name.find("bnode11"))
+				P2damageTrack += 5;
+			else if (obj0_name.find("bnode12")) {
+				P2damageTrack += 20;
+			}
+		}
+		else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode")){
+			if (obj0_name.find("bnode11"))
+				P1damageTrack += 5;
+			else if (obj0_name.find("bnode12")) {
+				P1damageTrack += 20;
+			}
+		}
+
 		btCollisionObject* bullet;
 		for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
 		{
@@ -164,6 +191,8 @@ void Physics::initPhysics(Ogre::SceneManager* SceneMgr)
 	mSceneManager = mSceneMgr;
 
 	bullet = 0;
+	//P1damageTrack = 0;
+	//P2damageTrack = 0;
 	cerr << "Finished bullet init" << endl;
 }
 
@@ -337,16 +366,16 @@ float** Physics::getProjectiles(int typeOfProjectile){
 		}
 		//check if type 1 or 2
 		int currProjType = -1;
-		/*if(abs(bodyMass-type1Mass) < 0.2){
+		if(abs(bodyMass-type1Mass) < 0.2){
 			currProjType = 1;
 		} else if(abs(bodyMass-type2Mass) < 0.2){
 			currProjType = 2;
-		}*/
+		}
 
-		if(obj_name.find("bnode11") == 0 || obj_name.find("bnode21") == 0)
+		/*if(obj_name.find("bnode11") == 0 || obj_name.find("bnode21") == 0)
 			currProjType = 1;
 		else if(obj_name.find("bnode12") == 0 || obj_name.find("bnode22") == 0)
-			currProjType = 2;
+			currProjType = 2;*/
 
 		//if there is a match add it to array
 		if(currProjType == typeOfProjectile){
@@ -359,6 +388,19 @@ float** Physics::getProjectiles(int typeOfProjectile){
 	}
 	//cout<<"Exiting Physics::getProjectiles()"<<endl;
 	return projPos;
+}
+
+int damageToPlayer(bool isServer) {
+	int temp = 0;
+	if (isServer)
+		temp = P2damageTrack;
+	else
+		temp = P1damageTrack;
+
+	P1damageTrack = 0;
+	P2damageTrack = 0;
+
+	return temp;
 }
 
 

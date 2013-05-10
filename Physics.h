@@ -42,6 +42,7 @@ public:
 	void putProjectiles(float projectiles[][3], int typeOfProjectile); 
 	void freeProjectiles(float** projectiles);
 	float** getProjectiles(int typeOfProjectile);
+	int damageToPlayer(bool isServer);
 
 
 private:

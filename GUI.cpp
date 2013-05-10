@@ -10,12 +10,13 @@ GUI::GUI(void)
 GUI::~GUI(void)
 {
 }
-void GUI::initGUI(Ogre::SceneManager* pSceneMgr, bool *pGamepaused, bool *pGamequit)
+void GUI::initGUI(Ogre::SceneManager* pSceneMgr, bool *pGamepaused, bool *pGamequit, bool *inMenu)
 {
 	//CEGUI init
 	mSceneMgr = pSceneMgr;
 	isPaused = pGamepaused;
 	mShutDown = pGamequit;
+	inMainMenu = inMenu;
 	
 	mRenderer = &CEGUI::OgreRenderer::bootstrapSystem();
 
@@ -28,11 +29,16 @@ void GUI::initGUI(Ogre::SceneManager* pSceneMgr, bool *pGamepaused, bool *pGameq
 	CEGUI::SchemeManager::getSingleton().create("TaharezLook.scheme");
 	
 	CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
+
+	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+	mainMenu = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/Menu");
+	sheet = wmgr.createWindow("DefaultWindow", "CEGUIMainMenu/Sheet");
+	drawPause();
 }
+//---------------------------------------------------------------------------
 void GUI::drawMenu(void)
 {
 	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
-	mainMenu = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/Menu");
 	//Menu frame
 	CEGUI::Window *frameMenu = wmgr.createWindow("TaharezLook/FrameWindow","CEGUI/MenuFrame");
 	mainMenu->addChildWindow(frameMenu);
@@ -81,10 +87,61 @@ void GUI::drawMenu(void)
 	CEGUI::MouseCursor::getSingleton().show(); 
 }
 //---------------------------------------------------------------------------
+void GUI::drawPause(void)
+{
+	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+	pauseMenu = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/PauseMenu");
+	//Menu frame
+	CEGUI::Window *pauseBG = wmgr.createWindow("TaharezLook/FrameWindow","CEGUI/PauseBackground");
+	pauseMenu->addChildWindow(pauseBG);
+	pauseBG->setText("Pause");
+	pauseBG->disable();
+	pauseBG->setSize(CEGUI::UVector2(CEGUI::UDim(1.4, 0), CEGUI::UDim(1.4, 0)));
+	pauseBG->setPosition(CEGUI::UVector2(CEGUI::UDim(-0.1,0),CEGUI::UDim(-0.1, 0)));
+	pauseBG->setAlpha(0.5f);
+
+	//Start button
+	CEGUI::Window *resumeBut = wmgr.createWindow("TaharezLook/Button", "CEGUI/ResumeButton");
+	resumeBut->setText("Resume");
+	resumeBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
+	resumeBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.18f, 0), CEGUI::UDim(0.78f, 0))); 	
+	resumeBut->setAlpha(0.9f);	
+	resumeBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	resumeBut->setAlwaysOnTop(true);
+	pauseMenu->addChildWindow(resumeBut);
+
+	resumeBut->subscribeEvent(CEGUI::PushButton::EventClicked,
+		CEGUI::Event::Subscriber(&GUI::resumeGame, this));
+
+	//Settings button
+	CEGUI::Window *settingPauseBut = wmgr.createWindow("TaharezLook/Button", "CEGUI/PauseSettingButton");
+	settingPauseBut->setText("Settings");
+	settingPauseBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
+	settingPauseBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.52f, 0), CEGUI::UDim(0.78f, 0))); 
+	settingPauseBut->setProperty("NormalImage","set:TaharezLook image:full_image");	
+	settingPauseBut->setAlpha(0.9f);	
+	settingPauseBut->setAlwaysOnTop(true);
+	pauseMenu->addChildWindow(settingPauseBut);
+
+	//Quit button
+	CEGUI::Window *quitPauseBut = wmgr.createWindow("TaharezLook/Button", "CEGUI/PauseQuitButton");
+	quitPauseBut->setText("Quit");
+	quitPauseBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
+	quitPauseBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.68f, 0), CEGUI::UDim(0.78f, 0))); 	
+	quitPauseBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	quitPauseBut->setAlpha(0.9f);	
+	quitPauseBut->setAlwaysOnTop(true);
+	quitPauseBut->subscribeEvent(CEGUI::PushButton::EventClicked,
+		CEGUI::Event::Subscriber(&GUI::quitGame, this));
+	pauseMenu->addChildWindow(quitPauseBut); 
+
+	CEGUI::System::getSingleton().setGUISheet(mainMenu);
+}
+//---------------------------------------------------------------------------
 void GUI::drawHUD()
 {
 	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
-	sheet = wmgr.createWindow("DefaultWindow", "CEGUIMainMenu/Sheet");
+	pauseMenu = wmgr.createWindow("DefaultWindow", "CEGUIMainMenu/Pause");
 	//Create a health HUD
 	CEGUI::Window *hud = wmgr.createWindow("TaharezLook/FrameWindow", "CEGUI/HudWindow");
 	//adds the HUD to the sheet
@@ -219,21 +276,6 @@ void GUI::drawHUD()
 	Crosshair->setSize( CEGUI::UVector2( CEGUI::UDim( .5f, .5f ), CEGUI::UDim( .5f, .5f ) ) );
 	Crosshair->setProperty("Image", "set:CrosshairIS image:crosshair");
 */
-/*
-	//Creates a "Ammo" text
-	CEGUI::Window *ammoText = wmgr.createWindow("TaharezLook/StaticText", "CEGUI/AmmoText");
-	//adds the text to the Sheet
-	sheet->addChildWindow(ammoText);
-	//disable the possibility to interact with the object
-	ammoText->disable();
-	ammoText->setProperty("FrameEnabled", "False");
-	ammoText->setProperty("BackgroundEnabled", "False");
-	ammoText->setProperty("HorzFormatting", "WordWrapCentred");
-	ammoText->setText("Ammo");
-	ammoText->setSize(CEGUI::UVector2(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.2, 0)));
-	ammoText->setPosition(CEGUI::UVector2(CEGUI::UDim(0.65,0),CEGUI::UDim(0.76, 0)));
-	ammoText->setAlwaysOnTop(true);
-*/
 
 	//Sets the current sheet to be used
 	CEGUI::System::getSingleton().setGUISheet(sheet);
@@ -278,11 +320,34 @@ void GUI::setAmmo(int ammo, int weapon)
 bool GUI::startGame(const CEGUI::EventArgs &e)
 {
 	drawHUD();
+	*inMainMenu = false;
 	*isPaused = false;
+	return true;
+}
+bool GUI::resumeGame(const CEGUI::EventArgs &e)
+{
+	std::cout<<"Game Resumed"<<std::endl;
+	CEGUI::System::getSingleton().setGUISheet(sheet);
+	*isPaused = false;
+	CEGUI::MouseCursor::getSingleton().hide();
 	return true;
 }
 bool GUI::quitGame(const CEGUI::EventArgs &e)
 {
     *mShutDown = true;
     return true;
+}
+void GUI::pauseGame(void)
+{
+	std::cout<<"Game Paused"<<std::endl;
+	CEGUI::MouseCursor::getSingleton().show(); 
+	CEGUI::System::getSingleton().setGUISheet(pauseMenu);
+	*isPaused = true;
+}
+void GUI::resumeGame(void)
+{
+	std::cout<<"Game Resumed"<<std::endl;
+	CEGUI::System::getSingleton().setGUISheet(sheet);
+	*isPaused = false;
+	CEGUI::MouseCursor::getSingleton().hide();
 }

@@ -56,18 +56,23 @@ protected:
     virtual bool axisMoved( const OIS::JoyStickEvent &e, int axis );
     virtual bool buttonPressed( const OIS::JoyStickEvent &e, int button );
     virtual bool buttonReleased( const OIS::JoyStickEvent &e, int button );
-	
+	PlayerVars* createPacket(void);
+
 private:
     
     Player* serverPlayer;
-    Player* clientPlayer;	
+    Player* clientPlayer;
+    Player* myself;	
+    Player* enemy;
     Ogre::Real timeElapsed;
-    
+    PlayerVars* gameUpdate;
 
 
-    Ogre::Vector3 CameraVector;
-    Ogre::Vector3 playerVector;
-
+    Ogre::Vector3 cameraPos;
+    Ogre::Vector3 serverPos;
+    Ogre::Vector3 clientPos;
+    Ogre::Vector3* myPos;
+    Ogre::Vector3* enemyPos;
 };
  
 #endif // #ifndef __Cobalt_h_

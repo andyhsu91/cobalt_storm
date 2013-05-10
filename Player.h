@@ -11,6 +11,7 @@ Filename:    Player.h
 #include <Ogre.h>
 #include <stdio.h>
 #include "Physics.h"
+#include "Sound.h"
 
 enum States { STANDING,
  WALKING,
@@ -38,21 +39,22 @@ enum States { STANDING,
 #define LTRIG 2
 #define RTRIG 2
 
-#define LBUMP 5
-#define RBUMP 6
+#define LBUMP 4
+#define RBUMP 5
 
-#define LJOYCLICK 9
-#define RJOYCLICK 10
+#define LJOYCLICK 8
+#define RJOYCLICK 9
 
 #define RBUTTON1 0
 #define RBUTTON2 1
 #define RBUTTON3 2
 #define RBUTTON4 3
 
-#define LMIDBUTTON 7
-#define RMIDBUTTON 8
+#define LMIDBUTTON 6
+#define RMIDBUTTON 7
 
 struct PlayerVars {
+	//Upper limit of this struct is 1500 bytes
 	int health;
 	int weaponamt1;
 	int weaponamt2;
@@ -65,10 +67,11 @@ struct PlayerVars {
 
 	//Need to add projectile positions to client
 	//All projectile directions processed on server
-	float serverProjectilePos[3][3]; //3 projectiles, 3 axises for each projectile
-	float serverProjectileDir[3][3];
-	float clientProjectilePos[3][3];
-	float clientProjectileDir[3][3];
+	float type1ProjectilePos[20][3]; //25 projectiles, 3 axises for each projectile
+	float type2ProjectilePos[20][3];
+	//float serverProjectileDir[3][3];
+	//float clientProjectilePos[3][3];
+	//float clientProjectileDir[3][3];
 
 };
 
@@ -80,28 +83,43 @@ class Player
 public:
 	Player();
     ~Player(void);
+    enum robotStates { Die, Idle, Shoot, Slump, Walk, animEnumCount }; //animEnumCount should always be last
     void initPlayer(Ogre::SceneManager* mSceneMgr,
-    	Physics* mBullet, std::string node);
+    	Physics* mBullet, Sound* soundManager, std::string entName, std::string node, bool isServer);
 	btRigidBody* getRigidBody(void);
 	void updatePosition(const Ogre::FrameEvent& evt);
-	void updatePosition(const Ogre::FrameEvent& evt, PlayerVars* update);
+	void updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet);
 
 	void updateControlAxis(int axis, float value);
+	void updateControlButton(int button, float value);
 	void updatePlayerState(int action, bool value);
 
 	Ogre::Vector3 getPlayerPosition(void);
 
-	PlayerVars* getPlayerState(void);
+	float getCurrentAxisState(int axis);
+	bool getCurrentButtonState(int button);
+
+	bool getPlayerState(int);
 	float getDistanceToTarget(void);
 	Ogre::Vector3 getCameraTarget(void);
+	void toggleLock(void);
 	bool getLockedOn(void);
-
+	void setCameraTarget(Ogre::Vector3 pos);
+	Ogre::Vector3 getNewCameraPos(void);
 	float getPlayerTargetCosTheta(void);
 	float getPlayerTargetSinTheta(void);
+	std::string getStringFromEnum(int animStateEnum);
+	void enableState(int animStateEnum, bool enabled, bool loop);
+	void updateAnimation(int animStateEnum, double seconds);
+	void attack(bool val);
+
 private:
+	Ogre::Entity* ent;
 	Ogre::SceneManager* mSceneMgr;
 	Physics* mBullet;
+	Sound* sManager;
 	btKinematicCharacterController* mPlayer;
+	bool stateActive[animEnumCount];
 	//btPairCachingGhostObject* mGhost;
 	btRigidBody* mBody;
 	btTransform trans;
@@ -113,7 +131,7 @@ private:
 	bool forceUpdate;
 	int bullet;
 	bool lockedOn;
-
+	
 	float playerTargetCosTheta;
     float playerTargetSinTheta;
 	Ogre::Vector3 cameraTarget;
@@ -124,7 +142,8 @@ private:
 	/*holds the current controller/keyboardstate of the player
 	these values will then be used to update the player movement based on
 	frametime in the updatePosition method. LCONTROLX, LCONTROLY, RCONTROLX, RCONTROLY*/
-	float mCurrentControllerState[11];
+	float mCurrentControllerAxisState[5];
+	bool mCurrentControllerButtonState[11];
 
 };
 

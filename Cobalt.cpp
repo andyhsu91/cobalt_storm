@@ -20,19 +20,22 @@ Player mPlayer;
  Network* nManager;
  Sound* sManager;
  const float timeLimit = 60.0;
+ long numPacketsReceived = 0;
+
 
 //-------------------------------------------------------------------------------------
 Cobalt::Cobalt(void)
 {
 //0 is the Server
 	serverPlayer = new Player();
-	//clientPlayer = new Player();
+	clientPlayer = new Player();
 }
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
 {
-	if(nManager){delete nManager;}
-	if(sManager){delete sManager;}
+	if(nManager)	{delete nManager;}
+	if(sManager)	{delete sManager;}
+	if(gameUpdate)	{delete gameUpdate;}
 }
 //-------------------------------------------------------------------------------------
 void Cobalt::createCamera(void)
@@ -41,7 +44,7 @@ void Cobalt::createCamera(void)
 	mCamera = mSceneMgr->createCamera("PlayerCam");
 	
 	mCamera->setPosition(Ogre::Vector3(700, 500, -300));
-	mCamera->lookAt(Ogre::Vector3(700, 250, -550));
+	mCamera->lookAt(Ogre::Vector3(0.0, 250, -1000));
 	mCamera->setNearClipDistance(0.1);
 	mCamera->setFarClipDistance(50000);
 
@@ -72,17 +75,18 @@ void Cobalt::createScene(void)
 
 	//Initialize Network Manager
 	nManager = new Network();
-	//nManager->init();
+	nManager->init();
 	isConnected = nManager->isConnectionOpen();
 	isServer = nManager->isThisServer();
 	
-	isMultiplayer = false; //change to true when ready
+	isMultiplayer = true; //change to true when ready
 
 	if(isMultiplayer && isServer && !isConnected){
 		nManager->waitForClientConnection();
 		isConnected = nManager->isConnectionOpen();
 	}
 	if(isConnected){
+		gameUpdate = new PlayerVars;
 		isServer = nManager->isThisServer();
 	} else{
 		isMultiplayer = false;
@@ -91,12 +95,25 @@ void Cobalt::createScene(void)
 	sManager = new Sound();
 	sManager->playBackground(-1);
 	cerr << "Initing Player" << endl;
-    serverPlayer->initPlayer(mSceneMgr, &mBullet, "pnode");
+    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode", true);
+    clientPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity2", "pnode2", false);
 
+    if(isConnected && !isServer){
+    	myself = clientPlayer;
+    	myPos = &clientPos;
+    	enemy = serverPlayer;
+    	enemyPos = &serverPos;
+    } else{
+    	myself = serverPlayer;
+    	myPos = &serverPos;
+    	enemy = clientPlayer;
+    	enemyPos = &clientPos;
+    }
 
 	cerr << "Finished scene" << endl;	
 
 }
+
 
 //-------------------------------------------------------------------------------------
 void Cobalt::createFrameListener(void)
@@ -106,6 +123,14 @@ void Cobalt::createFrameListener(void)
 	mEnv.createFL(mTrayMgr);
 	
 }
+
+PlayerVars* Cobalt::createPacket(void){
+	//go to various other classes and fill in packet data
+
+
+	return NULL;
+}
+
 //-------------------------------------------------------------------------------------
 bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {	//return True to continue rendering, false to drop out of the rendering loop
@@ -116,20 +141,38 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	}
 	bool ret = BaseApplication::frameRenderingQueued(evt);
 
+	*myPos = myself->getPlayerPosition();
+	*enemyPos = enemy->getPlayerPosition();
+
 	if(isMultiplayer){
 		bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
 		isConnected = nManager->isConnectionOpen();
 		PlayerVars* gameUpdate = NULL;
 		if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
-		if(packetReceived){ gameUpdate = nManager->getGameUpdate(); }
+		if(packetReceived){ gameUpdate = nManager->getGameUpdate(); numPacketsReceived++;}
+
+		mBullet.updateWorld(evt);
+		mEnv.frmqUpdate(evt, mTrayMgr);
+		myself->updatePosition(evt); //update myself normally
+
+		if(packetReceived || numPacketsReceived < 3){
+			//only send packet when we receive a packet so that we don't congest the network
+			nManager->sendPacket( *createPacket() );
+		}
 
 		if(isServer){
 			//I am server
+			serverPlayer->setCameraTarget(clientPos);
 
+			
 
 		}else{
 			//I am client
-			
+			clientPlayer->setCameraTarget(serverPos);
+			if(packetReceived){
+
+			}
+
 
 		}
 		
@@ -137,33 +180,30 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	}else{
 		//single player mode
 		
-		playerVector = serverPlayer->getPlayerPosition();
+		
 		//printf("playerVector.x %f cameraTarget.x %f playerVector.z %f cameraTarget.z %f\n",playerVector.x, cameraTarget.x,playerVector.z, cameraTarget.z);
 		 //playerVector = Ogre::Vector3((playerVector.x - cameraTarget.x)+50,100,(playerVector.z - cameraTarget.z)+50);
-		float distanceToTarget = serverPlayer->getDistanceToTarget();
+		
+		myself->setCameraTarget(*enemyPos);
+		cameraPos = myself->getNewCameraPos();
 
-		if (distanceToTarget == 0.0) {
-			distanceToTarget = .01;
-		}
 
-		CameraVector = Ogre::Vector3(
-		 		playerVector.x + (serverPlayer->getPlayerTargetCosTheta()*80),
-		 		320,
-				playerVector.z + (serverPlayer->getPlayerTargetSinTheta()*80));
-
+		
 		 //printf("X:%f Dist:%f  X/Dist:%f\n", (playerVector.x - cameraTarget.x),ctDistance,(playerVector.x - cameraTarget.x)/ctDistance);
 		
-		mCamera->setPosition(CameraVector);
+		mCamera->setPosition(cameraPos);
 		//mCamera->setPosition(Ogre::Vector3(playerVector.x, playerVector.y, playerVector.z));
-		if(serverPlayer->getLockedOn())
-			{
-			mCamera->lookAt(serverPlayer->getCameraTarget());
-			}
+		//mCamera->lookAt(clientPos);
+		if(myself->getLockedOn())
+		{
+
+			mCamera->lookAt(*enemyPos);
+		}
 
 		mBullet.updateWorld(evt);
 		mEnv.frmqUpdate(evt, mTrayMgr);
 
-		serverPlayer->updatePosition(evt);
+		myself->updatePosition(evt);
 
 	}
 	
@@ -180,27 +220,32 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
     	}
     else if (arg.key == OIS::KC_W)
 		{
-			serverPlayer->updateControlAxis(LCONTROLY, -1);
+			myself->updateControlAxis(LCONTROLY, -1);
 		}
 	else if (arg.key == OIS::KC_A)
         {
-			serverPlayer->updateControlAxis(LCONTROLX, -1);
+			myself->updateControlAxis(LCONTROLX, -1);
         }
 	else if (arg.key == OIS::KC_S)
         {
-			serverPlayer->updateControlAxis(LCONTROLY, 1);
+			myself->updateControlAxis(LCONTROLY, 1);
         }
 	else if (arg.key == OIS::KC_D)
         {
-			serverPlayer->updateControlAxis(LCONTROLX, 1);
+			myself->updateControlAxis(LCONTROLX, 1);
         }
     else if (arg.key == OIS::KC_O)
         {
-			serverPlayer->updateControlAxis(RBUMP, 1);
+
+			myself->updateControlButton(RBUMP, 1);
         }
     else if (arg.key == OIS::KC_P)
     	{
-    		serverPlayer->updateControlAxis(LBUMP, 1);
+    		myself->updateControlButton(LBUMP, 1);
+    	}
+     else if (arg.key == OIS::KC_L)
+    	{
+    		myself->toggleLock();
     	}
        //this command will move the camera
 	//mCameraMan->injectKeyDown(arg);
@@ -211,27 +256,28 @@ bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
 {
      if (arg.key == OIS::KC_W)
 		{
-			serverPlayer->updateControlAxis(LCONTROLY, 0);
+			myself->updateControlAxis(LCONTROLY, 0);
 		}
 	else if (arg.key == OIS::KC_A)
         {
-			serverPlayer->updateControlAxis(LCONTROLX, 0);
+			myself->updateControlAxis(LCONTROLX, 0);
         }
 	else if (arg.key == OIS::KC_S)
         {
-			serverPlayer->updateControlAxis(LCONTROLY, 0);
+			myself->updateControlAxis(LCONTROLY, 0);
         }
 	else if (arg.key == OIS::KC_D)
         {
-			serverPlayer->updateControlAxis(LCONTROLX, 0);
+			myself->updateControlAxis(LCONTROLX, 0);
         }
     else if (arg.key == OIS::KC_O)
         {
-			serverPlayer->updateControlAxis(RBUMP, 0);
+
+			myself->updateControlButton(RBUMP, 0);
         }
     else if (arg.key == OIS::KC_P)
         {
-			serverPlayer->updateControlAxis(LBUMP, 0);
+			myself->updateControlButton(LBUMP, 0);
         }
 //mCameraMan->injectKeyUp(arg);
 	return true;
@@ -286,76 +332,15 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  RBUTTON1, RBUTTON2, RBUTTON3, RBUTTON4, LMIDBUTTON, RMIDBUTTON */
  bool Cobalt::buttonPressed( const OIS::JoyStickEvent &e, int button )
  {
- 	printf("buttonPressed %d\n",button);
- 	switch(button)
- 	{
-		case LBUMP:
-		serverPlayer->updatePlayerState(SHOOTING1, true);
-		break;
-		case RBUMP:
-		serverPlayer->updatePlayerState(SHOOTING2, true);
-		break;
-		case LJOYCLICK:
-		serverPlayer->updatePlayerState(JUMPING, true);
-		break;
-		case RJOYCLICK:
-		serverPlayer->updatePlayerState(JUMPING, true);
-		break;
 
-		//these are not currently used
-		case RBUTTON1:
-		break;
-		case RBUTTON2:
-		break;
-		case RBUTTON3:
-		break;
-		case RBUTTON4:
-		break;
-		case LMIDBUTTON:
-		break;
-		case RMIDBUTTON:
-		break;
-		default:
-		break;
- 	}
-
+ 	myself->updateControlButton(button, true);
 	
  	return true;
  }
  bool Cobalt::buttonReleased( const OIS::JoyStickEvent &e, int button )
  {
- 	//printf("buttonReleased\n");
- 	switch(button)
- 	{
-		case LBUMP:
-		serverPlayer->updatePlayerState(SHOOTING1, false);
-		break;
-		case RBUMP:
-		serverPlayer->updatePlayerState(SHOOTING2, false);
-		break;
-		case LJOYCLICK:
-		serverPlayer->updatePlayerState(JUMPING, false);
-		break;
-		case RJOYCLICK:
-		serverPlayer->updatePlayerState(JUMPING, false);
-		break;
+		myself->updatePlayerState(button, false);
 
-		//these are not currently used
-		case RBUTTON1:
-		break;
-		case RBUTTON2:
-		break;
-		case RBUTTON3:
-		break;
-		case RBUTTON4:
-		break;
-		case LMIDBUTTON:
-		break;
-		case RMIDBUTTON:
-		break;
-		default:
-		break;
- 	}
     return true;
 
  }

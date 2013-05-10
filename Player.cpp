@@ -7,6 +7,15 @@ Filename:    Player.cpp
 #include "Player.h"
 
 using namespace std;
+const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
+const float shootTimeout = 2.0/3.0; //amount of seconds that the shooting animation takes
+float shootTimeRemaining = 0.0; //shoot animation has to be set to loop in order to repeat the animation multiple times
+const float walkTime = .85;
+float walkTimeRemaining = 0.0;
+
+
+
+
 
 //-------------------------------------------------------------------------------------
 Player::Player(void)
@@ -18,22 +27,32 @@ Player::~Player(void)
 }
 //-------------------------------------------------------------------------------------
 void Player::initPlayer(Ogre::SceneManager* SceneMgr,
-                Physics* Bullet, std::string node)
+                Physics* Bullet, Sound* soundManager, std::string entName, std::string node, bool isServer)
 {
-        //cerr << "Beginning init player" << endl;
-
+        cerr << "Beginning init player" << endl;
+        cerr << "Network Packet is "<<sizeof(PlayerVars)<<" bytes. Upper limit is 1500 bytes."<< endl;
         mSceneMgr = SceneMgr;
         mBullet = Bullet;
+        sManager = soundManager;
         mPlayerState = new PlayerVars;
-        for (int i = 0; i < 11; ++i)
+        for (int i = 0; i < 5; ++i)
         {
-                mCurrentControllerState[i] = 0;
+                mCurrentControllerAxisState[i] = 0;
+        }
+           for (int i = 0; i < 1; ++i)
+        {
+                mCurrentControllerButtonState[i] = 0;
         }
 
         Ogre::Vector3 shapeDim = Ogre::Vector3(20, 40, 20);
-        Ogre::Vector3 position = Ogre::Vector3(700, 230, -750);
+        Ogre::Vector3 position;
+        if(isServer){
+            position = Ogre::Vector3(700.0, 242.0, -750.0);
+        } else{
+            position = Ogre::Vector3(500.0, 242.0, -550.0);
+        }
 
-        Ogre::Entity* ent = mSceneMgr->createEntity("PlayerEntity","robot.mesh");
+        ent = mSceneMgr->createEntity(entName,"robot.mesh");
         pnode = mSceneMgr->getRootSceneNode()->
                 createChildSceneNode(node, position);
 
@@ -62,9 +81,9 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         bullet = 0;
 
-        lockedOn = false;
+        lockedOn = true;
 
-        cameraTarget = Ogre::Vector3(700, 250, -700);
+        cameraTarget = Ogre::Vector3(0, 250, -1000);
 
 		cout << "Finishing init player" << endl;
 
@@ -74,7 +93,52 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         playerTargetSinTheta = 0;
 }
 
+std::string Player::getStringFromEnum(int animStateEnum)
+{
+    //enum robotStates { Die, Idle, Shoot, Slump, Walk };
+  switch (animStateEnum)
+  {
+    case Die:       return "Die";
+    case Idle:      return "Idle";
+    case Shoot:     return "Shoot";
+    case Slump:     return "Slump";
+    case Walk:      return "Walk";
+    default:        return "Invalid";
+    
+  };
+}
 
+void Player::enableState(int animStateEnum, bool enabled, bool loop){
+    cout<<"AnimState: "<<getStringFromEnum(animStateEnum)<<", enabled: "<<boolalpha<<enabled<<", loop: "<<loop<<endl;
+    for(int i=0; i<animEnumCount; i++){
+        stateActive[i]=false;
+        std::string animationState = getStringFromEnum(i);
+        if(animationState != "Invalid"){
+            ent->getAnimationState(animationState)->setEnabled(false);
+            ent->getAnimationState(animationState)->setLoop(false);
+        }
+    }
+    
+    std::string animationState = getStringFromEnum(animStateEnum);
+    if(animationState != "Invalid"){
+        stateActive[animStateEnum]=enabled;
+        ent->getAnimationState(animationState)->setLoop(loop);
+        ent->getAnimationState(animationState)->setEnabled(enabled);
+    }
+}
+
+void Player::updateAnimation(int animStateEnum, double seconds){
+    std::string animationState = getStringFromEnum(animStateEnum);
+    if(animationState != "Invalid"){
+        ent->getAnimationState(animationState)->addTime(seconds);
+    }
+}
+
+void Player::attack(bool val){
+    std::cout<<"Attacking"<<std::endl;
+    shootTimeRemaining = shootTimeout;
+    enableState(Shoot, val, true);
+}
 
 Ogre::Vector3 Player::getPlayerPosition(void)
 {
@@ -84,6 +148,10 @@ Ogre::Vector3 Player::getPlayerPosition(void)
 float Player::getDistanceToTarget(void)
 {
    return distanceToTarget;
+}
+
+void Player::toggleLock(void){
+    lockedOn = !lockedOn;
 }
 
 bool Player::getLockedOn(void)
@@ -101,38 +169,152 @@ float Player::getPlayerTargetSinTheta(void)
     return playerTargetSinTheta;
 }
 
+void Player::setCameraTarget(Ogre::Vector3 pos){
+
+    cameraTarget = pos;
+    mLook = cameraTarget - getPlayerPosition();
+    mLook.y = 0.0;
+    mLook.normalise();
+
+}
+
+Ogre::Vector3 Player::getNewCameraPos(void){
+    Ogre::Vector3 clientPos = cameraTarget;
+    Ogre::Vector3 serverPos = getPlayerPosition();
+    float zDist = clientPos.z-serverPos.z;
+    float xDist = clientPos.x-serverPos.x;
+    float distToTarget = sqrt( pow(xDist, 2.0) + pow(zDist, 2.0) );
+    float scalingFactor = (cameraRadius/distToTarget);
+    float slope = (clientPos.z - serverPos.z)/(clientPos.x - serverPos.x); //m=(y2-y1)/(x2-x1)
+    float zIntercept = serverPos.z - slope*serverPos.x; //b = z - mx
+    /*
+        cout<<"serverPos:"<<serverPos<<endl;
+        cout<<"clientPos:"<<clientPos<<endl;
+        cout<<"ScalingFactor:"<<scalingFactor<<endl;
+        cout<<"Dist:"<<distToTarget<<endl;
+        cout<<"xDist:"<<xDist<<endl;
+        cout<<"zDist:"<<zDist<<endl;
+        cout<<"Camera X Pos:"<< serverPos.x + xDist*scalingFactor<<endl;
+        cout<<"Camera Z Pos:"<<serverPos.z + zDist*scalingFactor<<endl;
+    */
+    if (distToTarget == 0.0) {
+            distToTarget = .01; //stop divide by zero errors
+        }
+
+    Ogre::Vector3 newCameraPos = Ogre::Vector3(
+            serverPos.x - xDist*scalingFactor,
+            300,
+            serverPos.z - zDist*scalingFactor);
+
+    return newCameraPos;
+
+}
+
+float Player::getCurrentAxisState(int axis)
+{
+    return mCurrentControllerAxisState[axis];
+}
+
+bool Player::getCurrentButtonState(int button)
+{
+    return mCurrentControllerButtonState[button];
+}
+
+
+void Player::updatePlayerState(int state, bool value)
+{
+        mPlayerState->playerState[state]=value;
+}
+
+bool Player::getPlayerState(int state)
+{
+    return mPlayerState->playerState[state];
+}
+
 Ogre::Vector3 Player::getCameraTarget(void)
 {
     return cameraTarget;
 }
 
-void Player::updatePosition(const Ogre::FrameEvent& evt)
-{
-    mDirection.x = mCurrentControllerState[LCONTROLX]*200;
-    mDirection.z = mCurrentControllerState[LCONTROLY]*200;
+void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet){
+    //update player based on packet recieved over the network
 
+}
+
+
+void Player::updatePosition(const Ogre::FrameEvent& evt)
+{   
+    //size of packet over the network;
+    //printf("playervars: %d \n",sizeof (PlayerVars) );
+    float distPerSec = 200;
+    mDirection = Ogre::Vector3(0.0,0.0,0.0);
+    
+/*
+    const float walkTime = 2.0;
+    float walkTimeRemaining = 0.0;
+*/
+    if(mCurrentControllerAxisState[LCONTROLX] != 0.0){
+        
+        if(stateActive[Walk]==false){
+            enableState(Walk, true, true);
+        }
+        
+        mDirection.x = mCurrentControllerAxisState[LCONTROLX]*distPerSec;
+    }
+    if(mCurrentControllerAxisState[LCONTROLY] != 0.0){
+        if(stateActive[Walk]==false){
+            enableState(Walk, true, true);
+        }
+        mDirection.z = mCurrentControllerAxisState[LCONTROLY]*distPerSec;
+    }
+    if(mCurrentControllerAxisState[LCONTROLY] == 0.0 && mCurrentControllerAxisState[LCONTROLX] == 0.0){
+        if(stateActive[Walk]==true){
+            enableState(Walk, false, false);
+        }
+    }
+    if(mCurrentControllerAxisState[LCONTROLY] != 0.0 || mCurrentControllerAxisState[LCONTROLX] != 0.0){
+        if(walkTimeRemaining <=0.0){
+            walkTimeRemaining = walkTime;
+            sManager->playSoundFromEnum(Sound::Walk);
+        }
+        walkTimeRemaining -= evt.timeSinceLastFrame;
+    }
     Ogre::Vector3 playerVector = getPlayerPosition();
 
+    double a = cameraTarget.x;
+    double b = cameraTarget.z;
+    double x = playerVector.x;
+    double y = playerVector.z;
+    double r = distanceToTarget;
 
-    Ogre::Real diffX = playerVector.x - cameraTarget.x;
-    Ogre::Real diffY = playerVector.y - cameraTarget.y;
-    distanceToTarget = Ogre::Math::Sqrt(Ogre::Math::Sqr(diffX) + Ogre::Math::Sqr(diffY));
+    Ogre::Real diffX = x - a;
+    Ogre::Real diffZ = y - b;
+    distanceToTarget = Ogre::Math::Sqrt(Ogre::Math::Sqr(diffX) + Ogre::Math::Sqr(diffZ));
 
-    //printf("mDirection.x * evt: %f\n", (mDirection.x*evt.timeSinceLastFrame));
-    //printf("mDirection.z * evt: %f\n", (mDirection.z*evt.timeSinceLastFrame));
-
-    playerTargetCosTheta = ((playerVector.x - cameraTarget.x)/distanceToTarget);
-    playerTargetSinTheta = ((playerVector.z - cameraTarget.z)/distanceToTarget);
-
+    double facingAngle = acos(diffX/r); //radians of rotation from x axis to line segment connecting players where opponent is at origin
     if(lockedOn)
     {
+        mDirection.x = 0.0;
+        mDirection.z = 0.0;
+        float scalingFactor = distPerSec/distanceToTarget;
 
-        //TODO:: fix movement
+        //towards and away from enemy
+        mDirection.x += mCurrentControllerAxisState[LCONTROLY]*diffX*scalingFactor;
+        mDirection.z += mCurrentControllerAxisState[LCONTROLY]*diffZ*scalingFactor;
 
+        //left and right (Doesn't work yet)
+        //Using http://math.stackexchange.com/questions/53875/calculating-point-around-circumference-of-circle-given-distance-travelled
+        double pi = 3.14159265359;
+        double circumference = 2*pi*distanceToTarget;
+        double d = distPerSec * evt.timeSinceLastFrame*50.0;
+        
+        double theta = d/r;
 
+        double newXCoord = (a+(x-a)*cos(theta)-(y-b)*sin(theta)); //raw x-z coordinate point
+        double newYCoord = (b+(x-a)*sin(theta)+(y-b)*cos(theta)); //raw x-z coordinate point
+        mDirection.x -= mCurrentControllerAxisState[LCONTROLX]*(newXCoord-x); //amount of translation needed
+        mDirection.z -= mCurrentControllerAxisState[LCONTROLX]*(newYCoord-y); //amount of translation needed
 
-        mDirection.x = (mDirection.x*playerTargetCosTheta) - (mDirection.z*playerTargetSinTheta);
-        mDirection.z = (mDirection.x*playerTargetSinTheta) + (mDirection.z*playerTargetCosTheta);
     }
 
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
@@ -158,13 +340,17 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);*/
 
     pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
+    pnode->lookAt(cameraTarget, Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_X);
     Ogre::Vector3 pos = pnode->getPosition();
     trans.setOrigin(btVector3(pos.x, pos.y, pos.z));
     Ogre::Quaternion qt = pnode->getOrientation();
     trans.setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
     mBody->getMotionState()->setWorldTransform(trans);
 
-    if (mCurrentControllerState[RBUMP]) {
+    if (getPlayerState(SHOOTING2)) {
+        //small and fast projectile
+        attack(true);
+        sManager->playSoundFromEnum(Sound::Shoot1);
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z+10);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
@@ -183,9 +369,12 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         
         mBullet->createBullet(bnode, 1, position, mLook);
 
-        mCurrentControllerState[RBUMP] = 0;
+        updatePlayerState(SHOOTING2,false);
     }
-    if (mCurrentControllerState[LBUMP]) {
+    if (getPlayerState(SHOOTING1) && mPlayerState->weaponamt2 > 0) {
+        //large and slow projectile
+        attack(true);
+        sManager->playSoundFromEnum(Sound::Shoot2);
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
@@ -204,7 +393,22 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         
         mBullet->createBullet(bnode, 2, position, mLook);
 
-        mCurrentControllerState[LBUMP] = 0;
+        mPlayerState->weaponamt2 = mPlayerState->weaponamt2 - 1;
+        updatePlayerState(SHOOTING1,false);
+    }
+
+    for(int i=0; i<animEnumCount; i++){
+        if(stateActive[i]==true){
+            if(i==Shoot){
+                if(shootTimeRemaining>0.0){
+                    updateAnimation(i, evt.timeSinceLastFrame);
+                    shootTimeRemaining-=evt.timeSinceLastFrame;
+                }
+
+            } else{
+                 updateAnimation(i, evt.timeSinceLastFrame);
+            }
+        }
     }
     mPlayerState->playerPosition[X] = pnode->getPosition().x;
     mPlayerState->playerPosition[Y] = pnode->getPosition().y;
@@ -218,12 +422,26 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
 void Player::updateControlAxis(int axis, float value)
 {
-       // printf("updating %d to %f\n", axis ,value);
-        mCurrentControllerState[axis]=value;
+        mCurrentControllerAxisState[axis]=value;
 }
 
-void Player::updatePlayerState(int state, bool value)
+void Player::updateControlButton(int button, float value)
 {
-        mPlayerState->playerState[state]=value;
-}
+        mCurrentControllerButtonState[button]=value;
+switch(button)
+    {
+        case LBUMP:
+        updatePlayerState(SHOOTING1, value);
+        break;
+        case RBUMP:
+        updatePlayerState(SHOOTING2, value);
+        break;
+        case LJOYCLICK:
+        updatePlayerState(JUMPING, value);
+        break;
+        case RJOYCLICK:
+        updatePlayerState(JUMPING, value);
+        break;
+    }
 
+}

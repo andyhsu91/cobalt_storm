@@ -14,9 +14,11 @@ class Sound {
     public:   
         Sound();
         virtual ~Sound();
-        
+        //list of all allowed sound effects
+        enum soundEffects{
+          Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Punch, soundEnumCount //soundEnumCount should always be the last
+        };
         std::vector<Mix_Chunk*> SoundList;
-        
         Mix_Music* LoadMusic(const char* File);
         int LoadChunk(const char* File);
         void fadeInLoopMusic(Mix_Music* music, int loops, int ms);
@@ -37,6 +39,8 @@ class Sound {
         void stopAllAudio(void);
         
 	private:
+    //Sound Effect Ids
+    int chunkIds[soundEnumCount];
 		void resetIDs(void);
 		void init(void);
 		void Cleanup();

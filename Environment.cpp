@@ -153,7 +153,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
         //Dynamic--------------------------------------------------------------------
         {
 		//Ogre::Vector3 shapeDim = Ogre::Vector3(.5, .5, .5);
-		Ogre::Vector3 shapeDim = Ogre::Vector3(10, 10, 10);
+		/*Ogre::Vector3 shapeDim = Ogre::Vector3(10, 10, 10);
 
 		for (int i = 0; i < 1; i++) {
 			for (int j = 0; j < 1; j++) {
@@ -174,7 +174,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 
 				mBullet->setRigidBoxBody(snode, shapeDim, position, 200.0, false);
 			}
-		}
+		}*/
 		}
 	
 	Ogre::ColourValue fadeColour(0.9, 0.9, 0.9);

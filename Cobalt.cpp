@@ -62,7 +62,7 @@ void Cobalt::createScene(void)
 	timeElapsed = 0;
 	// create your scene here :)
 	cerr << "Initing Bullet" << endl;	
-	mBullet.initPhysics();
+	mBullet.initPhysics(mSceneMgr);
 	
 	cerr << "Initing Env" << endl;
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);

@@ -414,7 +414,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
         updatePlayerState(SHOOTING2,false);
     }
-    if (getPlayerState(SHOOTING1)) {
+    if (getPlayerState(SHOOTING1) && mPlayerState->weaponamt2 > 0) {
         //large and slow projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot2);
@@ -436,6 +436,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         
         mBullet->createBullet(bnode, 2, position, mLook);
 
+        mPlayerState->weaponamt2 = mPlayerState->weaponamt2 - 1;
         updatePlayerState(SHOOTING1,false);
     }
 

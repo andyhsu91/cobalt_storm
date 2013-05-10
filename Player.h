@@ -54,6 +54,7 @@ enum States { STANDING,
 #define RMIDBUTTON 8
 
 struct PlayerVars {
+	//Upper limit of this struct is 1500 bytes
 	int health;
 	int weaponamt1;
 	int weaponamt2;
@@ -66,10 +67,11 @@ struct PlayerVars {
 
 	//Need to add projectile positions to client
 	//All projectile directions processed on server
-	float serverProjectilePos[3][3]; //3 projectiles, 3 axises for each projectile
-	float serverProjectileDir[3][3];
-	float clientProjectilePos[3][3];
-	float clientProjectileDir[3][3];
+	float type1ProjectilePos[20][3]; //25 projectiles, 3 axises for each projectile
+	float type2ProjectilePos[20][3];
+	//float serverProjectileDir[3][3];
+	//float clientProjectilePos[3][3];
+	//float clientProjectileDir[3][3];
 
 };
 
@@ -86,7 +88,7 @@ public:
     	Physics* mBullet, Sound* soundManager, std::string entName, std::string node, bool isServer);
 	btRigidBody* getRigidBody(void);
 	void updatePosition(const Ogre::FrameEvent& evt);
-	void updatePosition(const Ogre::FrameEvent& evt, PlayerVars* update);
+	void updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet);
 
 	void updateControlAxis(int axis, float value);
 	void updatePlayerState(int action, bool value);

@@ -29,8 +29,8 @@ Player::~Player(void)
 void Player::initPlayer(Ogre::SceneManager* SceneMgr,
                 Physics* Bullet, Sound* soundManager, std::string entName, std::string node, bool isServer)
 {
-        //cerr << "Beginning init player" << endl;
-
+        cerr << "Beginning init player" << endl;
+        cerr << "Network Packet is "<<sizeof(PlayerVars)<<" bytes. Upper limit is 1500 bytes."<< endl;
         mSceneMgr = SceneMgr;
         mBullet = Bullet;
         sManager = soundManager;
@@ -215,6 +215,12 @@ Ogre::Vector3 Player::getCameraTarget(void)
 {
     return cameraTarget;
 }
+
+void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet){
+    //update player based on packet recieved over the network
+
+}
+
 
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {   

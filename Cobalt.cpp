@@ -157,11 +157,11 @@ PlayerVars* Cobalt::createPacket(void){
 	mBullet.freeProjectiles(type1);
 	mBullet.freeProjectiles(type2);
 
-	if(isServer)
+	if(isServer){
 		gameUpdate->client_health -= mBullet.damageToPlayer(isServer);
-	else
+	}else{
 		gameUpdate->server_health -= mBullet.damageToPlayer(isServer);
-
+	}
 	return gameUpdate;
 }
 
@@ -201,34 +201,48 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 		if(isMultiplayer)
 		{
-			bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
+			bool packetWasReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
 			isConnected = nManager->isConnectionOpen();
-			PlayerVars* gameUpdate = NULL;
+			PlayerVars* receivedPacket = NULL;
+			PlayerVars sentPacket = NULL;
 			if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
-			if(packetReceived){ 
-				gameUpdate = nManager->getGameUpdate(); 
+			if(packetWasReceived){ 
+				receivedPacket = nManager->getGameUpdate(); 
 				numPacketsReceived++;
-				enemy->updatePositionFromPacket(evt, gameUpdate);
+				enemy->updatePositionFromPacket(evt, receivedPacket);
 				mBullet.removeTempProjectiles();
-				mBullet.putProjectiles(gameUpdate->type1ProjectilePos, 1);
-				mBullet.putProjectiles(gameUpdate->type2ProjectilePos, 2);
+				mBullet.putProjectiles(receivedPacket->type1ProjectilePos, 1);
+				mBullet.putProjectiles(receivedPacket->type2ProjectilePos, 2);
 			}
 
 
 
-			if(packetReceived || numPacketsReceived < 3){
+			if(packetWasReceived || numPacketsReceived < 3){
 				//only send packet when we receive a packet so that we don't congest the network
-				nManager->sendPacket( *createPacket() );
+				sentPacket = createPacket()
+				nManager->sendPacket( sentPacket );
 			}
 
 			if(isServer){
 				//I am server
-				
+				if(packetWasReceived && receivedPacket->server_health <= 0){
+					//game over, I lose
+					
+				}
+				if(sentPacket!=NULL && sentPacket->client_health <=0){
+						//game over, I win
+
+				}
 
 			}else{
 				//I am client
-				if(packetReceived)
-				{
+				if(packetWasReceived && receivedPacket->client_health <= 0){
+						//game over, I lose
+
+				}
+				
+				if(sentPacket!=NULL && sentPacket->server_health <=0){
+						//game over, I win
 					
 				}
 			}

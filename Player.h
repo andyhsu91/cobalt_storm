@@ -81,6 +81,7 @@ class Player
 public:
 	Player();
     ~Player(void);
+    enum robotStates { Die, Idle, Shoot, Slump, Walk, animEnumCount }; //animEnumCount should always be last
     void initPlayer(Ogre::SceneManager* mSceneMgr,
     	Physics* mBullet, Sound* soundManager, std::string entName, std::string node, bool isServer);
 	btRigidBody* getRigidBody(void);
@@ -112,6 +113,7 @@ private:
 	Physics* mBullet;
 	Sound* sManager;
 	btKinematicCharacterController* mPlayer;
+	bool stateActive[animEnumCount];
 	//btPairCachingGhostObject* mGhost;
 	btRigidBody* mBody;
 	btTransform trans;

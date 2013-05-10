@@ -13,9 +13,9 @@ float shootTimeRemaining = 0.0; //shoot animation has to be set to loop in order
 const float walkTime = .85;
 float walkTimeRemaining = 0.0;
 
-enum robotStates { Die, Idle, Shoot, Slump, Walk, animEnumCount }; //animEnumCount should always be last
 
-bool stateActive[animEnumCount];
+
+
 
 //-------------------------------------------------------------------------------------
 Player::Player(void)

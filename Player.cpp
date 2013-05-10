@@ -140,7 +140,7 @@ void Player::updateAnimation(int animStateEnum, double seconds){
 }
 
 void Player::attack(bool val){
-    std::cout<<"Attacking"<<std::endl;
+    //std::cout<<"Attacking"<<std::endl;
     mPlayerState->shootTimeRemaining = shootTimeout;
     enableState(Shoot, val, true);
 }

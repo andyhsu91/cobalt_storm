@@ -191,7 +191,7 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 
 void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 	//inefficient
-	cout<<"Entered Physics::putProjectiles()"<<endl;
+	//cout<<"Entered Physics::putProjectiles()"<<endl;
 	//delete old temp projectiles from the network
 	for (int j=0; j<dynamicsWorld->getNumCollisionObjects(); j++)
 	{	
@@ -264,7 +264,7 @@ void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 		//createBullet(sceneNode, -typeOfProjectile, pos, vel); //if the typeOfProjectile is negative, the userPointer is "temp"
 		//(Ogre::SceneNode *snode, int weapon_type, Ogre::Vector3 origin, Ogre::Vector3 direction)
 	}
-	cout<<"Exiting Physics::putProjectiles()"<<endl;
+	//cout<<"Exiting Physics::putProjectiles()"<<endl;
 }
 
 void Physics::freeProjectiles(float** projectiles){
@@ -275,7 +275,7 @@ void Physics::freeProjectiles(float** projectiles){
 }
 
 float** Physics::getProjectiles(int typeOfProjectile){
-	cout<<"Entered Physics::getProjectiles()"<<endl;
+	//cout<<"Entered Physics::getProjectiles()"<<endl;
 	//allocate space on heap, and initialize values to invalid
 	float **projPos = new float*[20];
 	for(int i=0; i<20; i++){
@@ -320,7 +320,7 @@ float** Physics::getProjectiles(int typeOfProjectile){
 		}
 
 	}
-	cout<<"Exiting Physics::getProjectiles()"<<endl;
+	//cout<<"Exiting Physics::getProjectiles()"<<endl;
 	return projPos;
 }
 

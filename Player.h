@@ -131,6 +131,7 @@ private:
 	Ogre::Vector3 mLook;
 	PlayerVars* mPlayerState;
 	bool forceUpdate;
+	std::string pSig;
 	int bullet;
 	bool lockedOn;
 	

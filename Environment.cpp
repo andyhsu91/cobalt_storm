@@ -153,7 +153,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
         //Dynamic--------------------------------------------------------------------
         {
 		//Ogre::Vector3 shapeDim = Ogre::Vector3(.5, .5, .5);
-		/*Ogre::Vector3 shapeDim = Ogre::Vector3(10, 10, 10);
+		/*Ogre::Vector3 shapeDim = Ogre::Vector3(100, 100, 100);
 
 		for (int i = 0; i < 1; i++) {
 			for (int j = 0; j < 1; j++) {
@@ -168,14 +168,14 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 
 				snode->attachObject(ent);
 		//snode->scale(shapeDim.x, shapeDim.y, shapeDim.z);
-				snode->scale(.1, .1, .1);
+				//snode->scale(.1, .1, .1);
 				ent->setMaterialName("Examples/Chrome");
 				ent->setCastShadows(true);
 
 				mBullet->setRigidBoxBody(snode, shapeDim, position, 200.0, false);
 			}
 		}*/
-		}
+	}
 	
 	Ogre::ColourValue fadeColour(0.9, 0.9, 0.9);
 	//Ogre::ColourValue fadeColour(0.2, 0.2, 0.2);

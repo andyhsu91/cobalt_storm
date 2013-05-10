@@ -38,10 +38,12 @@ public:
 	//btGhostObject* setKinematicCharacter(Ogre::SceneNode *snode,
     //            Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass);
 	void setBallRestitution(double restit);
-
-	void putProjectiles(float** projectiles, int typeOfProjectile); 
+	void removeTempProjectiles(void);
+	void putProjectiles(float projectiles[][3], int typeOfProjectile); 
 	void freeProjectiles(float** projectiles);
 	float** getProjectiles(int typeOfProjectile);
+	int damageToPlayer(bool isServer);
+	btCollisionObject* collisionObject(Ogre::SceneNode* node);
 
 
 private:

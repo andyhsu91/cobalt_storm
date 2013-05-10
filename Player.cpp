@@ -47,12 +47,14 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
                 mCurrentControllerButtonState[i] = 0;
         }
 
-        Ogre::Vector3 shapeDim = Ogre::Vector3(20, 40, 20);
+        Ogre::Vector3 shapeDim = Ogre::Vector3(60, 80, 60);
         Ogre::Vector3 position;
-        if(isServer){
+        if (isServer) {
             position = Ogre::Vector3(700.0, 242.0, -750.0);
-        } else{
+            pSig = "bnode1";
+        } else {
             position = Ogre::Vector3(500.0, 242.0, -550.0);
+            pSig = "bnode2";
         }
 
         ent = mSceneMgr->createEntity(entName,"robot.mesh");
@@ -70,7 +72,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mPlayerState->server_health = 100;
         mPlayerState->client_health = 100;
         mPlayerState->weaponamt1 = -1;
-        mPlayerState->weaponamt2 = 20;
+        mPlayerState->weaponamt2 = 30;
         mPlayerState->weaponamt3 = 5;
 
         for (int i = 0; i < sizeof(mPlayerState->playerState) / sizeof(bool); i++)
@@ -140,7 +142,7 @@ void Player::updateAnimation(int animStateEnum, double seconds){
 }
 
 void Player::attack(bool val){
-    std::cout<<"Attacking"<<std::endl;
+    //std::cout<<"Attacking"<<std::endl;
     mPlayerState->shootTimeRemaining = shootTimeout;
     enableState(Shoot, val, true);
 }
@@ -278,6 +280,14 @@ void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* p
 
     pnode->translate(Ogre::Vector3(xTrans, yTrans, zTrans), Ogre::Node::TS_WORLD);
     pnode->lookAt(cameraTarget, Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_X);
+
+    btTransform enemyTrans;
+    enemyTrans.setIdentity();
+    enemyTrans.setOrigin(btVector3(packet->playerPosition[0], packet->playerPosition[1], packet->playerPosition[2]));
+
+    btCollisionObject* eObj = mBullet->collisionObject(pnode);
+    btRigidBody* body = btRigidBody::upcast(eObj);
+    body->getMotionState()->setWorldTransform(enemyTrans);
 }
 
 
@@ -285,6 +295,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 {   
     //size of packet over the network;
     //printf("playervars: %d \n",sizeof (PlayerVars) );
+    //cout << "P1 Health: " << mPlayerState->server_health << endl;
+    //cout << "P2 Health: " << mPlayerState->client_health << endl;
     float distPerSec = 200;
     mDirection = Ogre::Vector3(0.0,0.0,0.0);
     
@@ -390,12 +402,15 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         //small and fast projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot1);
-        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z+10);
+        //printf("LookX: %f, LookZ: %f, calcX: %f, calcZ: %f\n",mLook.x, mLook.z, (mLook.x*10.0) - ((mLook.z)*10.0), (mLook.z*10.0) + ((mLook.x)*10.0));
+        //Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*10.0) - ((1-mLook.z)*10.0),
+        //                                       pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*10.0) + ((1-mLook.x)*10.0));
+        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*30.0), pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*30.0));
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
                                                     "sphere.mesh");
         Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
-                createChildSceneNode("bnode" + Ogre::StringConverter::toString(bullet++), position);
+                createChildSceneNode(pSig + Ogre::StringConverter::toString(1) + Ogre::StringConverter::toString(bullet++), position);
 
         bnode->attachObject(ent);
         bnode->scale(.03, .03, .03);
@@ -414,12 +429,13 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         //large and slow projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot2);
-        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
+        //Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
+        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*30.0), pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*30.0));
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
                                                     "sphere.mesh");
         Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
-                createChildSceneNode("bnode" + Ogre::StringConverter::toString(bullet++), position);
+                createChildSceneNode(pSig + Ogre::StringConverter::toString(2) + Ogre::StringConverter::toString(bullet++), position);
 
         bnode->attachObject(ent);
         bnode->scale(.07, .07, .07);
@@ -481,8 +497,10 @@ switch(button)
         updatePlayerState(JUMPING, value);
         break;
         case RJOYCLICK:
-        updatePlayerState(JUMPING, value);
+        toggleLock();
         break;
+
+
     }
 
 }

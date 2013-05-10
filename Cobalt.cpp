@@ -178,7 +178,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		
 		timeElapsed += evt.timeSinceLastFrame;
 		mGUI.setTime(timeLimit-timeElapsed);
-
+		//mGUI.setHealth(timeLimit-timeElapsed);
 		*myPos = myself->getPlayerPosition();
 		*enemyPos = enemy->getPlayerPosition();
 
@@ -206,7 +206,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			bool packetWasReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
 			isConnected = nManager->isConnectionOpen();
 			PlayerVars* receivedPacket = NULL;
-			PlayerVars sentPacket = NULL;
+			PlayerVars* sentPacket = NULL;
 
 			if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
 			
@@ -223,8 +223,8 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 			if(packetWasReceived || numPacketsReceived < 3){
 				//only send packet when we receive a packet so that we don't congest the network
-				sentPacket = createPacket()
-				nManager->sendPacket( sentPacket );
+				sentPacket = createPacket();
+				nManager->sendPacket( *sentPacket );
 			}
 
 			if(isServer){
@@ -267,7 +267,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		
 
 		}
-		if(myself->getPlayerVars->timeRemaining <=0.0){
+		if(myself->getPlayerVars()->timeRemaining <=0.0){
 			gameOver = true;
 		}
 	}

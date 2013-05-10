@@ -61,6 +61,7 @@ struct PlayerVars {
 	int weaponamt3;
 	
 	bool playerState[15];
+	float shootTimeRemaining; //shoot animation has to be set to loop in order to repeat the animation multiple times
 	bool animationStateEnabled[5];
 	bool animationStateLoop[5];
 	float playerPosition[3];
@@ -139,7 +140,7 @@ private:
 	Ogre::Vector3 cameraTarget;
 
     Ogre::Real distanceToTarget;
-    float shootTimeRemaining; //shoot animation has to be set to loop in order to repeat the animation multiple times
+    
     float walkTimeRemaining;
 	/*holds the current controller/keyboardstate of the player
 	these values will then be used to update the player movement based on

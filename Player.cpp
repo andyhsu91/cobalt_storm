@@ -36,7 +36,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mBullet = Bullet;
         sManager = soundManager;
         mPlayerState = new PlayerVars;
-        shootTimeRemaining = 0.0;
+        mPlayerState->shootTimeRemaining = 0.0;
         walkTimeRemaining = 0.0;
         for (int i = 0; i < 5; ++i)
         {
@@ -140,7 +140,7 @@ void Player::updateAnimation(int animStateEnum, double seconds){
 
 void Player::attack(bool val){
     std::cout<<"Attacking"<<std::endl;
-    shootTimeRemaining = shootTimeout;
+    mPlayerState->shootTimeRemaining = shootTimeout;
     enableState(Shoot, val, true);
 }
 
@@ -253,22 +253,17 @@ void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* p
     float yTrans = packet->playerPosition[1] - currPos.y;
     float zTrans = packet->playerPosition[2] - currPos.z;
 
-
+    mPlayerState->shootTimeRemaining = packet->shootTimeRemaining;
 
     for(int i=0; i<animEnumCount; i++){
         if(mPlayerState->animationStateEnabled[i] != packet->animationStateEnabled[i]){
-            if(i==Shoot && packet->animationStateEnabled[i]){
-                attack(true);
-            }
-            else{
                 enableState(i, packet->animationStateEnabled[i], packet->animationStateLoop[i]);
-            }
         }
         if(mPlayerState->animationStateEnabled[i]==true){
             if(i==Shoot){
-                if(shootTimeRemaining>0.0){
+                if(mPlayerState->shootTimeRemaining>0.0){
                     updateAnimation(i, evt.timeSinceLastFrame);
-                    shootTimeRemaining-=evt.timeSinceLastFrame;
+                    mPlayerState->shootTimeRemaining-=evt.timeSinceLastFrame;
                 } else{
 
                 }
@@ -443,9 +438,9 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     for(int i=0; i<animEnumCount; i++){
         if(mPlayerState->animationStateEnabled[i]==true){
             if(i==Shoot){
-                if(shootTimeRemaining>0.0){
+                if(mPlayerState->shootTimeRemaining>0.0){
                     updateAnimation(i, evt.timeSinceLastFrame);
-                    shootTimeRemaining-=evt.timeSinceLastFrame;
+                    mPlayerState->shootTimeRemaining-=evt.timeSinceLastFrame;
                 } else{
                     enableState(Shoot, false, false);
                 }

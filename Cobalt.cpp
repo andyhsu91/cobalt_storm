@@ -134,6 +134,8 @@ PlayerVars* Cobalt::createPacket(void){
 
 	PlayerVars* myPlayerVars = myself->getPlayerVars(); 
 	gameUpdate->shootTimeRemaining = myPlayerVars->shootTimeRemaining;
+	gameUpdate->server_health = myPlayerVars->server_health;
+	gameUpdate->client_health = myPlayerVars->client_health;
 	//send my animation states
 	for (int i = 0; i < Player::animEnumCount; i++){
 		gameUpdate->animationStateEnabled[i] = myPlayerVars->animationStateEnabled[i];
@@ -154,6 +156,12 @@ PlayerVars* Cobalt::createPacket(void){
 
 	mBullet.freeProjectiles(type1);
 	mBullet.freeProjectiles(type2);
+
+	if(isServer)
+		gameUpdate->client_health -= mBullet.damageToPlayer(isServer);
+	else
+		gameUpdate->server_health -= mBullet.damageToPlayer(isServer);
+
 	return gameUpdate;
 }
 
@@ -184,7 +192,6 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 		if(myself->getLockedOn())
 		{
-
 			mCamera->lookAt(*enemyPos);
 		}
 
@@ -198,6 +205,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 				gameUpdate = nManager->getGameUpdate(); 
 				numPacketsReceived++;
 				enemy->updatePositionFromPacket(evt, gameUpdate);
+				mBullet.removeTempProjectiles();
 				mBullet.putProjectiles(gameUpdate->type1ProjectilePos, 1);
 				mBullet.putProjectiles(gameUpdate->type2ProjectilePos, 2);
 			}

@@ -390,7 +390,7 @@ float** Physics::getProjectiles(int typeOfProjectile){
 	return projPos;
 }
 
-int damageToPlayer(bool isServer) {
+int Physics::damageToPlayer(bool isServer) {
 	int temp = 0;
 	if (isServer)
 		temp = P2damageTrack;

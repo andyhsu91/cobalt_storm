@@ -134,8 +134,8 @@ PlayerVars* Cobalt::createPacket(void){
 
 	PlayerVars* myPlayerVars = myself->getPlayerVars(); 
 	gameUpdate->shootTimeRemaining = myPlayerVars->shootTimeRemaining;
-	gameUpdate->server_health = mPlayerVars->server_health;
-	gameUpdate->client_health = mPlayerVars->client_health;
+	gameUpdate->server_health = myPlayerVars->server_health;
+	gameUpdate->client_health = myPlayerVars->client_health;
 	//send my animation states
 	for (int i = 0; i < Player::animEnumCount; i++){
 		gameUpdate->animationStateEnabled[i] = myPlayerVars->animationStateEnabled[i];

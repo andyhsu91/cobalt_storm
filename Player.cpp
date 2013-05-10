@@ -35,7 +35,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mBullet = Bullet;
         sManager = soundManager;
         mPlayerState = new PlayerVars;
-        for (int i = 0; i < 11; ++i)
+        for (int i = 0; i < 5; ++i)
         {
                 mCurrentControllerState[i] = 0;
         }
@@ -206,6 +206,11 @@ Ogre::Vector3 Player::getNewCameraPos(void){
 
 }
 
+float Player::getCurrentAxis(int axis)
+{
+    return mCurrentControllerState[axis];
+}
+
 Ogre::Vector3 Player::getCameraTarget(void)
 {
     return cameraTarget;
@@ -213,6 +218,8 @@ Ogre::Vector3 Player::getCameraTarget(void)
 
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {   
+
+    printf("playervars: %d \n",sizeof (PlayerVars) );
     float distPerSec = 200;
     mDirection = Ogre::Vector3(0.0,0.0,0.0);
     

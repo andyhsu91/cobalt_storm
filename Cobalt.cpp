@@ -152,7 +152,8 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		if(serverPlayer->getLockedOn())
 		{
 			mCamera->lookAt(clientPos);
-		}
+		}else
+		{}
 
 		mBullet.updateWorld(evt);
 		mEnv.frmqUpdate(evt, mTrayMgr);
@@ -190,11 +191,11 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
         }
     else if (arg.key == OIS::KC_O)
         {
-			serverPlayer->updateControlAxis(RBUMP, 1);
+			serverPlayer->updatePlayerState(RBUMP, 1);
         }
     else if (arg.key == OIS::KC_P)
     	{
-    		serverPlayer->updateControlAxis(LBUMP, 1);
+    		serverPlayer->updatePlayerState(LBUMP, 1);
     	}
      else if (arg.key == OIS::KC_L)
     	{
@@ -225,11 +226,11 @@ bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
         }
     else if (arg.key == OIS::KC_O)
         {
-			serverPlayer->updateControlAxis(RBUMP, 0);
+			serverPlayer->updatePlayerState(RBUMP, 0);
         }
     else if (arg.key == OIS::KC_P)
         {
-			serverPlayer->updateControlAxis(LBUMP, 0);
+			serverPlayer->updatePlayerState(LBUMP, 0);
         }
 //mCameraMan->injectKeyUp(arg);
 	return true;

@@ -268,7 +268,7 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
     	}
      else if (arg.key == OIS::KC_L)
     	{
-    		myself->toggleLock();
+    		myself->updateControlButton(RJOYCLICK,1);
     	}
        //this command will move the camera
 	//mCameraMan->injectKeyDown(arg);

@@ -485,8 +485,10 @@ switch(button)
         updatePlayerState(JUMPING, value);
         break;
         case RJOYCLICK:
-        updatePlayerState(JUMPING, value);
+        toggleLock();
         break;
+
+
     }
 
 }

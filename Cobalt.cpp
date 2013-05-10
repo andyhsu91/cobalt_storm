@@ -159,10 +159,20 @@ PlayerVars* Cobalt::createPacket(void){
 	mBullet.freeProjectiles(type1);
 	mBullet.freeProjectiles(type2);
 
+	int damageDone = mBullet.damageToPlayer(isServer);
+
 	if(isServer){
-		gameUpdate->client_health -= mBullet.damageToPlayer(isServer);
+		if(damageDone>0){cout << "Client Old HP: " << gameUpdate->client_health << endl;}
+		myPlayerVars->client_health -= damageDone;
+		gameUpdate->client_health = myPlayerVars->client_health;
+		if(damageDone>0){cout << "Client New HP: " << gameUpdate->client_health << endl;}
+		mGUI.setEnemyHealth(gameUpdate->client_health/100.0);
 	}else{
-		gameUpdate->server_health -= mBullet.damageToPlayer(isServer);
+		if(damageDone>0){cout << "Server Old HP: " << gameUpdate->server_health << endl;}
+		myPlayerVars->server_health -= damageDone;
+		gameUpdate->server_health = myPlayerVars->server_health;
+		if(damageDone>0){cout << "Server New HP: " << gameUpdate->server_health << endl;}
+		mGUI.setEnemyHealth(gameUpdate->server_health/100.0);
 	}
 	return gameUpdate;
 }

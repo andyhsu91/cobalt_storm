@@ -130,7 +130,7 @@ PlayerVars* Cobalt::createPacket(void){
 	gameUpdate->playerPosition[2] = myPos->z;
 
 	PlayerVars* myPlayerVars = myself->getPlayerVars(); 
-
+	gameUpdate->shootTimeRemaining = myPlayerVars->shootTimeRemaining;
 	//send my animation states
 	for (int i = 0; i < Player::animEnumCount; i++){
 		gameUpdate->animationStateEnabled[i] = myPlayerVars->animationStateEnabled[i];

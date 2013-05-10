@@ -140,7 +140,8 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 
 	//moves positions of all objects
 	for (int j=dynamicsWorld->getNumCollisionObjects()-1; j>=0 ;j--)
-	{
+	{	
+		//cout<<"Num Objects: "<<dynamicsWorld->getNumCollisionObjects()<<endl;
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 		//obj->setRestitution(restitution);
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -177,6 +178,25 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 			}
 		}
 	}
+}
+
+void Physics::putType1Projectiles(float* projectiles){
+
+
+}
+
+void Physics::putType2Projectiles(float* projectiles){
+
+}
+
+float* Physics::getType1Projectiles(void){
+
+	return NULL;
+}
+
+float* Physics::getType2Projectiles(void){
+
+	return NULL;
 }
 //---------------------------------------------------------------------------
 btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode, 

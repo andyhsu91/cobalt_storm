@@ -55,7 +55,9 @@ enum States { STANDING,
 
 struct PlayerVars {
 	//Upper limit of this struct is 1500 bytes
-	int health;
+	bool paused;
+	int server_health;
+	int client_health;
 	int weaponamt1;
 	int weaponamt2;
 	int weaponamt3;

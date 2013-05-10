@@ -10,7 +10,7 @@ using namespace std;
 
 //static variables
 const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
-const float shootTimeout = 2.0/3.0; //amount of seconds that the shooting animation takes
+const float shootTimeout = 0.6; //amount of seconds that the shooting animation takes
 const float walkTime = .85;
 
 
@@ -31,7 +31,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
                 Physics* Bullet, Sound* soundManager, std::string entName, std::string node, bool isServer)
 {
         cerr << "Beginning init player" << endl;
-        cerr << "Network Packet is "<<sizeof(PlayerVars)<<" bytes. Upper limit is 1500 bytes."<< endl;
+        cerr << "\n\nNetwork Packet is "<<sizeof(PlayerVars)<<" bytes. Upper limit is 1500 bytes.\n\n"<< endl;
         mSceneMgr = SceneMgr;
         mBullet = Bullet;
         sManager = soundManager;
@@ -67,7 +67,8 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         //mBullet->setKinematicCharacter(pnode, shapeDim, position, 250.0);
         mBody = mBullet->setRigidBoxBody(pnode, shapeDim, position, 5000.0, true);
 
-        mPlayerState->health = 100;
+        mPlayerState->server_health = 100;
+        mPlayerState->client_health = 100;
         mPlayerState->weaponamt1 = -1;
         mPlayerState->weaponamt2 = 10;
         mPlayerState->weaponamt3 = 2;

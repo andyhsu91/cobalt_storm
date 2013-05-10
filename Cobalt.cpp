@@ -72,7 +72,7 @@ void Cobalt::createScene(void)
 
 	//Initialize Network Manager
 	nManager = new Network();
-	nManager->init();
+	//nManager->init();
 	isConnected = nManager->isConnectionOpen();
 	isServer = nManager->isThisServer();
 	

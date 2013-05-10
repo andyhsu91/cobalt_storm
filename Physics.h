@@ -13,15 +13,18 @@ Filename:    Physics.h
 #include <stdio.h>
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
-
+#include "math.h"
 
 class btKinematicCharacterController;
+
+using namespace std;
 
 class Physics
 {
 public:
     Physics(void);
     virtual ~Physics(void);
+
 	void initPhysics(Ogre::SceneManager* SceneMgr);
 	void DestroyAllAttachedMovableObjects( Ogre::SceneNode* i_pSceneNode );
 	void updateWorld(const Ogre::FrameEvent& evt);
@@ -35,21 +38,27 @@ public:
     //            Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass);
 	void setBallRestitution(double restit);
 
-	void putType1Projectiles(float* projectiles); //
-	void putType2Projectiles(float* projectiles);
-	float* getType1Projectiles(void);
-	float* getType2Projectiles(void);
+	void putProjectiles(float** projectiles, int typeOfProjectile); 
+	void freeProjectiles(float** projectiles);
+	float** getProjectiles(int typeOfProjectile);
+
 
 private:
 	Ogre::SceneManager* mSceneMgr;
+	Ogre::SceneNode* sceneNode;
 	btDbvtBroadphase* overlappingPairCache;
 	btDefaultCollisionConfiguration* collisionConfiguration;
 	btCollisionDispatcher* dispatcher;
 	btSequentialImpulseConstraintSolver* solver;
 	btDiscreteDynamicsWorld* dynamicsWorld;
-
+	float type1ProjectilePos[20][3]; //20 projectiles, 3 axises for each projectile
+	float type2ProjectilePos[20][3];
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
-	
+	string type1;
+	string type2;
+	string temp;
+	string other;
+	string rigid;
 	btCollisionShape* shape;
 	btRigidBody* body;
 	btTransform startTransform;

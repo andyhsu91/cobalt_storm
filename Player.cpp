@@ -72,7 +72,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mPlayerState->server_health = 100;
         mPlayerState->client_health = 100;
         mPlayerState->weaponamt1 = -1;
-        mPlayerState->weaponamt2 = 20;
+        mPlayerState->weaponamt2 = 30;
         mPlayerState->weaponamt3 = 5;
 
         for (int i = 0; i < sizeof(mPlayerState->playerState) / sizeof(bool); i++)
@@ -497,8 +497,10 @@ switch(button)
         updatePlayerState(JUMPING, value);
         break;
         case RJOYCLICK:
-        updatePlayerState(JUMPING, value);
+        toggleLock();
         break;
+
+
     }
 
 }

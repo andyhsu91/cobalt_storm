@@ -18,6 +18,8 @@ Player mPlayer;
  bool isServer;
  bool isPaused = true;
  bool menuCam = true;
+ bool gameOver = false;
+ bool iAmWinner = false;
  Network* nManager;
  Sound* sManager;
  const float timeLimit = 60.0;
@@ -199,40 +201,68 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		if(myself->getLockedOn())
 		{
 			mCamera->lookAt(*enemyPos);
+		}else
+		{
+			mCamera->yaw( Ogre::Degree(  -myself->getCurrentAxisState(RCONTROLX)*3));
+			mCamera->pitch( Ogre::Degree( -myself->getCurrentAxisState(RCONTROLY)*3));
 		}
 
 		if(isMultiplayer)
 		{
-			bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
+			bool packetWasReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
 			isConnected = nManager->isConnectionOpen();
-			PlayerVars* gameUpdate = NULL;
+			PlayerVars* receivedPacket = NULL;
+			PlayerVars sentPacket = NULL;
+
 			if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
-			if(packetReceived){ 
-				gameUpdate = nManager->getGameUpdate(); 
+			
+			if(packetWasReceived){ 
+				receivedPacket = nManager->getGameUpdate(); 
 				numPacketsReceived++;
-				enemy->updatePositionFromPacket(evt, gameUpdate);
-				mBullet.putProjectiles(gameUpdate->type1ProjectilePos, 1);
-				mBullet.putProjectiles(gameUpdate->type2ProjectilePos, 2);
+				enemy->updatePositionFromPacket(evt, receivedPacket);
+				mBullet.removeTempProjectiles();
+				mBullet.putProjectiles(receivedPacket->type1ProjectilePos, 1);
+				mBullet.putProjectiles(receivedPacket->type2ProjectilePos, 2);
 			}
 
 
 
-			if(packetReceived || numPacketsReceived < 3){
+			if(packetWasReceived || numPacketsReceived < 3){
 				//only send packet when we receive a packet so that we don't congest the network
-				nManager->sendPacket( *createPacket() );
+				sentPacket = createPacket()
+				nManager->sendPacket( sentPacket );
 			}
 
 			if(isServer){
 				//I am server
-				
+				if(packetWasReceived && receivedPacket->server_health <= 0){
+					//game over, I lose
+					gameOver=true;
+					iAmWinner = false;
+				}
+				if(sentPacket!=NULL && sentPacket->client_health <=0){
+					//game over, I win
+					gameOver = true;
+					iAmWinner = true;
+				}
 
 			}else{
 				//I am client
-				if(packetReceived)
-				{
-					
+				if(packetWasReceived && receivedPacket->client_health <= 0){
+					//game over, I lose
+					gameOver = true;
+					iAmWinner = false;
+				}
+				
+				if(sentPacket!=NULL && sentPacket->server_health <=0){
+					//game over, I win
+					gameOver = true;
+					iAmWinner = true;
 				}
 			}
+
+
+
 		}
 		else
 		{
@@ -242,6 +272,9 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 		
 
+		}
+		if(myself->getPlayerVars->timeRemaining <=0.0){
+			gameOver = true;
 		}
 	}
 	return ret;
@@ -280,7 +313,7 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
     	}
      else if (arg.key == OIS::KC_L)
     	{
-    		myself->toggleLock();
+    		myself->updateControlButton(RJOYCLICK,1);
     	}
        //this command will move the camera
 	//mCameraMan->injectKeyDown(arg);

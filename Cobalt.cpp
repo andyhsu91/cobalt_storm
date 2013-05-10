@@ -97,7 +97,7 @@ void Cobalt::createScene(void)
 	sManager = new Sound();
 	sManager->playBackground(-1);
 	cerr << "Initing Player" << endl;
-    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode", true);
+    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode1", true);
     clientPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity2", "pnode2", false);
 
     if(isConnected && !isServer){

@@ -469,7 +469,7 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 	}
 
 	if(snode->getName() == "pnode1")
-		dynamicsWorld->addRigidBody(body,5,5);
+		dynamicsWorld->addRigidBody(body,15,15);
 	else if(snode->getName() == "pnode2")
 		dynamicsWorld->addRigidBody(body,3,3);
 	else
@@ -519,8 +519,10 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 	std::string obj_name = (snode->getName().c_str());
 	if(obj_name.find("bnode1") == 0)
 		dynamicsWorld->addRigidBody(body,2,1);
-	else
-		dynamicsWorld->addRigidBody(body,4,1);
+	else {
+		//dynamicsWorld->addRigidBody(body,8,4);
+		dynamicsWorld->addRigidBody(body);
+	}
 
 	if (weapon_type == 1 || weapon_type == -1)
 		body->setLinearVelocity(btVector3(direction.x * 2000.0, direction.y * 2000.0 + 20.0, direction.z * 2000.0));
@@ -596,28 +598,6 @@ void Physics::setBallRestitution(double restit)
 {
 	restitution = restit;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

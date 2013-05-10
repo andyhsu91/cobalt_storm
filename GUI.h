@@ -23,7 +23,9 @@ class GUI
 		void setEnemyHealth(float);
 		void setAmmo(int, int);
 		void setTime(Ogre::Real);
-		void initMainMenu(Ogre::SceneManager*);
+		void drawMenu(void);
+		void drawHUD(void);
+		bool startGame(const CEGUI::EventArgs &e);
 
 	protected:	
 	
@@ -32,6 +34,7 @@ class GUI
 		CEGUI::Window *timeDisplay;
 		CEGUI::OgreRenderer* mRenderer;
 		CEGUI::Window *sheet;
+		CEGUI::Window *mainMenu;
 		CEGUI::ProgressBar *health;
 		CEGUI::ProgressBar *ehealth;
 		CEGUI::ProgressBar *ammo1;

@@ -16,6 +16,7 @@ Player mPlayer;
  bool isMultiplayer;
  bool isConnected;
  bool isServer;
+ bool isPaused = true;
  Network* nManager;
  Sound* sManager;
  const float timeLimit = 60.0;
@@ -65,8 +66,9 @@ void Cobalt::createScene(void)
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
 	
 	cerr << "Initing GUI" << endl;
-	mGUI.initMainMenu(mSceneMgr);
 	mGUI.initGUI(mSceneMgr);
+	mGUI.drawMenu();
+	//mGUI.drawHUD(mSceneMgr);
 
 	//Initialize Network Manager
 	nManager = new Network();
@@ -107,8 +109,11 @@ void Cobalt::createFrameListener(void)
 //-------------------------------------------------------------------------------------
 bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {	//return True to continue rendering, false to drop out of the rendering loop
-	timeElapsed += evt.timeSinceLastFrame;
-	mGUI.setTime(timeLimit-timeElapsed);
+	if(!isPaused)
+	{
+		timeElapsed += evt.timeSinceLastFrame;
+		mGUI.setTime(timeLimit-timeElapsed);
+	}
 	bool ret = BaseApplication::frameRenderingQueued(evt);
 
 	if(isMultiplayer){

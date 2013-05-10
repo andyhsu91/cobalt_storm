@@ -27,9 +27,6 @@ enum States { STANDING,
  DOWN,
  DEATH};
 
-#define X        0
-#define Y        1
-#define Z        2
 
 #define LCONTROLX 0
 #define LCONTROLY 1

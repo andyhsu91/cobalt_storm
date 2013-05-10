@@ -47,9 +47,9 @@ protected:
 
 	virtual bool keyPressed( const OIS::KeyEvent &arg );
     virtual bool keyReleased( const OIS::KeyEvent &arg );
-    virtual bool mouseMoved( const OIS::MouseEvent &arg );
-    virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
-    virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+    virtual bool mouseMoved( const OIS::MouseEvent &evt );
+    virtual bool mousePressed( const OIS::MouseEvent &evt, OIS::MouseButtonID id );
+    virtual bool mouseReleased( const OIS::MouseEvent &evt, OIS::MouseButtonID id );
 
 
     virtual bool povMoved( const OIS::JoyStickEvent &e, int pov );

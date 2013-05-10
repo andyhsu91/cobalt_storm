@@ -16,6 +16,8 @@ Player mPlayer;
  bool isMultiplayer;
  bool isConnected;
  bool isServer;
+ bool isPaused = true;
+ bool menuCam = true;
  Network* nManager;
  Sound* sManager;
  const float timeLimit = 60.0;
@@ -68,7 +70,8 @@ void Cobalt::createScene(void)
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
 	
 	cerr << "Initing GUI" << endl;
-	mGUI.initGUI(mSceneMgr);
+	mGUI.initGUI(mSceneMgr, &isPaused, &mShutDown);
+	mGUI.drawMenu();
 
 	//Initialize Network Manager
 	nManager = new Network();
@@ -144,72 +147,79 @@ PlayerVars* Cobalt::createPacket(void){
 bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {	//return True to continue rendering, false to drop out of the rendering loop
 	
-	timeElapsed += evt.timeSinceLastFrame;
-	mGUI.setTime(timeLimit-timeElapsed);
-
 	bool ret = BaseApplication::frameRenderingQueued(evt);
-
-	*myPos = myself->getPlayerPosition();
-	*enemyPos = enemy->getPlayerPosition();
-
-	myself->updatePosition(evt); //update myself normally
-	myself->setCameraTarget(*enemyPos); //tell player class enemy position
-	enemy->setCameraTarget(*myPos);
-
-	mBullet.updateWorld(evt); //update bullet with time passed
-	mEnv.frmqUpdate(evt, mTrayMgr);	//update Environment with time passed
-	
-	cameraPos = myself->getNewCameraPos();
-	mCamera->setPosition(cameraPos);
-
-	if(myself->getLockedOn())
+	mEnv.frmqUpdate(evt, mTrayMgr);
+	if(!isPaused)
 	{
+		timeElapsed += evt.timeSinceLastFrame;
+		mGUI.setTime(timeLimit-timeElapsed);
 
-		mCamera->lookAt(*enemyPos);
+		*myPos = myself->getPlayerPosition();
+		*enemyPos = enemy->getPlayerPosition();
+
+		if(isMultiplayer)
+		{
+			bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
+			isConnected = nManager->isConnectionOpen();
+			PlayerVars* gameUpdate = NULL;
+			if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
+			if(packetReceived){ gameUpdate = nManager->getGameUpdate(); numPacketsReceived++;}
+
+			mBullet.updateWorld(evt);
+			myself->setCameraTarget(*enemyPos); //tell player class enemy position
+			myself->updatePosition(evt); //update myself normally
+			enemy->setCameraTarget(*myPos);
+			mBullet.updateWorld(evt); //update bullet with time passed
+			cameraPos = myself->getNewCameraPos();
+			mCamera->setPosition(cameraPos);
+
+			if(packetReceived || numPacketsReceived < 3){
+				//only send packet when we receive a packet so that we don't congest the network
+				nManager->sendPacket( *createPacket() );
+			}
+
+			if(isServer){
+				//I am server
+				serverPlayer->setCameraTarget(clientPos);
+
+			}else{
+				//I am client
+				clientPlayer->setCameraTarget(serverPos);
+				if(packetReceived)
+				{
+					std::cout<<"packet receieved"<<std::endl;
+				}
+			}
+		}
+		else
+		{
+			//single player mode
+			//printf("playerVector.x %f cameraTarget.x %f playerVector.z %f cameraTarget.z %f\n",playerVector.x, cameraTarget.x,playerVector.z, cameraTarget.z);
+			 //playerVector = Ogre::Vector3((playerVector.x - cameraTarget.x)+50,100,(playerVector.z - cameraTarget.z)+50);
+		
+			myself->setCameraTarget(*enemyPos);
+			cameraPos = myself->getNewCameraPos();
+
+
+		
+			 //printf("X:%f Dist:%f  X/Dist:%f\n", (playerVector.x - cameraTarget.x),ctDistance,(playerVector.x - cameraTarget.x)/ctDistance);
+		
+			mCamera->setPosition(cameraPos);
+			//mCamera->setPosition(Ogre::Vector3(playerVector.x, playerVector.y, playerVector.z));
+			//mCamera->lookAt(clientPos);
+			if(myself->getLockedOn())
+			{
+
+				mCamera->lookAt(*enemyPos);
+			}
+
+			mBullet.updateWorld(evt);
+			mEnv.frmqUpdate(evt, mTrayMgr);
+
+			myself->updatePosition(evt);
+
+		}
 	}
-
-	if(isMultiplayer){
-		bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
-		isConnected = nManager->isConnectionOpen();
-		PlayerVars* newPacket = NULL;
-		if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
-		if(packetReceived){ newPacket = nManager->getGameUpdate(); numPacketsReceived++;}
-
-		if(packetReceived || numPacketsReceived < 3){
-			//only send packet when we receive a packet so that we don't congest the network
-			nManager->sendPacket(*createPacket() );
-		}
-
-		if(packetReceived){
-			//if packet has been recieved update enemy with new info
-			enemy->updatePositionFromPacket(evt, newPacket);
-		} else{
-			enemy->updatePosition(evt);
-		}
-
-		if(isServer){
-			//I am server
-
-			
-
-		}else{
-			//I am client
-			
-
-
-		}
-		
-
-	}else{
-		//single player mode
-		
-		
-		
-		
-
-	}
-	
-
 	return ret;
 }
 
@@ -282,26 +292,72 @@ bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
 			myself->updateControlButton(LBUMP, 0);
         }
 //mCameraMan->injectKeyUp(arg);
+	if(CEGUI::System::getSingleton().injectKeyUp(arg.key)) return true;
+    	mCameraMan->injectKeyUp(arg);
 	return true;
 }
 //-------------------------------------------------------------------------------------
-bool Cobalt::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID)
 {
-    if (mTrayMgr->injectMouseDown(arg, id)) return true;
-	mCameraMan->injectMouseDown(arg, id);
+    switch (buttonID)
+    {
+    case OIS::MB_Left:
+        return CEGUI::LeftButton;
+        break;
+ 
+    case OIS::MB_Right:
+        return CEGUI::RightButton;
+        break;
+ 
+    case OIS::MB_Middle:
+        return CEGUI::MiddleButton;
+        break;
+ 
+    default:
+        return CEGUI::LeftButton;
+        break;
+    }
+}
+//-------------------------------------------------------------------------------------
+bool Cobalt::mouseMoved( const OIS::MouseEvent &evt )
+{
+	if (isPaused)
+	{
+		if(CEGUI::System::getSingleton().injectMouseMove(evt.state.X.rel, evt.state.Y.rel)) return true;
+		mCameraMan->injectMouseMove(evt);
+	}
+	else
+	{
+		if (mTrayMgr->injectMouseMove(evt)) return true;
+		mCameraMan->injectMouseMove(evt);
+	}
 	return true;
 }
 //-------------------------------------------------------------------------------------
-bool Cobalt::mouseMoved( const OIS::MouseEvent &arg )
+bool Cobalt::mousePressed( const OIS::MouseEvent &evt, OIS::MouseButtonID id )
 {
-    if (mTrayMgr->injectMouseMove(arg)) return true;
-	mCameraMan->injectMouseMove(arg);
+	if (isPaused)
+	{
+		if(CEGUI::System::getSingleton().injectMouseButtonDown(convertButton(id))) return true;
+	}
+	else{
+		if (mTrayMgr->injectMouseDown(evt, id)) return true;
+		mCameraMan->injectMouseDown(evt, id);
+	}
+	return true;
 }
 //-------------------------------------------------------------------------------------
-bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+bool Cobalt::mouseReleased( const OIS::MouseEvent &evt, OIS::MouseButtonID id )
 {
-    if (mTrayMgr->injectMouseUp(arg, id)) return true;
-	mCameraMan->injectMouseUp(arg, id);
+	if (isPaused)
+	{
+		if(CEGUI::System::getSingleton().injectMouseButtonUp(convertButton(id))) return true;
+	}
+	else
+	{
+    	if (mTrayMgr->injectMouseUp(evt, id)) return true;
+		mCameraMan->injectMouseUp(evt, id);
+	}
 	return true;
 }
 

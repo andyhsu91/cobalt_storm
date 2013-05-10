@@ -18,11 +18,16 @@ class GUI
 	public:
     	GUI(void);
     	virtual ~GUI(void);
-		void initGUI(Ogre::SceneManager*);
+		void initGUI(Ogre::SceneManager*, bool*, bool*);
 		void setHealth(float);
 		void setEnemyHealth(float);
 		void setAmmo(int, int);
 		void setTime(Ogre::Real);
+		void drawMenu(void);
+		void drawHUD(void);
+		bool openSettingsMenu(const CEGUI::EventArgs &e);
+		bool startGame(const CEGUI::EventArgs &e);
+		bool quitGame(const CEGUI::EventArgs &e);
 
 	protected:	
 	
@@ -31,11 +36,14 @@ class GUI
 		CEGUI::Window *timeDisplay;
 		CEGUI::OgreRenderer* mRenderer;
 		CEGUI::Window *sheet;
+		CEGUI::Window *mainMenu;
 		CEGUI::ProgressBar *health;
 		CEGUI::ProgressBar *ehealth;
 		CEGUI::ProgressBar *ammo1;
 		CEGUI::ProgressBar *ammo2;
 		CEGUI::ProgressBar *ammo3;
+		bool *isPaused;
+		bool *mShutDown;
 
 		Ogre::SceneManager* mSceneMgr;
 	

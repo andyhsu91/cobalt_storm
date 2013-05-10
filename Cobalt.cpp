@@ -157,7 +157,8 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		*myPos = myself->getPlayerPosition();
 		*enemyPos = enemy->getPlayerPosition();
 
-		if(isMultiplayer){
+		if(isMultiplayer)
+		{
 			bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
 			isConnected = nManager->isConnectionOpen();
 			PlayerVars* gameUpdate = NULL;
@@ -165,8 +166,12 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			if(packetReceived){ gameUpdate = nManager->getGameUpdate(); numPacketsReceived++;}
 
 			mBullet.updateWorld(evt);
-			
+			myself->setCameraTarget(*enemyPos); //tell player class enemy position
 			myself->updatePosition(evt); //update myself normally
+			enemy->setCameraTarget(*myPos);
+			mBullet.updateWorld(evt); //update bullet with time passed
+			cameraPos = myself->getNewCameraPos();
+			mCamera->setPosition(cameraPos);
 
 			if(packetReceived || numPacketsReceived < 3){
 				//only send packet when we receive a packet so that we don't congest the network
@@ -177,61 +182,17 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 				//I am server
 				serverPlayer->setCameraTarget(clientPos);
 
-			
-
 			}else{
 				//I am client
 				clientPlayer->setCameraTarget(serverPos);
-				if(packetReceived){
-
+				if(packetReceived)
+				{
+					std::cout<<"packet receieved"<<std::endl;
 				}
-
-	myself->updatePosition(evt); //update myself normally
-	myself->setCameraTarget(*enemyPos); //tell player class enemy position
-	enemy->setCameraTarget(*myPos);
-
-	mBullet.updateWorld(evt); //update bullet with time passed
-	
-	cameraPos = myself->getNewCameraPos();
-	mCamera->setPosition(cameraPos);
-
-	if(myself->getLockedOn())
-	{
-
-		mCamera->lookAt(*enemyPos);
-	}
-
-	if(isMultiplayer){
-		bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
-		isConnected = nManager->isConnectionOpen();
-		PlayerVars* newPacket = NULL;
-		if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
-		if(packetReceived){ newPacket = nManager->getGameUpdate(); numPacketsReceived++;}
-
-		if(packetReceived || numPacketsReceived < 3){
-			//only send packet when we receive a packet so that we don't congest the network
-			nManager->sendPacket(*createPacket() );
-		}
-
-		if(packetReceived){
-			//if packet has been recieved update enemy with new info
-			enemy->updatePositionFromPacket(evt, newPacket);
-		} else{
-			enemy->updatePosition(evt);
-		}
-
-		if(isServer){
-			//I am server
-
-			
-
-		}else{
-			//I am client
-
 			}
-		
-
-		}else{
+		}
+		else
+		{
 			//single player mode
 			//printf("playerVector.x %f cameraTarget.x %f playerVector.z %f cameraTarget.z %f\n",playerVector.x, cameraTarget.x,playerVector.z, cameraTarget.z);
 			 //playerVector = Ogre::Vector3((playerVector.x - cameraTarget.x)+50,100,(playerVector.z - cameraTarget.z)+50);

@@ -13,6 +13,8 @@ static double gravity = -100;
 static bool debug = true;
 static double restitution = 0.50;
 static double sr = 1.0; //scale ratio
+static Ogre::SceneManager* mSceneManager;
+static btDiscreteDynamicsWorld* mDynamicWorld;
 
 double type1Mass = 50.0;
 double type2Mass = 275.0;
@@ -88,24 +90,52 @@ Physics::~Physics(void)
 }*/
 
 //code from https://github.com/alanjrogers/bullet-physics/blob/master/Demos/ConcaveDemo/ConcavePhysicsDemo.cpp     http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?p=&f=9&t=1943
-static bool myContactAddedCallback(btManifoldPoint& cp,const btCollisionObject* colObj0, int partId0, int index0, const btCollisionObject* colObj1, int partId1, int index1)
+static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject* colObj0, int partId0, int index0, const btCollisionObject* colObj1, int partId1, int index1)
 {
 	Ogre::SceneNode *obj0 = static_cast<Ogre::SceneNode*>(colObj0->getUserPointer());
 	Ogre::SceneNode* obj1 = static_cast<Ogre::SceneNode*>(colObj1->getUserPointer());
 
+	//btCollisionObject* dObj0 = (btCollisionObject*)(colObj0);
+
 	std::string obj0_name = (obj0->getName().c_str());
 	std::string obj1_name = (obj1->getName().c_str());
 
-	if (obj0_name.find("bnode")) {
+	//cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
+	if (obj0_name.find("bnode") == 0) {
+		cout << "Object 0 " << obj0_name.find("bnode") << endl;
+		if (obj1_name.find("pnode")) {
+			// Calculate damage
+		}
 
+		btCollisionObject* bullet;
+		for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
+		{
+			btCollisionObject* obj = mDynamicWorld->getCollisionObjectArray()[j];
+
+			if(colObj0->getUserPointer() == obj->getUserPointer())
+				bullet = obj;
+		}
+		cout << "Destoy Bullet" << endl;
+		mDynamicWorld->removeCollisionObject(bullet);
+		mSceneManager->destroySceneNode(obj0);
 	}
-	else if (obj0_name.find("pnode")) {
+	if (obj1_name.find("bnode") == 0) {
+		cout << "Object 1 " << obj1_name.find("bnode") << endl;
+		/*if (obj1_name.find("pnode")) {
+			// Calculate damage
+		}*/
+		btCollisionObject* bullet;
+		for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
+		{
+			btCollisionObject* obj = mDynamicWorld->getCollisionObjectArray()[j];
 
+			if(colObj1->getUserPointer() == obj->getUserPointer())
+				bullet = obj;
+		}
+		cout << "Destoy Bullet" << endl;
+		mDynamicWorld->removeCollisionObject(bullet);
+		mSceneManager->destroySceneNode(obj1);
 	}
-	else if (obj0_name.find("snode")) {
-
-	}
-
 
 	return true;
 }
@@ -132,7 +162,8 @@ void Physics::initPhysics(Ogre::SceneManager* SceneMgr)
 
 	gContactAddedCallback = myContactAddedCallback;
 	
-	
+	mDynamicWorld = dynamicsWorld;
+	mSceneManager = mSceneMgr;
 
 	bullet = 0;
 	cerr << "Finished bullet init" << endl;
@@ -146,14 +177,14 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 	
 	//moves positions of all objects
 	for (int j=dynamicsWorld->getNumCollisionObjects()-1; j>=0 ;j--)
-	{	;
+	{
 		//cout<<"Num Objects: "<<dynamicsWorld->getNumCollisionObjects()<<endl;
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 		//obj->setRestitution(restitution);
 		btRigidBody* body = btRigidBody::upcast(obj);
 		//body->applyGravity();
 		btScalar timeStep = evt.timeSinceLastFrame;
-		body->applyDamping(timeStep);
+		//body->applyDamping(timeStep);
 		/*if (obj->getCollisionFlags() == btCollisionObject::CF_CHARACTER_OBJECT) {
 			btGhostObject* ghost = btGhostObject::upcast(obj);
 			Ogre::SceneNode *mNode = static_cast<Ogre::SceneNode *>(body->getUserPointer());
@@ -349,7 +380,7 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 	//body->setCcdMotionThreshold(0);
 	//body->setCcdSweptSphereRadius(0.2f);
-	body->setDamping(0.0f, 5.0f);
+	//body->setDamping(0.0f, 5.0f);
 	//body->forceActivationState(DISABLE_DEACTIVATION);
 	body->setRestitution(restitution);
 	

@@ -47,7 +47,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
                 mCurrentControllerButtonState[i] = 0;
         }
 
-        Ogre::Vector3 shapeDim = Ogre::Vector3(20, 40, 20);
+        Ogre::Vector3 shapeDim = Ogre::Vector3(40, 60, 40);
         Ogre::Vector3 position;
         if(isServer){
             position = Ogre::Vector3(700.0, 242.0, -750.0);
@@ -390,7 +390,10 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         //small and fast projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot1);
-        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z+10);
+        //printf("LookX: %f, LookZ: %f, calcX: %f, calcZ: %f\n",mLook.x, mLook.z, (mLook.x*10.0) - ((mLook.z)*10.0), (mLook.z*10.0) + ((mLook.x)*10.0));
+        //Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*10.0) - ((1-mLook.z)*10.0),
+        //                                       pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*10.0) + ((1-mLook.x)*10.0));
+        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*30.0), pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*30.0));
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
                                                     "sphere.mesh");
@@ -414,7 +417,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         //large and slow projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot2);
-        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
+        //Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
+        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*10.0), pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*10.0));
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
                                                     "sphere.mesh");

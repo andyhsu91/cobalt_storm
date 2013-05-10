@@ -43,6 +43,7 @@ public:
 	void freeProjectiles(float** projectiles);
 	float** getProjectiles(int typeOfProjectile);
 	int damageToPlayer(bool isServer);
+	btCollisionObject* collisionObject(Ogre::SceneNode* node);
 
 
 private:

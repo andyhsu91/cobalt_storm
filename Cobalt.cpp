@@ -95,7 +95,7 @@ void Cobalt::createScene(void)
 	sManager = new Sound();
 	sManager->playBackground(-1);
 	cerr << "Initing Player" << endl;
-    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode", true);
+    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode1", true);
     clientPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity2", "pnode2", false);
 
     if(isConnected && !isServer){
@@ -134,8 +134,8 @@ PlayerVars* Cobalt::createPacket(void){
 
 	PlayerVars* myPlayerVars = myself->getPlayerVars(); 
 	gameUpdate->shootTimeRemaining = myPlayerVars->shootTimeRemaining;
-	gameUpdate->server_health = mPlayerVars->server_health;
-	gameUpdate->client_health = mPlayerVars->client_health;
+	gameUpdate->server_health = myPlayerVars->server_health;
+	gameUpdate->client_health = myPlayerVars->client_health;
 	//send my animation states
 	for (int i = 0; i < Player::animEnumCount; i++){
 		gameUpdate->animationStateEnabled[i] = myPlayerVars->animationStateEnabled[i];
@@ -157,10 +157,16 @@ PlayerVars* Cobalt::createPacket(void){
 	mBullet.freeProjectiles(type1);
 	mBullet.freeProjectiles(type2);
 
-	if(isServer)
+	if(isServer) {
 		gameUpdate->client_health -= mBullet.damageToPlayer(isServer);
-	else
+		cout << "DAMAGE" << endl;
+		mGUI.setEnemyHealth(gameUpdate->client_health);
+	}
+	else {
 		gameUpdate->server_health -= mBullet.damageToPlayer(isServer);
+		cout << "DAMAGE" << endl;
+		mGUI.setEnemyHealth(gameUpdate->server_health);
+	}
 
 	return gameUpdate;
 }
@@ -266,7 +272,6 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
         }
     else if (arg.key == OIS::KC_O)
         {
-
 			myself->updateControlButton(RBUMP, 1);
         }
     else if (arg.key == OIS::KC_P)

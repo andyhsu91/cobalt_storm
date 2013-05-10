@@ -54,7 +54,7 @@ std::string Sound::getSoundFileFromEnum(int soundEffectEnum){
 		
 	case Shoot2: 	return "media/sounds/robot/shoot1.wav";
 		
-	case Walk: 		return "media/sounds/robot/footstep2.wav";
+	case Walk: 		return "media/sounds/robot/footstep1.wav";
 
 	case Run: 		return "media/sounds/robot/footstep2.wav";
 

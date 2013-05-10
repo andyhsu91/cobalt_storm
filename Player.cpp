@@ -10,6 +10,9 @@ using namespace std;
 const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
 const float shootTimeout = 2.0/3.0; //amount of seconds that the shooting animation takes
 float shootTimeRemaining = 0.0; //shoot animation has to be set to loop in order to repeat the animation multiple times
+const float walkTime = .85;
+float walkTimeRemaining = 0.0;
+
 enum robotStates { Die, Idle, Shoot, Slump, Walk, animEnumCount }; //animEnumCount should always be last
 
 bool stateActive[animEnumCount];
@@ -213,11 +216,16 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     float distPerSec = 200;
     mDirection = Ogre::Vector3(0.0,0.0,0.0);
     
-
+/*
+    const float walkTime = 2.0;
+    float walkTimeRemaining = 0.0;
+*/
     if(mCurrentControllerState[LCONTROLX] != 0.0){
+        
         if(stateActive[Walk]==false){
             enableState(Walk, true, true);
         }
+        
         mDirection.x = mCurrentControllerState[LCONTROLX]*distPerSec;
     }
     if(mCurrentControllerState[LCONTROLY] != 0.0){
@@ -230,6 +238,13 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         if(stateActive[Walk]==true){
             enableState(Walk, false, false);
         }
+    }
+    if(mCurrentControllerState[LCONTROLY] != 0.0 || mCurrentControllerState[LCONTROLX] != 0.0){
+        if(walkTimeRemaining <=0.0){
+            walkTimeRemaining = walkTime;
+            sManager->playSoundFromEnum(Sound::Walk);
+        }
+        walkTimeRemaining -= evt.timeSinceLastFrame;
     }
     Ogre::Vector3 playerVector = getPlayerPosition();
 
@@ -300,6 +315,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     mBody->getMotionState()->setWorldTransform(trans);
 
     if (mCurrentControllerState[RBUMP]) {
+        //small and fast projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot1);
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z+10);
@@ -323,6 +339,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         mCurrentControllerState[RBUMP] = 0;
     }
     if (mCurrentControllerState[LBUMP]) {
+        //large and slow projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot2);
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);

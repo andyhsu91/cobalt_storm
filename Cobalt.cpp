@@ -97,7 +97,7 @@ void Cobalt::createScene(void)
 	sManager = new Sound();
 	sManager->playBackground(-1);
 	cerr << "Initing Player" << endl;
-    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode", true);
+    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode1", true);
     clientPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity2", "pnode2", false);
 
     if(isConnected && !isServer){
@@ -159,11 +159,17 @@ PlayerVars* Cobalt::createPacket(void){
 	mBullet.freeProjectiles(type1);
 	mBullet.freeProjectiles(type2);
 
-	if(isServer){
+	if(isServer) {
 		gameUpdate->client_health -= mBullet.damageToPlayer(isServer);
-	}else{
-		gameUpdate->server_health -= mBullet.damageToPlayer(isServer);
+		cout << "DAMAGE" << endl;
+		mGUI.setEnemyHealth(gameUpdate->client_health);
 	}
+	else {
+		gameUpdate->server_health -= mBullet.damageToPlayer(isServer);
+		cout << "DAMAGE" << endl;
+		mGUI.setEnemyHealth(gameUpdate->server_health);
+	}
+
 	return gameUpdate;
 }
 
@@ -299,7 +305,6 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
         }
     else if (arg.key == OIS::KC_O)
         {
-
 			myself->updateControlButton(RBUMP, 1);
         }
     else if (arg.key == OIS::KC_P)

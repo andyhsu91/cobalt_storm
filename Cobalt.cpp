@@ -165,6 +165,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	mEnv.frmqUpdate(evt, mTrayMgr);
 	if(!isPaused)
 	{
+		
 		timeElapsed += evt.timeSinceLastFrame;
 		mGUI.setTime(timeLimit-timeElapsed);
 

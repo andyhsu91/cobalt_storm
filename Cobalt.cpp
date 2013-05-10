@@ -163,13 +163,15 @@ PlayerVars* Cobalt::createPacket(void){
 
 	if(isServer) {
 		if(damageDone>0){cout << "Client Old HP: " << gameUpdate->client_health << endl;}
-		gameUpdate->client_health -= damageDone;
+		myPlayerVars->client_health -= damageDone;
+		gameUpdate->client_health = myPlayerVars->client_health;
 		if(damageDone>0){cout << "Client New HP: " << gameUpdate->client_health << endl;}
 		mGUI.setEnemyHealth(gameUpdate->client_health);
 	}
 	else {
 		if(damageDone>0){cout << "Server Old HP: " << gameUpdate->server_health << endl;}
-		gameUpdate->server_health -= damageDone;
+		myPlayerVars->server_health -= damageDone;
+		gameUpdate->server_health = myPlayerVars->server_health;
 		if(damageDone>0){cout << "Server New HP: " << gameUpdate->server_health << endl;}
 		mGUI.setEnemyHealth(gameUpdate->server_health);
 	}

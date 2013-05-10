@@ -112,20 +112,21 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 		}
 		else {
 			cout << "Hit Other" << endl;
-			if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2")) {
-				if (obj0_name.find("bnode11"))
+			if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2") == 0) {
+				if (obj0_name.find("bnode11") == 0)
 					P2damageTrack += 5;
-				else if (obj0_name.find("bnode12")) {
+				else if (obj0_name.find("bnode12") == 0) {
 					P2damageTrack += 20;
 				}
 			}
-			else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode1")){
-				if (obj0_name.find("bnode11"))
+			else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode1") == 0){
+				if (obj0_name.find("bnode11") == 0)
 					P1damageTrack += 5;
-				else if (obj0_name.find("bnode12")) {
+				else if (obj0_name.find("bnode12") == 0) {
 					P1damageTrack += 20;
 				}
 			}
+			//cout << "Damage done: " << P1damageTrack << " " << P2damageTrack << endl;
 
 			btCollisionObject* bullet;
 			for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
@@ -148,20 +149,21 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 		}
 		else {
 			cout << "Hit Other" << endl;
-			if (obj1_name.find("bnode1") == 0 && obj0_name.find("pnode2")) {
-				if (obj1_name.find("bnode11"))
+			if (obj1_name.find("bnode1") == 0 && obj0_name.find("pnode2") == 0) {
+				if (obj1_name.find("bnode11") == 0)
 					P2damageTrack += 5;
-				else if (obj1_name.find("bnode12")) {
+				else if (obj1_name.find("bnode12") == 0) {
 					P2damageTrack += 20;
 				}
 			}
-			else if (obj1_name.find("bnode2") == 0 && obj0_name.find("pnode1")){
-				if (obj1_name.find("bnode11"))
+			else if (obj1_name.find("bnode2") == 0 && obj0_name.find("pnode1") == 0){
+				if (obj1_name.find("bnode11") == 0)
 					P1damageTrack += 5;
-				else if (obj1_name.find("bnode12")) {
+				else if (obj1_name.find("bnode12") == 0) {
 					P1damageTrack += 20;
 				}
 			}
+			//cout << "Damage done: " << P1damageTrack << " " << P2damageTrack << endl;
 
 			btCollisionObject* bullet;
 			for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)

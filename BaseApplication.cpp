@@ -278,7 +278,7 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	if(mInputManager->getNumberOfDevices(OIS::OISJoyStick)>0)
 	mJoyStick->capture();
  
-	mTrayMgr->frameRenderingQueued(evt);
+	//mTrayMgr->frameRenderingQueued(evt);
  
 	if (!mTrayMgr->isDialogVisible())
 	{

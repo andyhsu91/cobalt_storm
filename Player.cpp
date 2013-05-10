@@ -73,9 +73,9 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
                 mPlayerState->playerState[i] = false;
         mPlayerState->playerState[FALLING] = true;
 
-        mPlayerState->playerPosition[X] = position.x;
-        mPlayerState->playerPosition[Y] = position.y;
-        mPlayerState->playerPosition[Z] = position.z;
+        mPlayerState->playerPosition[0] = position.x;
+        mPlayerState->playerPosition[1] = position.y;
+        mPlayerState->playerPosition[2] = position.z;
 
         mLook = Ogre::Vector3(1.0, 0.0, 0.0);
 
@@ -410,9 +410,9 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
             }
         }
     }
-    mPlayerState->playerPosition[X] = pnode->getPosition().x;
-    mPlayerState->playerPosition[Y] = pnode->getPosition().y;
-    mPlayerState->playerPosition[Z] = pnode->getPosition().z;
+    mPlayerState->playerPosition[0] = pnode->getPosition().x;
+    mPlayerState->playerPosition[1] = pnode->getPosition().y;
+    mPlayerState->playerPosition[2] = pnode->getPosition().z;
 
     // mBody->applyDamping(evt.timeSinceLastFrame);
     //printf("getPOSX %f \n",mPlayerState->playerPosition[X]);

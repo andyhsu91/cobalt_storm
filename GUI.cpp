@@ -10,10 +10,12 @@ GUI::GUI(void)
 GUI::~GUI(void)
 {
 }
-void GUI::initGUI(Ogre::SceneManager* pSceneMgr)
+void GUI::initGUI(Ogre::SceneManager* pSceneMgr, bool *pGamepaused, bool *pGamequit)
 {
 	//CEGUI init
 	mSceneMgr = pSceneMgr;
+	isPaused = pGamepaused;
+	mShutDown = pGamequit;
 	
 	mRenderer = &CEGUI::OgreRenderer::bootstrapSystem();
 
@@ -27,7 +29,7 @@ void GUI::initGUI(Ogre::SceneManager* pSceneMgr)
 	
 	CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
 }
-void GUI::drawMenu()
+void GUI::drawMenu(void)
 {
 	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
 	mainMenu = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/Menu");
@@ -44,10 +46,11 @@ void GUI::drawMenu()
 	CEGUI::Window *startBut = wmgr.createWindow("TaharezLook/Button", "CEGUI/StartButton");
 	startBut->setText("Start");
 	startBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
-	startBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05f, 0), CEGUI::UDim(0.9f, 0))); 	
+	startBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.18f, 0), CEGUI::UDim(0.78f, 0))); 	
 	startBut->setAlpha(0.9f);	
 	startBut->setProperty("NormalImage","set:TaharezLook image:full_image");
-	frameMenu->addChildWindow(startBut);
+	startBut->setAlwaysOnTop(true);
+	mainMenu->addChildWindow(startBut);
 
 	startBut->subscribeEvent(CEGUI::PushButton::EventClicked,
 	CEGUI::Event::Subscriber(&GUI::startGame, this));
@@ -56,19 +59,26 @@ void GUI::drawMenu()
 	CEGUI::Window *settingBut = wmgr.createWindow("TaharezLook/Button", "CEGUI/SettingButton");
 	settingBut->setText("Settings");
 	settingBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
-	settingBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.65f, 0), CEGUI::UDim(0.9f, 0))); 	
+	settingBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.52f, 0), CEGUI::UDim(0.78f, 0))); 
+	settingBut->setProperty("NormalImage","set:TaharezLook image:full_image");	
 	settingBut->setAlpha(0.9f);	
-	frameMenu->addChildWindow(settingBut);
+	settingBut->setAlwaysOnTop(true);
+	mainMenu->addChildWindow(settingBut);
 
 	//Quit button
 	CEGUI::Window *quitBut = wmgr.createWindow("TaharezLook/Button", "CEGUI/QuitButton");
 	quitBut->setText("Quit");
 	quitBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
-	quitBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.82f, 0), CEGUI::UDim(0.9f, 0))); 	
+	quitBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.68f, 0), CEGUI::UDim(0.78f, 0))); 	
+	quitBut->setProperty("NormalImage","set:TaharezLook image:full_image");
 	quitBut->setAlpha(0.9f);	
-	frameMenu->addChildWindow(quitBut);
+	quitBut->setAlwaysOnTop(true);
+	quitBut->subscribeEvent(CEGUI::PushButton::EventClicked,
+		CEGUI::Event::Subscriber(&GUI::quitGame, this));
+	mainMenu->addChildWindow(quitBut);
 
 	CEGUI::System::getSingleton().setGUISheet(mainMenu);
+	CEGUI::MouseCursor::getSingleton().show(); 
 }
 //---------------------------------------------------------------------------
 void GUI::drawHUD()
@@ -227,6 +237,8 @@ void GUI::drawHUD()
 
 	//Sets the current sheet to be used
 	CEGUI::System::getSingleton().setGUISheet(sheet);
+
+	CEGUI::MouseCursor::getSingleton().hide(); 
 }
 //---------------------------------------------------------------------------
 void GUI::setHealth(float vhealth)
@@ -266,5 +278,11 @@ void GUI::setAmmo(int ammo, int weapon)
 bool GUI::startGame(const CEGUI::EventArgs &e)
 {
 	drawHUD();
+	*isPaused = false;
 	return true;
+}
+bool GUI::quitGame(const CEGUI::EventArgs &e)
+{
+    *mShutDown = true;
+    return true;
 }

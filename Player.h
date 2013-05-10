@@ -61,6 +61,8 @@ struct PlayerVars {
 	int weaponamt3;
 	
 	bool playerState[15];
+	bool animationStateEnabled[5];
+	bool animationStateLoop[5];
 	float playerPosition[3];
 	float timeRemaining;
 	
@@ -98,7 +100,7 @@ public:
 
 	float getCurrentAxisState(int axis);
 	bool getCurrentButtonState(int button);
-
+	PlayerVars* getPlayerVars(void);
 	bool getPlayerState(int);
 	float getDistanceToTarget(void);
 	Ogre::Vector3 getCameraTarget(void);
@@ -119,7 +121,7 @@ private:
 	Physics* mBullet;
 	Sound* sManager;
 	btKinematicCharacterController* mPlayer;
-	bool stateActive[animEnumCount];
+	//bool stateActive[animEnumCount];
 	//btPairCachingGhostObject* mGhost;
 	btRigidBody* mBody;
 	btTransform trans;
@@ -137,8 +139,8 @@ private:
 	Ogre::Vector3 cameraTarget;
 
     Ogre::Real distanceToTarget;
-    
-
+    float shootTimeRemaining; //shoot animation has to be set to loop in order to repeat the animation multiple times
+    float walkTimeRemaining;
 	/*holds the current controller/keyboardstate of the player
 	these values will then be used to update the player movement based on
 	frametime in the updatePosition method. LCONTROLX, LCONTROLY, RCONTROLX, RCONTROLY*/

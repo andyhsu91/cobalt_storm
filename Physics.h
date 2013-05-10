@@ -15,6 +15,7 @@ Filename:    Physics.h
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
 #include "math.h"
 
+
 class btKinematicCharacterController;
 
 using namespace std;
@@ -24,7 +25,7 @@ class Physics
 public:
     Physics(void);
     virtual ~Physics(void);
-
+    enum bodyTypes { type1, type2, temp, other, rigid, kinematic};
 	void initPhysics(Ogre::SceneManager* SceneMgr);
 	void DestroyAllAttachedMovableObjects( Ogre::SceneNode* i_pSceneNode );
 	void updateWorld(const Ogre::FrameEvent& evt);
@@ -45,7 +46,6 @@ public:
 
 private:
 	Ogre::SceneManager* mSceneMgr;
-	Ogre::SceneNode* sceneNode;
 	btDbvtBroadphase* overlappingPairCache;
 	btDefaultCollisionConfiguration* collisionConfiguration;
 	btCollisionDispatcher* dispatcher;
@@ -54,15 +54,11 @@ private:
 	float type1ProjectilePos[20][3]; //20 projectiles, 3 axises for each projectile
 	float type2ProjectilePos[20][3];
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
-	string type1;
-	string type2;
-	string temp;
-	string other;
-	string rigid;
+
 	btCollisionShape* shape;
 	btRigidBody* body;
 	btTransform startTransform;
-	
+	int bullet;
 };
 
 #endif // #ifndef __Physics_h_

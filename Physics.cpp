@@ -16,6 +16,7 @@ static double sr = 1.0; //scale ratio
 
 double type1Mass = 50.0;
 double type2Mass = 275.0;
+double tempMass = 111.111;
 float invalid = -999.999;
 
 Physics::Physics(void)
@@ -117,7 +118,6 @@ void Physics::initPhysics(Ogre::SceneManager* SceneMgr)
 	cerr << "Entered bullet init" << endl;
 
 	mSceneMgr = SceneMgr;
-	
 	collisionConfiguration = new btDefaultCollisionConfiguration(); //safe
 	dispatcher = new btCollisionDispatcher(collisionConfiguration); //safe
 	overlappingPairCache = new btDbvtBroadphase(); //safe
@@ -132,24 +132,21 @@ void Physics::initPhysics(Ogre::SceneManager* SceneMgr)
 
 	gContactAddedCallback = myContactAddedCallback;
 	
-	type1 = "type1";
-	type2 = "type2";
-	temp = 	"temp";
-	other = "other";
-	rigid = "rigid";
+	
 
+	bullet = 0;
 	cerr << "Finished bullet init" << endl;
 }
 
 //---------------------------------------------------------------------------
 void Physics::updateWorld(const Ogre::FrameEvent& evt)
 {	
-	cout<<"Entered Physics::updateWorld()"<<endl;
+	//cout<<"Entered Physics::updateWorld()"<<endl;
 	dynamicsWorld->stepSimulation(evt.timeSinceLastFrame,1);
-
+	
 	//moves positions of all objects
 	for (int j=dynamicsWorld->getNumCollisionObjects()-1; j>=0 ;j--)
-	{	
+	{	;
 		//cout<<"Num Objects: "<<dynamicsWorld->getNumCollisionObjects()<<endl;
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 		//obj->setRestitution(restitution);
@@ -169,7 +166,7 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 				mNode->setPosition(pos.x(), pos.y(), pos.z());
 			}
 		}*/
-		cout<<"Got This Far 1"<<endl;
+		
 		if (body && body->getMotionState())
 		{
 			Ogre::SceneNode *mNode = static_cast<Ogre::SceneNode *>(body->getUserPointer());
@@ -178,18 +175,18 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 			//body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT );
 			btQuaternion rot = trans.getRotation();
 			btVector3 pos = trans.getOrigin();
-			cout<<"Got This Far 2"<<endl;
-			//mNode->setOrientation(Ogre::Quaternion(rot.w(), rot.x(), rot.y(), rot.z()));
-			cout<<"Got This Far 3"<<endl;
+			
+			mNode->setOrientation(Ogre::Quaternion(rot.w(), rot.x(), rot.y(), rot.z()));
+			
 			mNode->setPosition(Ogre::Vector3(pos.x(),pos.y(),pos.z()));
-			cout<<"Got This Far 4"<<endl;
+			
 			if (pos.y() < 0.0) {
 				dynamicsWorld->removeCollisionObject(obj);
 				mSceneMgr->destroySceneNode(mNode);
 			}
 		}
 	}
-	cout<<"Exiting Physics::updateWorld()"<<endl;
+	//cout<<"Exiting Physics::updateWorld()"<<endl;
 }
 
 void Physics::putProjectiles(float** projectiles, int typeOfProjectile){
@@ -198,10 +195,22 @@ void Physics::putProjectiles(float** projectiles, int typeOfProjectile){
 	//delete old temp projectiles from the network
 	for (int j=0; j<dynamicsWorld->getNumCollisionObjects(); j++)
 	{	
-		//check if type 
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-		void* myPointer = obj->getUserPointer();
-		if(myPointer == &temp){
+		
+		//get position of projectile
+		btRigidBody* body = btRigidBody::upcast(obj);
+		btTransform trans;
+		body->getMotionState()->getWorldTransform(trans);
+		btVector3 pos = trans.getOrigin();
+
+		//get mass of body
+		float bodyMass = 0.0;
+		if(body->getInvMass() != 0.0){
+			bodyMass = 1.0/(body->getInvMass()); //should not divide by zero 
+		} else{
+			continue; 
+		}
+		if(abs(bodyMass-tempMass) < 0.2){
 			Ogre::SceneNode *mNode = static_cast<Ogre::SceneNode *>(body->getUserPointer());
 			dynamicsWorld->removeCollisionObject(obj);
 			mSceneMgr->destroySceneNode(mNode);
@@ -215,11 +224,44 @@ void Physics::putProjectiles(float** projectiles, int typeOfProjectile){
 			break;
 		}
 
-		Ogre::Vector3 pos = Ogre::Vector3(projectiles[i][0], projectiles[i][1], projectiles[i][2]);
+		Ogre::Vector3 position = Ogre::Vector3(projectiles[i][0], projectiles[i][1], projectiles[i][2]);
 		
 		Ogre::Vector3 vel = Ogre::Vector3(0.0, 0.0, 0.0);
 
-		createBullet(sceneNode, -typeOfProjectile, pos, vel); //if the typeOfProjectile is negative, the userPointer is "temp"
+		Ogre::Entity* ent = mSceneMgr->createEntity("BulletTemp" + Ogre::StringConverter::toString(bullet),
+                                                    "sphere.mesh");
+        Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
+                createChildSceneNode("tempNode" + Ogre::StringConverter::toString(bullet++), position);
+
+        bnode->attachObject(ent);
+        
+
+		if(typeOfProjectile==1){
+			
+	        bnode->scale(.03, .03, .03);
+	        Ogre::MaterialPtr bMat = ent->getSubEntity(0)->getMaterial()->clone("newBallColor");
+	        bMat->getTechnique(0)->getPass(0)->setAmbient(1.0, 0.8, 0.0);
+	        bMat->getTechnique(0)->getPass(0)->setDiffuse(1.0, 0.8, 0.0, 1.0);
+	        ent->setMaterialName(bMat->getName());
+	        // ent->setMaterialName("Examples/Chrome");
+	        ent->setCastShadows(true);
+	        
+	        createBullet(bnode, -1, position, vel);
+		}
+		else if(typeOfProjectile==2){
+			bnode->scale(.07, .07, .07);
+	        Ogre::MaterialPtr gMat = ent->getSubEntity(0)->getMaterial()->clone("newBombColor");
+	        gMat->getTechnique(0)->getPass(0)->setAmbient(0.2, 0.8, 0.2);
+	        gMat->getTechnique(0)->getPass(0)->setDiffuse(0.1, 0.8, 0.2, 1.0);
+	        ent->setMaterialName(gMat->getName());
+	        // ent->setMaterialName("Examples/Chrome");
+	        ent->setCastShadows(true);
+	        
+	        createBullet(bnode, -2, position, vel);
+
+		}
+
+		//createBullet(sceneNode, -typeOfProjectile, pos, vel); //if the typeOfProjectile is negative, the userPointer is "temp"
 		//(Ogre::SceneNode *snode, int weapon_type, Ogre::Vector3 origin, Ogre::Vector3 direction)
 	}
 	cout<<"Exiting Physics::putProjectiles()"<<endl;
@@ -247,17 +289,7 @@ float** Physics::getProjectiles(int typeOfProjectile){
 	//iterate through objects created and being handled in Bullet Physics Engine
 	for (int j=0; j<dynamicsWorld->getNumCollisionObjects() && currIndex<20; j++) //none of the first 4 objects are projectiles
 	{	
-		//check if type 1 or 2
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-		void* myPointer = obj->getUserPointer();
-		int currObjType = -1;
-		if(myPointer == &type1){
-			currObjType = 1;
-		}else if(myPointer == &type2){
-			currObjType = 2;
-		} else{
-			continue;
-		}
 		
 		//get position of projectile
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -266,22 +298,21 @@ float** Physics::getProjectiles(int typeOfProjectile){
 		btVector3 pos = trans.getOrigin();
 
 		//get mass of body
-		/*float bodyMass = 0.0;
+		float bodyMass = 0.0;
 		if(body->getInvMass() != 0.0){
 			bodyMass = 1.0/(body->getInvMass()); //should not divide by zero 
 		} else{
 			continue; 
 		}
-
 		//check if type 1 or 2
 		int currProjType = -1;
 		if(abs(bodyMass-type1Mass) < 0.2){
 			currProjType = 1;
 		} else if(abs(bodyMass-type2Mass) < 0.2){
 			currProjType = 2;
-		} */
+		} 
 		//if there is a match add it to array
-		if(currObjType == typeOfProjectile){
+		if(currProjType == typeOfProjectile){
 			projPos[currIndex][0] = pos.x();
 			projPos[currIndex][1] = pos.y();
 			projPos[currIndex][2] = pos.z();
@@ -321,7 +352,8 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 	body->setDamping(0.0f, 5.0f);
 	//body->forceActivationState(DISABLE_DEACTIVATION);
 	body->setRestitution(restitution);
-	body->setUserPointer(&rigid);
+	
+	body->setUserPointer((void *) (snode));
 
 	if (kino) {
         //body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
@@ -336,7 +368,6 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 		int weapon_type, Ogre::Vector3 origin, Ogre::Vector3 direction)
 {
 	cout<<"Entered Physics::createBullet()"<<endl;
-	sceneNode = snode;
 	double mass = 1.0;
 	if (weapon_type == 1 || weapon_type == -1) {
 		shape = new btSphereShape(sr*3.0);
@@ -345,6 +376,10 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 	else if (weapon_type == 2 || weapon_type == -2) {
 		shape = new btSphereShape(sr*7.0);
 		mass = type2Mass;
+	}
+
+	if(weapon_type < 0.0){
+		mass = tempMass;
 	}
 
 	collisionShapes.push_back(shape);
@@ -364,18 +399,9 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 	body->setCollisionFlags(body->getCollisionFlags());
 	//body->setDamping(0.0f, 1.0f);
 	//body->forceActivationState(DISABLE_DEACTIVATION);
+	
 	body->setRestitution(restitution);
-	if(weapon_type==1){
-		body->setUserPointer(&type1);
-	} else if(weapon_type==2){
-		body->setUserPointer(&type2);
-	} else if(weapon_type < 0){
-		body->setUserPointer(&temp);
-	} 
-	else{
-		body->setUserPointer(&other);
-	}
-
+	body->setUserPointer((void *) (snode));
 	dynamicsWorld->addRigidBody(body,2,1);
 	if (weapon_type == 1 || weapon_type == -1)
 		body->setLinearVelocity(btVector3(direction.x * 2000.0, direction.y * 2000.0 + 20.0, direction.z * 2000.0));
@@ -405,7 +431,7 @@ btPairCachingGhostObject* Physics::setKinematicCharacter(Ogre::SceneNode *snode,
 	ghost->setCollisionShape (shape);
 	ghost->setCollisionFlags (btCollisionObject::CF_CHARACTER_OBJECT);
 	//ghost->setActivationState(DISABLE_DEACTIVATION);
-	ghost->setUserPointer((void *) (snode));
+	body->setUserPointer((void *) (snode));
 
     ghost->setWorldTransform(startTransform);
 	btScalar stepHeight = btScalar(0.35);

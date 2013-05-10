@@ -33,7 +33,13 @@ void GUI::initGUI(Ogre::SceneManager* pSceneMgr, bool *pGamepaused, bool *pGameq
 	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
 	mainMenu = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/Menu");
 	sheet = wmgr.createWindow("DefaultWindow", "CEGUIMainMenu/Sheet");
+	pauseMenu = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/PauseMenu");
+	victoryScreen = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/VictoryScreen");
+	defeatScreen = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/DefeatScreen");
+	drawHUD();
 	drawPause();
+	drawVictory();
+	drawDefeat();
 }
 //---------------------------------------------------------------------------
 void GUI::drawMenu(void)
@@ -90,15 +96,14 @@ void GUI::drawMenu(void)
 void GUI::drawPause(void)
 {
 	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
-	pauseMenu = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/PauseMenu");
 	//Menu frame
 	CEGUI::Window *pauseBG = wmgr.createWindow("TaharezLook/FrameWindow","CEGUI/PauseBackground");
 	pauseMenu->addChildWindow(pauseBG);
 	pauseBG->setText("Pause");
 	pauseBG->disable();
-	pauseBG->setSize(CEGUI::UVector2(CEGUI::UDim(1.4, 0), CEGUI::UDim(1.4, 0)));
-	pauseBG->setPosition(CEGUI::UVector2(CEGUI::UDim(-0.1,0),CEGUI::UDim(-0.1, 0)));
-	pauseBG->setAlpha(0.5f);
+	pauseBG->setSize(CEGUI::UVector2(CEGUI::UDim(2.0, 0), CEGUI::UDim(2.0, 0)));
+	pauseBG->setPosition(CEGUI::UVector2(CEGUI::UDim(0,0),CEGUI::UDim(0, 0)));
+	pauseBG->setAlpha(0.7f);
 
 	//Start button
 	CEGUI::Window *resumeBut = wmgr.createWindow("TaharezLook/Button", "CEGUI/ResumeButton");
@@ -283,6 +288,84 @@ void GUI::drawHUD()
 	CEGUI::MouseCursor::getSingleton().hide(); 
 }
 //---------------------------------------------------------------------------
+void GUI::drawVictory(void)
+{
+	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+	//Menu frame
+	CEGUI::Window *victoryFrame = wmgr.createWindow("TaharezLook/FrameWindow","CEGUI/VictoryFrame");
+	victoryScreen->addChildWindow(victoryFrame);
+	victoryFrame->setText("Victory");
+	victoryFrame->disable();
+	victoryFrame->setSize(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.7, 0)));
+	victoryFrame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15,0),CEGUI::UDim(0.15, 0)));
+	victoryFrame->setAlpha(0.9f);
+
+	//Start button
+	CEGUI::Window *OKBut = wmgr.createWindow("TaharezLook/Button", "CEGUI/OKButton");
+	OKBut->setText("OK");
+	OKBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
+	OKBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.18f, 0), CEGUI::UDim(0.78f, 0))); 	
+	OKBut->setAlpha(0.9f);	
+	OKBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	OKBut->setAlwaysOnTop(true);
+	OKBut->subscribeEvent(CEGUI::PushButton::EventClicked,
+		CEGUI::Event::Subscriber(&GUI::resumeGame, this));
+	victoryScreen->addChildWindow(OKBut);
+
+	//Win message
+	CEGUI::Window *winMessage = wmgr.createWindow("TaharezLook/StaticText", "CEGUI/WinMessage");
+	//adds the text to the Sheet
+	victoryScreen->addChildWindow(winMessage);
+	//disable the possibility to interact with the object
+	winMessage->disable();
+	winMessage->setProperty("FrameEnabled", "False");
+	winMessage->setProperty("BackgroundEnabled", "False");
+	winMessage->setProperty("HorzFormatting", "WordWrapCentred");
+	winMessage->setText("Good job, you win.");
+	winMessage->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
+	winMessage->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3,0),CEGUI::UDim(0.1, 0)));
+	winMessage->setAlwaysOnTop(true);
+}
+//---------------------------------------------------------------------------
+void GUI::drawDefeat(void)
+{
+	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+	//Menu frame
+	CEGUI::Window *defeatFrame = wmgr.createWindow("TaharezLook/FrameWindow","CEGUI/DefeatFrame");
+	defeatScreen->addChildWindow(defeatFrame);
+	defeatFrame->setText("Defeat");
+	defeatFrame->disable();
+	defeatFrame->setSize(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.7, 0)));
+	defeatFrame->setPosition(CEGUI::UVector2(CEGUI::UDim(0.15,0),CEGUI::UDim(0.15, 0)));
+	defeatFrame->setAlpha(0.9f);
+
+	//Start button
+	CEGUI::Window *OKBut = wmgr.createWindow("TaharezLook/Button", "CEGUI/OKButton2");
+	OKBut->setText("OK");
+	OKBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
+	OKBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.18f, 0), CEGUI::UDim(0.78f, 0))); 	
+	OKBut->setAlpha(0.9f);	
+	OKBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	OKBut->setAlwaysOnTop(true);
+	OKBut->subscribeEvent(CEGUI::PushButton::EventClicked,
+		CEGUI::Event::Subscriber(&GUI::resumeGame, this));
+	defeatScreen->addChildWindow(OKBut);
+
+	//Win message
+	CEGUI::Window *loseMessage = wmgr.createWindow("TaharezLook/StaticText", "CEGUI/LoseMessage");
+	//adds the text to the Sheet
+	defeatScreen->addChildWindow(loseMessage);
+	//disable the possibility to interact with the object
+	loseMessage->disable();
+	loseMessage->setProperty("FrameEnabled", "False");
+	loseMessage->setProperty("BackgroundEnabled", "False");
+	loseMessage->setProperty("HorzFormatting", "WordWrapCentred");
+	loseMessage->setText("You suck, you lose.");
+	loseMessage->setSize(CEGUI::UVector2(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
+	loseMessage->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3,0),CEGUI::UDim(0.1, 0)));
+	loseMessage->setAlwaysOnTop(true);
+}
+//---------------------------------------------------------------------------
 void GUI::setHealth(float vhealth)
 {
 	this->health->setProgress(vhealth);
@@ -319,7 +402,8 @@ void GUI::setAmmo(int ammo, int weapon)
 //---------------------------------------------------------------------------
 bool GUI::startGame(const CEGUI::EventArgs &e)
 {
-	drawHUD();
+	CEGUI::System::getSingleton().setGUISheet(sheet);
+	CEGUI::MouseCursor::getSingleton().hide();
 	*inMainMenu = false;
 	*isPaused = false;
 	return true;
@@ -350,4 +434,16 @@ void GUI::resumeGame(void)
 	CEGUI::System::getSingleton().setGUISheet(sheet);
 	*isPaused = false;
 	CEGUI::MouseCursor::getSingleton().hide();
+}
+void GUI::showVictory(void)
+{
+	CEGUI::MouseCursor::getSingleton().show(); 
+	CEGUI::System::getSingleton().setGUISheet(victoryScreen);
+	*isPaused = true;
+}
+void GUI::showDefeat(void)
+{
+	CEGUI::MouseCursor::getSingleton().show(); 
+	CEGUI::System::getSingleton().setGUISheet(defeatScreen);
+	*isPaused = true;
 }

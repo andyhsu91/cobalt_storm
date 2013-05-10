@@ -17,13 +17,10 @@ Player mPlayer;
  bool isConnected;
  bool isServer;
  bool isPaused = true;
-<<<<<<< HEAD
  bool inMainMenu = true;
-=======
  bool menuCam = true;
  bool gameOver = false;
  bool iAmWinner = false;
->>>>>>> f19bdcd7237942dd1061b63a4154017f16a34977
  Network* nManager;
  Sound* sManager;
  const float timeLimit = 60.0;
@@ -192,16 +189,16 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		
 		timeElapsed += evt.timeSinceLastFrame;
 		mGUI.setTime(timeLimit-timeElapsed);
-<<<<<<< HEAD
-		mGUI.setHealth(myself->getPlayerVars()->server_health);
-		mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health);
+
+		mGUI.setHealth(myself->getPlayerVars()->server_health/100);
+		mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health/100);
 		mGUI.setAmmo(myself->getPlayerVars()->weaponamt1,1);
 		mGUI.setAmmo(myself->getPlayerVars()->weaponamt2,2);
 		mGUI.setAmmo(myself->getPlayerVars()->weaponamt3,3);
 
-=======
-		//mGUI.setHealth(timeLimit-timeElapsed);
->>>>>>> f19bdcd7237942dd1061b63a4154017f16a34977
+
+		//mGUI.setHealth((timeLimit-timeElapsed)/100);
+
 		*myPos = myself->getPlayerPosition();
 		*enemyPos = enemy->getPlayerPosition();
 
@@ -345,6 +342,15 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
 					mGUI.resumeGame();
 				}
 			}
+		}
+	//test victory/defeat screens
+	else if (arg.key == OIS::KC_B)
+		{
+			mGUI.showVictory();
+		}
+	else if (arg.key == OIS::KC_N)
+		{
+			mGUI.showDefeat();
 		}
        //this command will move the camera
 	//mCameraMan->injectKeyDown(arg);

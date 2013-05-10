@@ -117,7 +117,7 @@ void Physics::initPhysics()
 	collisionConfiguration = new btDefaultCollisionConfiguration(); //safe
 	dispatcher = new btCollisionDispatcher(collisionConfiguration); //safe
 	overlappingPairCache = new btDbvtBroadphase(); //safe
-	overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+	//overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 	solver = new btSequentialImpulseConstraintSolver; //safe
 
 	dynamicsWorld = new btDiscreteDynamicsWorld
@@ -168,6 +168,12 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 
 			mNode->setOrientation(Ogre::Quaternion(rot.w(), rot.x(), rot.y(), rot.z()));
 			mNode->setPosition(Ogre::Vector3(pos.x(),pos.y(),pos.z()));
+
+			if (pos.y() < 0) {
+				printf("Removing Object, %d\n", j);
+				dynamicsWorld->removeCollisionObject(obj);
+				mSceneMgr->destroySceneNode(mNode);
+			}
 		}
 	}
 }
@@ -204,7 +210,7 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
         body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 	}
 
-	dynamicsWorld->addRigidBody(body); 
+	dynamicsWorld->addRigidBody(body,3,3); 
 	
 	return body;
 }
@@ -241,7 +247,7 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 	body->setRestitution(restitution);
 	body->setUserPointer((void *) (snode));
 
-	dynamicsWorld->addRigidBody(body);
+	dynamicsWorld->addRigidBody(body,2,1);
 	if (weapon_type == 1)
 		body->setLinearVelocity(btVector3(direction.x * 2000.0, direction.y * 2000.0 + 20.0, direction.z * 2000.0));
 	else if (weapon_type == 2) {

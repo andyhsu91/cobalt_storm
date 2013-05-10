@@ -14,6 +14,7 @@ Filename:    Physics.h
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
 
+
 class btKinematicCharacterController;
 
 class Physics
@@ -21,7 +22,7 @@ class Physics
 public:
     Physics(void);
     virtual ~Physics(void);
-	void initPhysics();
+	void initPhysics(Ogre::SceneManager* SceneMgr);
 	void DestroyAllAttachedMovableObjects( Ogre::SceneNode* i_pSceneNode );
 	void updateWorld(const Ogre::FrameEvent& evt);
 	btRigidBody* setRigidBoxBody(Ogre::SceneNode *snode, 
@@ -33,6 +34,11 @@ public:
 	//btGhostObject* setKinematicCharacter(Ogre::SceneNode *snode,
     //            Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass);
 	void setBallRestitution(double restit);
+
+	void putType1Projectiles(float* projectiles); //
+	void putType2Projectiles(float* projectiles);
+	float* getType1Projectiles(void);
+	float* getType2Projectiles(void);
 
 private:
 	Ogre::SceneManager* mSceneMgr;

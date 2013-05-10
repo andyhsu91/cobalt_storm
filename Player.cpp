@@ -7,11 +7,12 @@ Filename:    Player.cpp
 #include "Player.h"
 
 using namespace std;
+
+//static variables
 const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
-const float shootTimeout = 2.0/3.0; //amount of seconds that the shooting animation takes
-float shootTimeRemaining = 0.0; //shoot animation has to be set to loop in order to repeat the animation multiple times
+const float shootTimeout = 0.6; //amount of seconds that the shooting animation takes
 const float walkTime = .85;
-float walkTimeRemaining = 0.0;
+
 
 
 
@@ -30,11 +31,13 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
                 Physics* Bullet, Sound* soundManager, std::string entName, std::string node, bool isServer)
 {
         cerr << "Beginning init player" << endl;
-        cerr << "Network Packet is "<<sizeof(PlayerVars)<<" bytes. Upper limit is 1500 bytes."<< endl;
+        cerr << "\n\nNetwork Packet is "<<sizeof(PlayerVars)<<" bytes. Upper limit is 1500 bytes.\n\n"<< endl;
         mSceneMgr = SceneMgr;
         mBullet = Bullet;
         sManager = soundManager;
         mPlayerState = new PlayerVars;
+        mPlayerState->shootTimeRemaining = 0.0;
+        walkTimeRemaining = 0.0;
         for (int i = 0; i < 5; ++i)
         {
                 mCurrentControllerAxisState[i] = 0;
@@ -64,7 +67,8 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         //mBullet->setKinematicCharacter(pnode, shapeDim, position, 250.0);
         mBody = mBullet->setRigidBoxBody(pnode, shapeDim, position, 5000.0, true);
 
-        mPlayerState->health = 100;
+        mPlayerState->server_health = 100;
+        mPlayerState->client_health = 100;
         mPlayerState->weaponamt1 = -1;
         mPlayerState->weaponamt2 = 10;
         mPlayerState->weaponamt3 = 2;
@@ -111,7 +115,7 @@ std::string Player::getStringFromEnum(int animStateEnum)
 void Player::enableState(int animStateEnum, bool enabled, bool loop){
     cout<<"AnimState: "<<getStringFromEnum(animStateEnum)<<", enabled: "<<boolalpha<<enabled<<", loop: "<<loop<<endl;
     for(int i=0; i<animEnumCount; i++){
-        stateActive[i]=false;
+        mPlayerState->animationStateEnabled[i]=false;
         std::string animationState = getStringFromEnum(i);
         if(animationState != "Invalid"){
             ent->getAnimationState(animationState)->setEnabled(false);
@@ -121,7 +125,8 @@ void Player::enableState(int animStateEnum, bool enabled, bool loop){
     
     std::string animationState = getStringFromEnum(animStateEnum);
     if(animationState != "Invalid"){
-        stateActive[animStateEnum]=enabled;
+        mPlayerState->animationStateEnabled[animStateEnum]=enabled;
+        mPlayerState->animationStateLoop[animStateEnum]=loop;
         ent->getAnimationState(animationState)->setLoop(loop);
         ent->getAnimationState(animationState)->setEnabled(enabled);
     }
@@ -136,7 +141,7 @@ void Player::updateAnimation(int animStateEnum, double seconds){
 
 void Player::attack(bool val){
     std::cout<<"Attacking"<<std::endl;
-    shootTimeRemaining = shootTimeout;
+    mPlayerState->shootTimeRemaining = shootTimeout;
     enableState(Shoot, val, true);
 }
 
@@ -220,6 +225,10 @@ bool Player::getCurrentButtonState(int button)
     return mCurrentControllerButtonState[button];
 }
 
+PlayerVars* Player::getPlayerVars(void){
+
+    return mPlayerState;
+}
 
 void Player::updatePlayerState(int state, bool value)
 {
@@ -239,6 +248,36 @@ Ogre::Vector3 Player::getCameraTarget(void)
 void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet){
     //update player based on packet recieved over the network
 
+    Ogre::Vector3 currPos = getPlayerPosition();
+
+    float xTrans = packet->playerPosition[0] - currPos.x;
+    float yTrans = packet->playerPosition[1] - currPos.y;
+    float zTrans = packet->playerPosition[2] - currPos.z;
+
+    mPlayerState->shootTimeRemaining = packet->shootTimeRemaining;
+
+    for(int i=0; i<animEnumCount; i++){
+        if(mPlayerState->animationStateEnabled[i] != packet->animationStateEnabled[i]){
+                enableState(i, packet->animationStateEnabled[i], packet->animationStateLoop[i]);
+        }
+        if(mPlayerState->animationStateEnabled[i]==true){
+            if(i==Shoot){
+                if(mPlayerState->shootTimeRemaining>0.0){
+                    updateAnimation(i, evt.timeSinceLastFrame);
+                    mPlayerState->shootTimeRemaining-=evt.timeSinceLastFrame;
+                } else{
+
+                }
+            }
+            else{
+                updateAnimation(i, evt.timeSinceLastFrame);
+            }
+        }
+    }
+
+
+    pnode->translate(Ogre::Vector3(xTrans, yTrans, zTrans), Ogre::Node::TS_WORLD);
+    pnode->lookAt(cameraTarget, Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_X);
 }
 
 
@@ -255,20 +294,20 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 */
     if(mCurrentControllerAxisState[LCONTROLX] != 0.0){
         
-        if(stateActive[Walk]==false){
+        if(mPlayerState->animationStateEnabled[Walk]==false){
             enableState(Walk, true, true);
         }
         
         mDirection.x = mCurrentControllerAxisState[LCONTROLX]*distPerSec;
     }
     if(mCurrentControllerAxisState[LCONTROLY] != 0.0){
-        if(stateActive[Walk]==false){
+        if(mPlayerState->animationStateEnabled[Walk]==false){
             enableState(Walk, true, true);
         }
         mDirection.z = mCurrentControllerAxisState[LCONTROLY]*distPerSec;
     }
     if(mCurrentControllerAxisState[LCONTROLY] == 0.0 && mCurrentControllerAxisState[LCONTROLX] == 0.0){
-        if(stateActive[Walk]==true){
+        if(mPlayerState->animationStateEnabled[Walk]==true){
             enableState(Walk, false, false);
         }
     }
@@ -398,11 +437,13 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     }
 
     for(int i=0; i<animEnumCount; i++){
-        if(stateActive[i]==true){
+        if(mPlayerState->animationStateEnabled[i]==true){
             if(i==Shoot){
-                if(shootTimeRemaining>0.0){
+                if(mPlayerState->shootTimeRemaining>0.0){
                     updateAnimation(i, evt.timeSinceLastFrame);
-                    shootTimeRemaining-=evt.timeSinceLastFrame;
+                    mPlayerState->shootTimeRemaining-=evt.timeSinceLastFrame;
+                } else{
+                    enableState(Shoot, false, false);
                 }
 
             } else{

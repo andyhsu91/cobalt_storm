@@ -52,19 +52,24 @@ enum States { STANDING,
 
 struct PlayerVars {
 	//Upper limit of this struct is 1500 bytes
-	int health;
+	bool paused;
+	int server_health;
+	int client_health;
 	int weaponamt1;
 	int weaponamt2;
 	int weaponamt3;
 	
 	bool playerState[15];
+	float shootTimeRemaining; //shoot animation has to be set to loop in order to repeat the animation multiple times
+	bool animationStateEnabled[5];
+	bool animationStateLoop[5];
 	float playerPosition[3];
 	float timeRemaining;
 	
 
 	//Need to add projectile positions to client
 	//All projectile directions processed on server
-	float type1ProjectilePos[20][3]; //25 projectiles, 3 axises for each projectile
+	float type1ProjectilePos[20][3]; //20 projectiles, 3 axises for each projectile
 	float type2ProjectilePos[20][3];
 	//float serverProjectileDir[3][3];
 	//float clientProjectilePos[3][3];
@@ -95,7 +100,7 @@ public:
 
 	float getCurrentAxisState(int axis);
 	bool getCurrentButtonState(int button);
-
+	PlayerVars* getPlayerVars(void);
 	bool getPlayerState(int);
 	float getDistanceToTarget(void);
 	Ogre::Vector3 getCameraTarget(void);
@@ -116,7 +121,7 @@ private:
 	Physics* mBullet;
 	Sound* sManager;
 	btKinematicCharacterController* mPlayer;
-	bool stateActive[animEnumCount];
+	//bool stateActive[animEnumCount];
 	//btPairCachingGhostObject* mGhost;
 	btRigidBody* mBody;
 	btTransform trans;
@@ -135,7 +140,7 @@ private:
 
     Ogre::Real distanceToTarget;
     
-
+    float walkTimeRemaining;
 	/*holds the current controller/keyboardstate of the player
 	these values will then be used to update the player movement based on
 	frametime in the updatePosition method. LCONTROLX, LCONTROLY, RCONTROLX, RCONTROLY*/

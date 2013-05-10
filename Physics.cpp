@@ -110,9 +110,11 @@ static bool myContactAddedCallback(btManifoldPoint& cp,const btCollisionObject* 
 extern ContactAddedCallback gContactAddedCallback;
 
 //---------------------------------------------------------------------------
-void Physics::initPhysics()
+void Physics::initPhysics(Ogre::SceneManager* SceneMgr)
 {
 	cerr << "Enter bullet init" << endl;
+
+	mSceneMgr = SceneMgr;
 	
 	collisionConfiguration = new btDefaultCollisionConfiguration(); //safe
 	dispatcher = new btCollisionDispatcher(collisionConfiguration); //safe
@@ -138,7 +140,8 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 
 	//moves positions of all objects
 	for (int j=dynamicsWorld->getNumCollisionObjects()-1; j>=0 ;j--)
-	{
+	{	
+		//cout<<"Num Objects: "<<dynamicsWorld->getNumCollisionObjects()<<endl;
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 		//obj->setRestitution(restitution);
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -169,13 +172,31 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 			mNode->setOrientation(Ogre::Quaternion(rot.w(), rot.x(), rot.y(), rot.z()));
 			mNode->setPosition(Ogre::Vector3(pos.x(),pos.y(),pos.z()));
 
-			if (pos.y() < 0) {
-				printf("Removing Object, %d\n", j);
+			if (pos.y() < 0.0) {
 				dynamicsWorld->removeCollisionObject(obj);
 				mSceneMgr->destroySceneNode(mNode);
 			}
 		}
 	}
+}
+
+void Physics::putType1Projectiles(float* projectiles){
+
+
+}
+
+void Physics::putType2Projectiles(float* projectiles){
+
+}
+
+float* Physics::getType1Projectiles(void){
+
+	return NULL;
+}
+
+float* Physics::getType2Projectiles(void){
+
+	return NULL;
 }
 //---------------------------------------------------------------------------
 btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode, 

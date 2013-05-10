@@ -110,9 +110,11 @@ static bool myContactAddedCallback(btManifoldPoint& cp,const btCollisionObject* 
 extern ContactAddedCallback gContactAddedCallback;
 
 //---------------------------------------------------------------------------
-void Physics::initPhysics()
+void Physics::initPhysics(Ogre::SceneManager* SceneMgr)
 {
 	cerr << "Enter bullet init" << endl;
+
+	mSceneMgr = SceneMgr;
 	
 	collisionConfiguration = new btDefaultCollisionConfiguration(); //safe
 	dispatcher = new btCollisionDispatcher(collisionConfiguration); //safe
@@ -169,8 +171,7 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 			mNode->setOrientation(Ogre::Quaternion(rot.w(), rot.x(), rot.y(), rot.z()));
 			mNode->setPosition(Ogre::Vector3(pos.x(),pos.y(),pos.z()));
 
-			if (pos.y() < 0) {
-				printf("Removing Object, %d\n", j);
+			if (pos.y() < 0.0) {
 				dynamicsWorld->removeCollisionObject(obj);
 				mSceneMgr->destroySceneNode(mNode);
 			}

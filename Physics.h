@@ -21,7 +21,7 @@ class Physics
 public:
     Physics(void);
     virtual ~Physics(void);
-	void initPhysics();
+	void initPhysics(Ogre::SceneManager* SceneMgr);
 	void DestroyAllAttachedMovableObjects( Ogre::SceneNode* i_pSceneNode );
 	void updateWorld(const Ogre::FrameEvent& evt);
 	btRigidBody* setRigidBoxBody(Ogre::SceneNode *snode, 

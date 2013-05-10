@@ -189,7 +189,7 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 	//cout<<"Exiting Physics::updateWorld()"<<endl;
 }
 
-void Physics::putProjectiles(float** projectiles, int typeOfProjectile){
+void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 	//inefficient
 	cout<<"Entered Physics::putProjectiles()"<<endl;
 	//delete old temp projectiles from the network
@@ -367,7 +367,7 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 		int weapon_type, Ogre::Vector3 origin, Ogre::Vector3 direction)
 {
-	cout<<"Entered Physics::createBullet()"<<endl;
+	//cout<<"Entered Physics::createBullet()"<<endl;
 	double mass = 1.0;
 	if (weapon_type == 1 || weapon_type == -1) {
 		shape = new btSphereShape(sr*3.0);
@@ -410,7 +410,7 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 		body->setGravity(btVector3(0, -700, 0));
 	}
 
-	cout<<"Exiting Physics::createBullet()"<<endl;
+	//cout<<"Exiting Physics::createBullet()"<<endl;
 	return body;
 }
 //---------------------------------------------------------------------------

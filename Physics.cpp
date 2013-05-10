@@ -102,7 +102,7 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 
 	//cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
 	if (obj0_name.find("bnode") == 0) {
-		cout << "Object 0 " << obj0_name.find("bnode") << endl;
+		//cout << "Object 0 " << obj0_name.find("bnode") << endl;
 		if (obj1_name.find("pnode")) {
 			// Calculate damage
 		}
@@ -115,12 +115,11 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 			if(colObj0->getUserPointer() == obj->getUserPointer())
 				bullet = obj;
 		}
-		cout << "Destoy Bullet" << endl;
 		mDynamicWorld->removeCollisionObject(bullet);
 		mSceneManager->destroySceneNode(obj0);
 	}
 	if (obj1_name.find("bnode") == 0) {
-		cout << "Object 1 " << obj1_name.find("bnode") << endl;
+		//cout << "Object 1 " << obj1_name.find("bnode") << endl;
 		/*if (obj1_name.find("pnode")) {
 			// Calculate damage
 		}*/
@@ -132,7 +131,6 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 			if(colObj1->getUserPointer() == obj->getUserPointer())
 				bullet = obj;
 		}
-		cout << "Destoy Bullet" << endl;
 		mDynamicWorld->removeCollisionObject(bullet);
 		mSceneManager->destroySceneNode(obj1);
 	}
@@ -321,6 +319,8 @@ float** Physics::getProjectiles(int typeOfProjectile){
 	for (int j=0; j<dynamicsWorld->getNumCollisionObjects() && currIndex<20; j++) //none of the first 4 objects are projectiles
 	{	
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
+		Ogre::SceneNode* objNode = static_cast<Ogre::SceneNode*>(obj->getUserPointer());
+		std::string obj_name = (objNode->getName().c_str());
 		
 		//get position of projectile
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -337,11 +337,17 @@ float** Physics::getProjectiles(int typeOfProjectile){
 		}
 		//check if type 1 or 2
 		int currProjType = -1;
-		if(abs(bodyMass-type1Mass) < 0.2){
+		/*if(abs(bodyMass-type1Mass) < 0.2){
 			currProjType = 1;
 		} else if(abs(bodyMass-type2Mass) < 0.2){
 			currProjType = 2;
-		} 
+		}*/
+
+		if(obj_name.find("bnode11") == 0 || obj_name.find("bnode21") == 0)
+			currProjType = 1;
+		else if(obj_name.find("bnode12") == 0 || obj_name.find("bnode22") == 0)
+			currProjType = 2;
+
 		//if there is a match add it to array
 		if(currProjType == typeOfProjectile){
 			projPos[currIndex][0] = pos.x();

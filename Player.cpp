@@ -49,10 +49,12 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         Ogre::Vector3 shapeDim = Ogre::Vector3(40, 60, 40);
         Ogre::Vector3 position;
-        if(isServer){
+        if (isServer) {
             position = Ogre::Vector3(700.0, 242.0, -750.0);
-        } else{
+            pSig = "bnode1";
+        } else {
             position = Ogre::Vector3(500.0, 242.0, -550.0);
+            pSig = "bnode2";
         }
 
         ent = mSceneMgr->createEntity(entName,"robot.mesh");
@@ -398,7 +400,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
                                                     "sphere.mesh");
         Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
-                createChildSceneNode("bnode" + Ogre::StringConverter::toString(bullet++), position);
+                createChildSceneNode(pSig + Ogre::StringConverter::toString(1) + Ogre::StringConverter::toString(bullet++), position);
 
         bnode->attachObject(ent);
         bnode->scale(.03, .03, .03);
@@ -418,12 +420,12 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot2);
         //Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
-        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*10.0), pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*10.0));
+        Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*30.0), pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*30.0));
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
                                                     "sphere.mesh");
         Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
-                createChildSceneNode("bnode" + Ogre::StringConverter::toString(bullet++), position);
+                createChildSceneNode(pSig + Ogre::StringConverter::toString(2) + Ogre::StringConverter::toString(bullet++), position);
 
         bnode->attachObject(ent);
         bnode->scale(.07, .07, .07);

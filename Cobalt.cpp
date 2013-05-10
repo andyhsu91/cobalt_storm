@@ -176,7 +176,8 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		myself->setCameraTarget(*enemyPos); //tell player class enemy position
 		enemy->setCameraTarget(*myPos);
 		
-		mBullet.updateWorld(evt);
+		if (isServer)
+			mBullet.updateWorld(evt);
 
 		mCamera->setPosition(cameraPos);
 		cameraPos = myself->getNewCameraPos();

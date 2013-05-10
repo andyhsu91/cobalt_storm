@@ -37,7 +37,11 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mPlayerState = new PlayerVars;
         for (int i = 0; i < 5; ++i)
         {
-                mCurrentControllerState[i] = 0;
+                mCurrentControllerAxisState[i] = 0;
+        }
+           for (int i = 0; i < 1; ++i)
+        {
+                mCurrentControllerButtonState[i] = 0;
         }
 
         Ogre::Vector3 shapeDim = Ogre::Vector3(20, 40, 20);
@@ -206,9 +210,25 @@ Ogre::Vector3 Player::getNewCameraPos(void){
 
 }
 
-float Player::getCurrentAxis(int axis)
+float Player::getCurrentAxisState(int axis)
 {
-    return mCurrentControllerState[axis];
+    return mCurrentControllerAxisState[axis];
+}
+
+bool Player::getCurrentButtonState(int button)
+{
+    return mCurrentControllerButtonState[button];
+}
+
+
+void Player::updatePlayerState(int state, bool value)
+{
+        mPlayerState->playerState[state]=value;
+}
+
+bool Player::getPlayerState(int state)
+{
+    return mPlayerState->playerState[state];
 }
 
 Ogre::Vector3 Player::getCameraTarget(void)
@@ -224,8 +244,8 @@ void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* p
 
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {   
-
-    printf("playervars: %d \n",sizeof (PlayerVars) );
+    //size of packet over the network;
+    //printf("playervars: %d \n",sizeof (PlayerVars) );
     float distPerSec = 200;
     mDirection = Ogre::Vector3(0.0,0.0,0.0);
     
@@ -233,26 +253,26 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     const float walkTime = 2.0;
     float walkTimeRemaining = 0.0;
 */
-    if(mCurrentControllerState[LCONTROLX] != 0.0){
+    if(mCurrentControllerAxisState[LCONTROLX] != 0.0){
         
         if(stateActive[Walk]==false){
             enableState(Walk, true, true);
         }
         
-        mDirection.x = mCurrentControllerState[LCONTROLX]*distPerSec;
+        mDirection.x = mCurrentControllerAxisState[LCONTROLX]*distPerSec;
     }
-    if(mCurrentControllerState[LCONTROLY] != 0.0){
+    if(mCurrentControllerAxisState[LCONTROLY] != 0.0){
         if(stateActive[Walk]==false){
             enableState(Walk, true, true);
         }
-        mDirection.z = mCurrentControllerState[LCONTROLY]*distPerSec;
+        mDirection.z = mCurrentControllerAxisState[LCONTROLY]*distPerSec;
     }
-    if(mCurrentControllerState[LCONTROLY] == 0.0 && mCurrentControllerState[LCONTROLX] == 0.0){
+    if(mCurrentControllerAxisState[LCONTROLY] == 0.0 && mCurrentControllerAxisState[LCONTROLX] == 0.0){
         if(stateActive[Walk]==true){
             enableState(Walk, false, false);
         }
     }
-    if(mCurrentControllerState[LCONTROLY] != 0.0 || mCurrentControllerState[LCONTROLX] != 0.0){
+    if(mCurrentControllerAxisState[LCONTROLY] != 0.0 || mCurrentControllerAxisState[LCONTROLX] != 0.0){
         if(walkTimeRemaining <=0.0){
             walkTimeRemaining = walkTime;
             sManager->playSoundFromEnum(Sound::Walk);
@@ -279,8 +299,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         float scalingFactor = distPerSec/distanceToTarget;
 
         //towards and away from enemy
-        mDirection.x += mCurrentControllerState[LCONTROLY]*diffX*scalingFactor;
-        mDirection.z += mCurrentControllerState[LCONTROLY]*diffZ*scalingFactor;
+        mDirection.x += mCurrentControllerAxisState[LCONTROLY]*diffX*scalingFactor;
+        mDirection.z += mCurrentControllerAxisState[LCONTROLY]*diffZ*scalingFactor;
 
         //left and right (Doesn't work yet)
         //Using http://math.stackexchange.com/questions/53875/calculating-point-around-circumference-of-circle-given-distance-travelled
@@ -292,8 +312,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
         double newXCoord = (a+(x-a)*cos(theta)-(y-b)*sin(theta)); //raw x-z coordinate point
         double newYCoord = (b+(x-a)*sin(theta)+(y-b)*cos(theta)); //raw x-z coordinate point
-        mDirection.x -= mCurrentControllerState[LCONTROLX]*(newXCoord-x); //amount of translation needed
-        mDirection.z -= mCurrentControllerState[LCONTROLX]*(newYCoord-y); //amount of translation needed
+        mDirection.x -= mCurrentControllerAxisState[LCONTROLX]*(newXCoord-x); //amount of translation needed
+        mDirection.z -= mCurrentControllerAxisState[LCONTROLX]*(newYCoord-y); //amount of translation needed
 
     }
 
@@ -327,7 +347,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     trans.setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
     mBody->getMotionState()->setWorldTransform(trans);
 
-    if (mCurrentControllerState[RBUMP]) {
+    if (getPlayerState(SHOOTING2)) {
         //small and fast projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot1);
@@ -349,9 +369,9 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         
         mBullet->createBullet(bnode, 1, position, mLook);
 
-        mCurrentControllerState[RBUMP] = 0;
+        updatePlayerState(SHOOTING2,false);
     }
-    if (mCurrentControllerState[LBUMP]) {
+    if (getPlayerState(SHOOTING1)) {
         //large and slow projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot2);
@@ -373,7 +393,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         
         mBullet->createBullet(bnode, 2, position, mLook);
 
-        mCurrentControllerState[LBUMP] = 0;
+        updatePlayerState(SHOOTING1,false);
     }
 
     for(int i=0; i<animEnumCount; i++){
@@ -401,12 +421,26 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
 void Player::updateControlAxis(int axis, float value)
 {
-       // printf("updating %d to %f\n", axis ,value);
-        mCurrentControllerState[axis]=value;
+        mCurrentControllerAxisState[axis]=value;
 }
 
-void Player::updatePlayerState(int state, bool value)
+void Player::updateControlButton(int button, float value)
 {
-        mPlayerState->playerState[state]=value;
-}
+        mCurrentControllerButtonState[button]=value;
+switch(button)
+    {
+        case LBUMP:
+        updatePlayerState(SHOOTING1, value);
+        break;
+        case RBUMP:
+        updatePlayerState(SHOOTING2, value);
+        break;
+        case LJOYCLICK:
+        updatePlayerState(JUMPING, value);
+        break;
+        case RJOYCLICK:
+        updatePlayerState(JUMPING, value);
+        break;
+    }
 
+}

@@ -191,11 +191,11 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
         }
     else if (arg.key == OIS::KC_O)
         {
-			serverPlayer->updatePlayerState(RBUMP, 1);
+			serverPlayer->updateControlButton(RBUMP, 1);
         }
     else if (arg.key == OIS::KC_P)
     	{
-    		serverPlayer->updatePlayerState(LBUMP, 1);
+    		serverPlayer->updateControlButton(LBUMP, 1);
     	}
      else if (arg.key == OIS::KC_L)
     	{
@@ -226,11 +226,11 @@ bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
         }
     else if (arg.key == OIS::KC_O)
         {
-			serverPlayer->updatePlayerState(RBUMP, 0);
+			serverPlayer->updateControlButton(RBUMP, 0);
         }
     else if (arg.key == OIS::KC_P)
         {
-			serverPlayer->updatePlayerState(LBUMP, 0);
+			serverPlayer->updateControlButton(LBUMP, 0);
         }
 //mCameraMan->injectKeyUp(arg);
 	return true;
@@ -285,20 +285,25 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  RBUTTON1, RBUTTON2, RBUTTON3, RBUTTON4, LMIDBUTTON, RMIDBUTTON */
  bool Cobalt::buttonPressed( const OIS::JoyStickEvent &e, int button )
  {
- 	printf("buttonPressed %d\n",button);
- 	switch(button)
+
+printf("pushed BUTTON%d\n",button);
+ 	serverPlayer->updateControlButton(button, true);
+ 	
+ 	/*switch(button)
  	{
 		case LBUMP:
-		serverPlayer->updatePlayerState(SHOOTING1, true);
+		printf("buttonPressed LBUMP %d\n",button);
+		
 		break;
 		case RBUMP:
-		serverPlayer->updatePlayerState(SHOOTING2, true);
+		printf("buttonPressed RBUMP %d\n",button);
+		serverPlayer->updatePlayerState(RBUMP, true);
 		break;
 		case LJOYCLICK:
-		serverPlayer->updatePlayerState(JUMPING, true);
+		serverPlayer->updatePlayerState(LJOYCLICK, true);
 		break;
 		case RJOYCLICK:
-		serverPlayer->updatePlayerState(JUMPING, true);
+		serverPlayer->updatePlayerState(RJOYCLICK, true);
 		break;
 
 		//these are not currently used
@@ -316,7 +321,7 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 		break;
 		default:
 		break;
- 	}
+ 	}*/
 
 	
  	return true;
@@ -327,16 +332,16 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
  	switch(button)
  	{
 		case LBUMP:
-		serverPlayer->updatePlayerState(SHOOTING1, false);
+		serverPlayer->updatePlayerState(LBUMP, false);
 		break;
 		case RBUMP:
-		serverPlayer->updatePlayerState(SHOOTING2, false);
+		serverPlayer->updatePlayerState(RBUMP, false);
 		break;
 		case LJOYCLICK:
-		serverPlayer->updatePlayerState(JUMPING, false);
+		serverPlayer->updatePlayerState(LJOYCLICK, false);
 		break;
 		case RJOYCLICK:
-		serverPlayer->updatePlayerState(JUMPING, false);
+		serverPlayer->updatePlayerState(RJOYCLICK, false);
 		break;
 
 		//these are not currently used

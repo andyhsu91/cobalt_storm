@@ -193,6 +193,10 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		if(myself->getLockedOn())
 		{
 			mCamera->lookAt(*enemyPos);
+		}else
+		{
+			mCamera->yaw( Ogre::Degree(  -myself->getCurrentAxisState(RCONTROLX)*3));
+			mCamera->pitch( Ogre::Degree( -myself->getCurrentAxisState(RCONTROLY)*3));
 		}
 
 		if(isMultiplayer)

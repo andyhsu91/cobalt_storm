@@ -18,6 +18,8 @@ Player mPlayer;
  bool isServer;
  bool isPaused = true;
  bool menuCam = true;
+ bool gameOver = false;
+ bool iAmWinner = false;
  Network* nManager;
  Sound* sManager;
  const float timeLimit = 60.0;
@@ -205,7 +207,9 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			isConnected = nManager->isConnectionOpen();
 			PlayerVars* receivedPacket = NULL;
 			PlayerVars sentPacket = NULL;
+
 			if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
+			
 			if(packetWasReceived){ 
 				receivedPacket = nManager->getGameUpdate(); 
 				numPacketsReceived++;
@@ -227,25 +231,32 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 				//I am server
 				if(packetWasReceived && receivedPacket->server_health <= 0){
 					//game over, I lose
-					
+					gameOver=true;
+					iAmWinner = false;
 				}
 				if(sentPacket!=NULL && sentPacket->client_health <=0){
-						//game over, I win
-
+					//game over, I win
+					gameOver = true;
+					iAmWinner = true;
 				}
 
 			}else{
 				//I am client
 				if(packetWasReceived && receivedPacket->client_health <= 0){
-						//game over, I lose
-
+					//game over, I lose
+					gameOver = true;
+					iAmWinner = false;
 				}
 				
 				if(sentPacket!=NULL && sentPacket->server_health <=0){
-						//game over, I win
-					
+					//game over, I win
+					gameOver = true;
+					iAmWinner = true;
 				}
 			}
+
+
+
 		}
 		else
 		{
@@ -255,6 +266,9 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 		
 
+		}
+		if(myself->getPlayerVars->timeRemaining <=0.0){
+			gameOver = true;
 		}
 	}
 	return ret;

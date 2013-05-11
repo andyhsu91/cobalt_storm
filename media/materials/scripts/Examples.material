@@ -498,6 +498,40 @@ material Examples/BumpyMetal
 	}
 }
 
+material Examples/Beach
+{
+technique
+	{
+		pass
+		{
+			ambient 0.3 0.3 0.3
+
+			texture_unit
+			{
+				texture BeachStones.jpg
+			}
+		}
+	}
+
+}
+
+material Examples/Dirt
+{
+technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+
+			texture_unit
+			{
+				texture dirt01.jpg
+			}
+		}
+	}
+
+}
+
 material Examples/WaterStream
 {
 	technique

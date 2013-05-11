@@ -50,7 +50,7 @@ enum States { STANDING,
 #define LMIDBUTTON 6
 #define RMIDBUTTON 7
 
-const int wep1max = 80;
+const int wep1max = 40;
 const int wep2max = 10;
 const int wep3max = -1;
 

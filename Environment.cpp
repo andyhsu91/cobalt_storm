@@ -92,6 +92,29 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
     		ent->setMaterialName("Examples/WaterStream");
     		ent->setCastShadows(false);
     	}
+
+    	//Ocean Floor
+
+		{   
+    		Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
+ 
+	   		Ogre::MeshManager::getSingleton().createPlane("base2", 
+	    		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+	    	    plane, 5000, 5000, 255, 255, true, 1, 10, 10, Ogre::Vector3::UNIT_X);
+    	
+    		Ogre::Vector3 shapeDim = Ogre::Vector3(dim, 1, dim);
+    		Ogre::Vector3 position = Ogre::Vector3(100, 242, 0);
+    		    			    
+			Ogre::Entity* ent = mSceneMgr->createEntity("OceanFloor", "base2");
+    		Ogre::SceneNode* snode = mSceneMgr->getRootSceneNode()->
+    			createChildSceneNode("snode2", position);
+ 			    		
+ 			snode->attachObject(ent);
+    		ent->setMaterialName("Examples/Beach");
+    		ent->setCastShadows(false);
+    	}
+
+
     	/*//Ground----------------------------------------------------------------------
     	{   
 	    	//Ogre::Vector3 shapeDim = Ogre::Vector3(dim/100, 1, dim/100);
@@ -179,7 +202,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 	
 	Ogre::ColourValue fadeColour(0.9, 0.9, 0.9);
 	//Ogre::ColourValue fadeColour(0.2, 0.2, 0.2);
-	mSceneMgr->setFog(Ogre::FOG_LINEAR, fadeColour, 0.0, 10, 5000);
+	mSceneMgr->setFog(Ogre::FOG_LINEAR, fadeColour, 0.0, 10, 3000);
 	mWindow->getViewport(0)->setBackgroundColour(fadeColour);
 	
 	Ogre::Plane plane;

@@ -324,6 +324,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		}
 		if(myself->getPlayerVars()->timeRemaining <=0.0){
 			gameOver = true;
+			
 		}
 	}
 	return ret;

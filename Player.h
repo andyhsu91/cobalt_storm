@@ -16,7 +16,7 @@ Filename:    Player.h
 enum States { STANDING,
  WALKING,
  RUNNING,
- DASHING,
+ BOOSTING,
  JUMPING,
  SHOOTING1,
  SHOOTING2,
@@ -146,6 +146,7 @@ private:
     Ogre::Real distanceToTarget;
     
     float walkTimeRemaining;
+    float boostTimeRemaining;
 	/*holds the current controller/keyboardstate of the player
 	these values will then be used to update the player movement based on
 	frametime in the updatePosition method. LCONTROLX, LCONTROLY, RCONTROLX, RCONTROLY*/

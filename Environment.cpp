@@ -82,7 +82,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 	    	    plane, 10000, 10000, 100, 100, true, 1, 10, 10, Ogre::Vector3::UNIT_X);
     	
     		Ogre::Vector3 shapeDim = Ogre::Vector3(dim, 1, dim);
-    		Ogre::Vector3 position = Ogre::Vector3(0, 200, 0);
+    		Ogre::Vector3 position = Ogre::Vector3(0, 249, 0);
     		    			    
 			Ogre::Entity* ent = mSceneMgr->createEntity("WaterEntity", "base");
     		Ogre::SceneNode* snode = mSceneMgr->getRootSceneNode()->
@@ -92,7 +92,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
     		ent->setMaterialName("Examples/WaterStream");
     		ent->setCastShadows(false);
     	}
-    	//Ground----------------------------------------------------------------------
+    	/*//Ground----------------------------------------------------------------------
     	{   
 	    	//Ogre::Vector3 shapeDim = Ogre::Vector3(dim/100, 1, dim/100);
 			Ogre::Vector3 shapeDim = Ogre::Vector3(500, 30, 500);
@@ -149,7 +149,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
     		ent->setCastShadows(true);
 
 			mBullet->setRigidBoxBody(snode, shapeDim, position, 0.0, false);
-    	}
+    	}*/
         //Dynamic--------------------------------------------------------------------
         {
 		//Ogre::Vector3 shapeDim = Ogre::Vector3(.5, .5, .5);

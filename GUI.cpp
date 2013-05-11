@@ -179,7 +179,7 @@ void GUI::drawHUD()
 	ahud1->setText("Weapon 1");
 	ahud1->disable();
 	ahud1->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.05, 0)));
-	ahud1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.02,0),CEGUI::UDim(0.70, 0)));
+	ahud1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.02,0),CEGUI::UDim(0.75, 0)));
 	ahud1->setAlpha(0.6f);
 
 	//Create a ammo HUD 2
@@ -189,9 +189,10 @@ void GUI::drawHUD()
 	ahud2->setText("Weapon 2");
 	ahud2->disable();
 	ahud2->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.05, 0)));
-	ahud2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.07,0),CEGUI::UDim(0.81, 0)));
+	ahud2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.07,0),CEGUI::UDim(0.86, 0)));
 	ahud2->setAlpha(0.6f);
 
+/*
 	//Create a ammo HUD 3
 	CEGUI::Window *ahud3 = wmgr.createWindow("TaharezLook/FrameWindow", "CEGUI/AmmoHudWindow3");
 	//adds the HUD to the sheet
@@ -200,7 +201,7 @@ void GUI::drawHUD()
 	ahud3->disable();
 	ahud3->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.05, 0)));
 	ahud3->setPosition(CEGUI::UVector2(CEGUI::UDim(0.12,0),CEGUI::UDim(0.92, 0)));
-	ahud3->setAlpha(0.6f);
+	ahud3->setAlpha(0.6f);*/
 
 
 	//Create a Health bar

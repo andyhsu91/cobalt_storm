@@ -468,7 +468,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         //Using http://math.stackexchange.com/questions/53875/calculating-point-around-circumference-of-circle-given-distance-travelled
         
         double circumference = 2*pi*distanceToTarget;
-        double d = distPerSec * evt.timeSinceLastFrame*50.0;
+        double d = distPerSec * evt.timeSinceLastFrame*75.0;
         
         double theta = d/r;
 

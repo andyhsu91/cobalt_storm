@@ -341,7 +341,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					
 				}
 			}
-
+			//multiplayer game over
 			if(gameOver){
 				if(timeElapsedSinceGameOver<0.0){
 						timeElapsedSinceGameOver=0.0;
@@ -356,16 +356,32 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 						mGUI.showDefeat();
 					}
 				}
-		}
+			}
 
 
 		}
 		else
 		{
 			//single player mode
-			
-			
+			int damageDone = mBullet.damageToPlayer(isServer);
+			PlayerVars* myPlayerVars = myself->getPlayerVars(); 
+			if(damageDone>0){cout << "Enemy Old HP: " << myPlayerVars->client_health << endl;}
+			myPlayerVars->client_health -= damageDone;
+			if(damageDone>0){cout << "Enemy New HP: " << myPlayerVars->client_health << endl;}
+			mGUI.setEnemyHealth(myPlayerVars->client_health/100.0);
+			if(damageDone>=20){
+				enemy->explode();
+			}
 
+			if(myPlayerVars->client_health<=0){
+				gameOver = true;
+				iAmWinner = true;
+				enemy->playerKilled();
+				enemy->updatePosition(evt);
+			}
+
+			
+			
 		
 
 		}

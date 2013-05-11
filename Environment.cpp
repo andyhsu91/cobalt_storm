@@ -200,9 +200,9 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 		}*/
 	}
 	
-	Ogre::ColourValue fadeColour(0.5, 0.5, 0.5);
+	Ogre::ColourValue fadeColour(0.0, 0.0, 0.0);
 	//Ogre::ColourValue fadeColour(0.2, 0.2, 0.2);
-	mSceneMgr->setFog(Ogre::FOG_LINEAR, fadeColour, 0.0, 10, 3000);
+	mSceneMgr->setFog(Ogre::FOG_LINEAR, fadeColour, 0.0, 10, 4000);
 	mWindow->getViewport(0)->setBackgroundColour(fadeColour);
 	
 	Ogre::Plane plane;

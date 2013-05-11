@@ -34,6 +34,8 @@ Cobalt::Cobalt(void)
 //0 is the Server
 	serverPlayer = new Player();
 	clientPlayer = new Player();
+	gameOverTimeOut = 3.0;
+	timeElapsedSinceGameOver = -1.0;
 }
 //-------------------------------------------------------------------------------------
 Cobalt::~Cobalt(void)
@@ -113,7 +115,7 @@ void Cobalt::createScene(void)
     	enemy = clientPlayer;
     	enemyPos = &clientPos;
     }
-
+    gameOver=false;
 	cerr << "Finished scene" << endl;	
 
 }
@@ -268,8 +270,15 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					clientPlayer->explode();
 				} 
 
-				myself->getPlayerVars()->server_health = newServerHealth;
-				myself->getPlayerVars()->client_health = newClientHealth;
+				if(currServerHealth != newServerHealth){
+					cout<<"Server Took Damage"<<currServerHealth-newServerHealth<<endl;
+					myself->getPlayerVars()->server_health = newServerHealth;
+				}
+				if(currClientHealth != newClientHealth){
+					cout<<"Client Took Damage: "<<currClientHealth-newClientHealth<<endl;
+					myself->getPlayerVars()->client_health = newClientHealth;
+				}
+				
 
 				
 				enemy->updatePositionFromPacket(evt, receivedPacket);
@@ -295,17 +304,20 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 				mGUI.setHealth(myself->getPlayerVars()->server_health/100.0);
 				if(packetWasReceived && receivedPacket->server_health <= 0){
 					//game over, I lose
+					cout<<"Game Over: True"<<endl;
 					gameOver=true;
 					iAmWinner = false;
 					myself->playerKilled();
-					mGUI.showDefeat();
+					
+					
 				}
 				if(sentPacket!=NULL && sentPacket->client_health <=0){
 					//game over, I win
+					cout<<"Game Over: True"<<endl;
 					gameOver = true;
 					iAmWinner = true;
 					enemy->playerKilled();
-					mGUI.showVictory();
+					
 				}
 
 			}else{
@@ -313,6 +325,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 				mGUI.setHealth(myself->getPlayerVars()->client_health/100.0);
 				if(packetWasReceived && receivedPacket->client_health <= 0){
 					//game over, I lose
+					cout<<"Game Over: True"<<endl;
 					gameOver = true;
 					iAmWinner = false;
 					myself->playerKilled();
@@ -321,13 +334,29 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 				
 				if(sentPacket!=NULL && sentPacket->server_health <=0){
 					//game over, I win
+					cout<<"Game Over: True"<<endl;
 					gameOver = true;
 					iAmWinner = true;
 					enemy->playerKilled();
-					mGUI.showVictory();
+					
 				}
 			}
 
+			if(gameOver){
+				if(timeElapsedSinceGameOver<0.0){
+						timeElapsedSinceGameOver=0.0;
+				}
+				
+				timeElapsedSinceGameOver+=evt.timeSinceLastFrame;
+
+				if(timeElapsedSinceGameOver>=gameOverTimeOut){
+					if(iAmWinner){
+						mGUI.showVictory();
+					}else{
+						mGUI.showDefeat();
+					}
+				}
+		}
 
 
 		}
@@ -340,7 +369,8 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		
 
 		}
-		if(myself->getPlayerVars()->timeRemaining <=0.0){
+		if((timeLimit-timeElapsed) <=0.0){
+			cout<<"Time Ran Out. Game Over: True"<<endl;
 			gameOver = true;
 			
 		}

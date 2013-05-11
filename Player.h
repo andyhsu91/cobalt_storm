@@ -146,6 +146,7 @@ private:
 	float regenTime;
 	int wep1Regen;
 	int wep2Regen;
+	bool dead;
 	
 	float playerTargetCosTheta;
     float playerTargetSinTheta;

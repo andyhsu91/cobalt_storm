@@ -108,6 +108,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         mExplosion = NULL;
         numExplosions = 0;
+        dead = false;
         
 }
 
@@ -307,6 +308,12 @@ void Player::regenAmmo(const Ogre::FrameEvent& evt) {
 void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet){
     //update player based on packet recieved over the network
 
+    if(dead){
+        updateAnimation(Die, evt.timeSinceLastFrame);
+        return; //stop moving after you've died
+    }
+
+
     Ogre::Vector3 currPos = getPlayerPosition();
 
     float xTrans = packet->playerPosition[0] - currPos.x;
@@ -353,6 +360,7 @@ void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* p
 }
 
 void Player::playerKilled(void){
+    dead=true;
     enableState(Die, true, false);
 }
 
@@ -384,6 +392,11 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     //printf("playervars: %d \n",sizeof (PlayerVars) );
     //cout << "P1 Health: " << mPlayerState->server_health << endl;
     //cout << "P2 Health: " << mPlayerState->client_health << endl;
+    if(dead){
+        updateAnimation(Die, evt.timeSinceLastFrame);
+        return;
+    }
+
 
     mDirection = Ogre::Vector3(0.0,0.0,0.0);
 

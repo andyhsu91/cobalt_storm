@@ -73,7 +73,8 @@ private:
     Ogre::Vector3 clientPos;
     Ogre::Vector3* myPos;
     Ogre::Vector3* enemyPos;
-
+    float gameOverTimeOut;
+    float timeElapsedSinceGameOver;
     
 };
  

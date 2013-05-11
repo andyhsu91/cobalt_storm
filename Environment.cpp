@@ -100,7 +100,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
  
 	   		Ogre::MeshManager::getSingleton().createPlane("base2", 
 	    		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-	    	    plane, 5000, 5000, 255, 255, true, 1, 10, 10, Ogre::Vector3::UNIT_X);
+	    	    plane, 7000, 7000, 255, 255, true, 1, 10, 10, Ogre::Vector3::UNIT_X);
     	
     		Ogre::Vector3 shapeDim = Ogre::Vector3(dim, 1, dim);
     		Ogre::Vector3 position = Ogre::Vector3(100, 242, 0);
@@ -200,7 +200,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
 		}*/
 	}
 	
-	Ogre::ColourValue fadeColour(0.2, 0.2, 0.2);
+	Ogre::ColourValue fadeColour(0.5, 0.5, 0.5);
 	//Ogre::ColourValue fadeColour(0.2, 0.2, 0.2);
 	mSceneMgr->setFog(Ogre::FOG_LINEAR, fadeColour, 0.0, 10, 3000);
 	mWindow->getViewport(0)->setBackgroundColour(fadeColour);

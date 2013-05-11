@@ -115,7 +115,7 @@ public:
 	void enableState(int animStateEnum, bool enabled, bool loop);
 	void updateAnimation(int animStateEnum, double seconds);
 	void attack(bool val);
-
+	void playerKilled(void);
 private:
 	Ogre::Entity* ent;
 	Ogre::SceneManager* mSceneMgr;

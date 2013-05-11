@@ -323,6 +323,9 @@ void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* p
     //cout << "Enemy Origin: " << vec3.getX() << " " << vec3.getY() << " " << vec3.getZ() << endl;
 }
 
+void Player::playerKilled(void){
+    enableState(Die, true, false);
+}
 
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {   

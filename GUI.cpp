@@ -60,7 +60,7 @@ void GUI::drawMenu(void)
 	startBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
 	startBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.18f, 0), CEGUI::UDim(0.78f, 0))); 	
 	startBut->setAlpha(0.9f);	
-	startBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	//startBut->setProperty("NormalImage","set:TaharezLook image:full_image");
 	startBut->setAlwaysOnTop(true);
 	mainMenu->addChildWindow(startBut);
 
@@ -72,7 +72,7 @@ void GUI::drawMenu(void)
 	settingBut->setText("Settings");
 	settingBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
 	settingBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.52f, 0), CEGUI::UDim(0.78f, 0))); 
-	settingBut->setProperty("NormalImage","set:TaharezLook image:full_image");	
+	//settingBut->setProperty("NormalImage","set:TaharezLook image:full_image");	
 	settingBut->setAlpha(0.9f);	
 	settingBut->setAlwaysOnTop(true);
 	mainMenu->addChildWindow(settingBut);
@@ -82,7 +82,7 @@ void GUI::drawMenu(void)
 	quitBut->setText("Quit");
 	quitBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
 	quitBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.68f, 0), CEGUI::UDim(0.78f, 0))); 	
-	quitBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	//quitBut->setProperty("NormalImage","set:TaharezLook image:full_image");
 	quitBut->setAlpha(0.9f);	
 	quitBut->setAlwaysOnTop(true);
 	quitBut->subscribeEvent(CEGUI::PushButton::EventClicked,
@@ -111,7 +111,7 @@ void GUI::drawPause(void)
 	resumeBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
 	resumeBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.18f, 0), CEGUI::UDim(0.78f, 0))); 	
 	resumeBut->setAlpha(0.9f);	
-	resumeBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	//resumeBut->setProperty("NormalImage","set:TaharezLook image:full_image");
 	resumeBut->setAlwaysOnTop(true);
 	pauseMenu->addChildWindow(resumeBut);
 
@@ -123,7 +123,7 @@ void GUI::drawPause(void)
 	settingPauseBut->setText("Settings");
 	settingPauseBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
 	settingPauseBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.52f, 0), CEGUI::UDim(0.78f, 0))); 
-	settingPauseBut->setProperty("NormalImage","set:TaharezLook image:full_image");	
+	//settingPauseBut->setProperty("NormalImage","set:TaharezLook image:full_image");	
 	settingPauseBut->setAlpha(0.9f);	
 	settingPauseBut->setAlwaysOnTop(true);
 	pauseMenu->addChildWindow(settingPauseBut);
@@ -133,7 +133,7 @@ void GUI::drawPause(void)
 	quitPauseBut->setText("Quit");
 	quitPauseBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
 	quitPauseBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.68f, 0), CEGUI::UDim(0.78f, 0))); 	
-	quitPauseBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	//quitPauseBut->setProperty("NormalImage","set:TaharezLook image:full_image");
 	quitPauseBut->setAlpha(0.9f);	
 	quitPauseBut->setAlwaysOnTop(true);
 	quitPauseBut->subscribeEvent(CEGUI::PushButton::EventClicked,
@@ -306,7 +306,7 @@ void GUI::drawVictory(void)
 	OKBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
 	OKBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.18f, 0), CEGUI::UDim(0.78f, 0))); 	
 	OKBut->setAlpha(0.9f);	
-	OKBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	//OKBut->setProperty("NormalImage","set:TaharezLook image:full_image");
 	OKBut->setAlwaysOnTop(true);
 	OKBut->subscribeEvent(CEGUI::PushButton::EventClicked,
 		CEGUI::Event::Subscriber(&GUI::resumeGame, this));
@@ -345,7 +345,7 @@ void GUI::drawDefeat(void)
 	OKBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
 	OKBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.18f, 0), CEGUI::UDim(0.78f, 0))); 	
 	OKBut->setAlpha(0.9f);	
-	OKBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	//OKBut->setProperty("NormalImage","set:TaharezLook image:full_image");
 	OKBut->setAlwaysOnTop(true);
 	OKBut->subscribeEvent(CEGUI::PushButton::EventClicked,
 		CEGUI::Event::Subscriber(&GUI::resumeGame, this));

@@ -64,7 +64,9 @@ std::string Sound::getSoundFileFromEnum(int soundEffectEnum){
 
 	case Background:return "media/sounds/background/japanese1.mp3";
 
-	case Punch: 	return "media/sounds/robot/punch1.wav";
+	case Thud:		return "/media/sounds/bounce3.wav";
+
+	case Die: 		return "media/sounds/robot/punch1.wav";
 	
 	default: 		return "Invalid";
 	
@@ -242,6 +244,7 @@ void Sound::playSuccess(void){
 		if(debug){std::cout<<"Exiting playSuccess()"<<std::endl;}
 	}
 }
+
  
 void Sound::playGun(void){
 	if(!mute){

@@ -66,6 +66,7 @@ struct PlayerVars {
 	
 	bool playerState[15];
 	float shootTimeRemaining; //shoot animation has to be set to loop in order to repeat the animation multiple times
+	//float meleeTimeRemaining;
 	bool animationStateEnabled[5];
 	bool animationStateLoop[5];
 	float playerPosition[3];
@@ -120,6 +121,7 @@ public:
 	void enableState(int animStateEnum, bool enabled, bool loop);
 	void updateAnimation(int animStateEnum, double seconds);
 	void attack(bool val);
+	void melee(bool val);
 	void regenAmmo(const Ogre::FrameEvent& evt);
 	void playerKilled(void);
 	void explode(void);
@@ -147,7 +149,7 @@ private:
 	int wep1Regen;
 	int wep2Regen;
 	bool dead;
-	
+	bool iAmServer;
 	float playerTargetCosTheta;
     float playerTargetSinTheta;
 	Ogre::Vector3 cameraTarget;
@@ -159,6 +161,7 @@ private:
     
     float walkTimeRemaining;
     float boostTimeRemaining;
+    float meleeTimeElapsed;
 	/*holds the current controller/keyboardstate of the player
 	these values will then be used to update the player movement based on
 	frametime in the updatePosition method. LCONTROLX, LCONTROLY, RCONTROLX, RCONTROLY*/

@@ -16,7 +16,7 @@ class Sound {
         virtual ~Sound();
         //list of all allowed sound effects
         enum soundEffects{
-          Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Punch, soundEnumCount //soundEnumCount should always be the last
+          Shoot1, Shoot2, Walk, Run, Success, Failure, Background, Thud, Die, soundEnumCount //soundEnumCount should always be the last
         };
         std::vector<Mix_Chunk*> SoundList;
         Mix_Music* LoadMusic(const char* File);

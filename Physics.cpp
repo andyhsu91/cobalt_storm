@@ -331,13 +331,13 @@ void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 		if(typeOfProjectile==1){
 			
 			Ogre::Entity* ent = mSceneMgr->createEntity("BulletTemp" + Ogre::StringConverter::toString(bullet),
-                                                    "column.mesh");
+                                                    "sphere.mesh");
 	        Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
 	                createChildSceneNode("tempNode" + Ogre::StringConverter::toString(bullet++), position);
 
 	        bnode->attachObject(ent);
 
-	        bnode->scale(.03, .03, .03);
+	        bnode->scale(.015, .015, .015);
 	        Ogre::MaterialPtr bMat = ent->getSubEntity(0)->getMaterial()->clone("newBallColor");
 	        bMat->getTechnique(0)->getPass(0)->setAmbient(1.0, 0.8, 0.0);
 	        bMat->getTechnique(0)->getPass(0)->setDiffuse(1.0, 0.8, 0.0, 1.0);

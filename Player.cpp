@@ -11,10 +11,14 @@ using namespace std;
 //static variables
 const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
 const float shootTimeout = 0.6; //amount of seconds that the shooting animation takes
+const float meleeTimeout = 0.5;
 const float walkTime = .85;
 const double pi = 3.14159265359;
 const float maxBoostTime = 3.0;
-float distPerSec = 200;
+const float distPerSec = 200;
+const float meleeRange = 160.0;
+const int meleeDamage = 49;
+const float headbuttAnimationSpeed = 1.5;
 static int numExplosions;
 
 
@@ -38,6 +42,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         sManager = soundManager;
         mPlayerState = new PlayerVars;
         mPlayerState->shootTimeRemaining = 0.0;
+        //mPlayerState->meleeTimeRemaining = 0.0;
         walkTimeRemaining = 0.0;
         boostTimeRemaining = maxBoostTime;
         for (int i = 0; i < 5; ++i)
@@ -58,7 +63,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
             position = Ogre::Vector3(500.0, 242.0, -550.0);
             pSig = "bnode2";
         }
-
+        iAmServer = isServer;
         ent = mSceneMgr->createEntity(entName,"robot.mesh");
         pnode = mSceneMgr->getRootSceneNode()->
                 createChildSceneNode(node, position);
@@ -109,6 +114,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mExplosion = NULL;
         numExplosions = 0;
         dead = false;
+        meleeTimeElapsed = 0.0;
         
 }
 
@@ -158,6 +164,12 @@ void Player::attack(bool val){
     //std::cout<<"Attacking"<<std::endl;
     mPlayerState->shootTimeRemaining = shootTimeout;
     enableState(Shoot, val, true);
+}
+
+void Player::melee(bool val){
+    //std::cout<<"Attacking"<<std::endl;
+    //mPlayerState->meleeTimeRemaining = meleeTimeout;
+    enableState(Slump, val, true);
 }
 
 Ogre::Vector3 Player::getPlayerPosition(void)
@@ -331,9 +343,12 @@ void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* p
                 if(mPlayerState->shootTimeRemaining>0.0){
                     updateAnimation(i, evt.timeSinceLastFrame);
                     mPlayerState->shootTimeRemaining-=evt.timeSinceLastFrame;
-                } else{
-
-                }
+                } 
+            }
+            else if(i==Slump){
+                
+                updateAnimation(i, evt.timeSinceLastFrame*headbuttAnimationSpeed);
+                    
             }
             else{
                 updateAnimation(i, evt.timeSinceLastFrame);
@@ -373,7 +388,7 @@ void Player::explode(void){
         mSceneMgr->destroyParticleSystem(mExplosion);
         mExplosion = NULL;
     }
-
+    sManager->playSoundFromEnum(Sound::Shoot2);
     // create a particle system named explosions using the explosionTemplate
     mExplosion = mSceneMgr->createParticleSystem("bombExplosion" + Ogre::StringConverter::toString(numExplosions), "explosionTemplate");
     numExplosions++;
@@ -396,6 +411,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         updateAnimation(Die, evt.timeSinceLastFrame);
         return;
     }
+
 
 
     mDirection = Ogre::Vector3(0.0,0.0,0.0);
@@ -491,10 +507,10 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     }
     if(boostTimeRemaining>evt.timeSinceLastFrame && getPlayerState(BOOSTING))
     {
-   mDirection *= boost;
-   boostTimeRemaining -= evt.timeSinceLastFrame;
-   if(boostTimeRemaining<=0.1)
-    boostTimeRemaining-=1.0;
+        mDirection *= boost;
+        boostTimeRemaining -= evt.timeSinceLastFrame;
+        if(boostTimeRemaining<=0.1)
+        boostTimeRemaining-=1.0;
     }
 
     //printf("axis Ltrig %f\n",abs(mCurrentControllerAxisState[LTRIG]));
@@ -520,13 +536,37 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
     printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);*/
 
-    pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
+    if(getPlayerState(MELEEING) || mPlayerState->animationStateEnabled[Slump]){
+        //starting/continueing melee attack
+        melee(true);
+        meleeTimeElapsed+=evt.timeSinceLastFrame;
+        //cout<<"MELEEING == TRUE, distToTarget= "<<distanceToTarget<<"Melee Range = "<<meleeRange<<endl;
+        if(meleeTimeElapsed >= meleeTimeout){
+            //completed melee attack
+            meleeTimeElapsed = 0.0;
+            if(distanceToTarget <= meleeRange){
+                //cout<<"Headbutted Enemy!"<<endl;
+                sManager->playSoundFromEnum(Sound::Thud);
+                if(iAmServer){
+                    mPlayerState->client_health -=meleeDamage;
+                }else{
+                    mPlayerState->server_health -=meleeDamage;
+                }
+            }
+        }
+    } else{
+        //can't move while melee-ing
+        meleeTimeElapsed = 0.0;
+        pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
+    }
     pnode->lookAt(cameraTarget, Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_X);
     Ogre::Vector3 pos = pnode->getPosition();
     trans.setOrigin(btVector3(pos.x, pos.y, pos.z));
     Ogre::Quaternion qt = pnode->getOrientation();
     trans.setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
     mBody->getMotionState()->setWorldTransform(trans);
+
+     
 
     if (getPlayerState(SHOOTING2) && mPlayerState->weaponamt1 > 0) {
         //small and fast projectile
@@ -543,7 +583,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
                 createChildSceneNode(pSig + Ogre::StringConverter::toString(1) + Ogre::StringConverter::toString(bullet++), position);
 
         bnode->attachObject(ent);
-        bnode->scale(.01, .01, .01);
+        bnode->scale(.015, .015, .015);
         //bnode->lookAt(cameraTarget,Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_Y);
         //bnode->yaw(Ogre::Degree(90.0));
         Ogre::MaterialPtr bMat = ent->getSubEntity(0)->getMaterial()->clone("newBallColor");
@@ -561,7 +601,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     if (getPlayerState(SHOOTING1) && mPlayerState->weaponamt2 > 0) {
         //large and slow projectile
         attack(true);
-        sManager->playSoundFromEnum(Sound::Shoot2);
+        
         //Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x+10, pnode->getPosition().y+20, pnode->getPosition().z-10);
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*30.0), pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*30.0));
 
@@ -595,7 +635,12 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
                     enableState(Shoot, false, false);
                 }
 
-            } else{
+            } 
+            else if(i==Slump){
+                 updateAnimation(i, evt.timeSinceLastFrame *headbuttAnimationSpeed);
+            }
+
+            else{
                  updateAnimation(i, evt.timeSinceLastFrame);
             }
         }
@@ -635,6 +680,9 @@ switch(button)
         break;
         case LJOYCLICK:
         updatePlayerState(JUMPING, value);
+        break;
+        case RBUTTON1:
+        updatePlayerState(MELEEING, value);
         break;
         case RJOYCLICK:
         toggleLock();

@@ -268,6 +268,10 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			if(packetWasReceived || numPacketsReceived < 3){
 				//only send packet when we receive a packet so that we don't congest the network
 				sentPacket = createPacket();
+
+				myself->getPlayerVars()->server_health = min( sentPacket->server_health, myself->getPlayerVars()->server_health );
+				myself->getPlayerVars()->client_health = min( sentPacket->client_health, myself->getPlayerVars()->client_health );
+
 				nManager->sendPacket( *sentPacket );
 			}
 

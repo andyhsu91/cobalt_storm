@@ -15,7 +15,7 @@ const float walkTime = .85;
 const double pi = 3.14159265359;
 const float maxBoostTime = 3.0;
 float distPerSec = 200;
-
+static int numExplosions;
 
 
 
@@ -105,6 +105,10 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         playerTargetCosTheta = 0;
         playerTargetSinTheta = 0;
+
+        mExplosion = NULL;
+        numExplosions = 0;
+        
 }
 
 std::string Player::getStringFromEnum(int animStateEnum)
@@ -352,6 +356,28 @@ void Player::playerKilled(void){
     enableState(Die, true, false);
 }
 
+void Player::explode(void){
+
+    if(mExplosion != NULL){
+        mExplosion->clear();
+        mExplosion->setVisible(false);
+        mExplosion->detachFromParent();
+        mSceneMgr->destroyParticleSystem(mExplosion);
+        mExplosion = NULL;
+    }
+
+    // create a particle system named explosions using the explosionTemplate
+    mExplosion = mSceneMgr->createParticleSystem("bombExplosion" + Ogre::StringConverter::toString(numExplosions), "explosionTemplate");
+    numExplosions++;
+    // fast forward 1 second  to the point where the particle has been emitted
+    mExplosion->fastForward(1.5); //skip first 1.5 seconds of explosion
+    mExplosion->setSpeedFactor(20.0); //play explosion 20 times normal speed
+    mExplosion->setParticleQuota(100);
+    mExplosion->setEmitting(true);
+    // attach the particle system to a scene node
+    pnode->attachObject(mExplosion);
+}
+
 void Player::updatePosition(const Ogre::FrameEvent& evt)
 {   
     //size of packet over the network;
@@ -368,6 +394,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     {
         boostTimeRemaining = maxBoostTime;
     }
+   
 /*
     const float walkTime = 2.0;
     float walkTimeRemaining = 0.0;

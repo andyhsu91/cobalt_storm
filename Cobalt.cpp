@@ -169,12 +169,18 @@ PlayerVars* Cobalt::createPacket(void){
 		gameUpdate->client_health = myPlayerVars->client_health;
 		if(damageDone>0){cout << "Client New HP: " << gameUpdate->client_health << endl;}
 		mGUI.setEnemyHealth(gameUpdate->client_health/100.0);
+		if(damageDone>=20){
+			clientPlayer->explode();
+		}
 	}else{
 		if(damageDone>0){cout << "Server Old HP: " << gameUpdate->server_health << endl;}
 		myPlayerVars->server_health -= damageDone;
 		gameUpdate->server_health = myPlayerVars->server_health;
 		if(damageDone>0){cout << "Server New HP: " << gameUpdate->server_health << endl;}
 		mGUI.setEnemyHealth(gameUpdate->server_health/100.0);
+		if(damageDone>=20){
+			serverPlayer->explode();
+		}
 	}
 	return gameUpdate;
 }
@@ -225,8 +231,6 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		}else
 		{
 
-
-
 			mCamera->yaw( Ogre::Degree(  -myself->getCurrentAxisState(RCONTROLX)
 				*UnlockedCameraMovementSpeed*evt.timeSinceLastFrame));
 			mCamera->pitch( Ogre::Degree( -myself->getCurrentAxisState(RCONTROLY)
@@ -251,8 +255,22 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 				receivedPacket = nManager->getGameUpdate(); 
 				numPacketsReceived++;
 				
-				myself->getPlayerVars()->server_health = min( receivedPacket->server_health, myself->getPlayerVars()->server_health );
-				myself->getPlayerVars()->client_health = min( receivedPacket->client_health, myself->getPlayerVars()->client_health );
+				int currServerHealth = myself->getPlayerVars()->server_health;
+				int currClientHealth = myself->getPlayerVars()->client_health;
+				int newServerHealth = min( receivedPacket->server_health, myself->getPlayerVars()->server_health );
+				int newClientHealth = min( receivedPacket->client_health, myself->getPlayerVars()->client_health );
+				
+				if(newServerHealth <= currServerHealth-20){
+					serverPlayer->explode();
+				} 
+
+				if(newClientHealth <= currClientHealth-20){
+					clientPlayer->explode();
+				} 
+
+				myself->getPlayerVars()->server_health = newServerHealth;
+				myself->getPlayerVars()->client_health = newClientHealth;
+
 				
 				enemy->updatePositionFromPacket(evt, receivedPacket);
 				mBullet.removeTempProjectiles();

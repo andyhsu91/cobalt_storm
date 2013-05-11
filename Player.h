@@ -8,6 +8,7 @@ Filename:    Player.h
 
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
+#include <OgreParticleSystem.h>
 #include <Ogre.h>
 #include <stdio.h>
 #include "Physics.h"
@@ -120,8 +121,8 @@ public:
 	void updateAnimation(int animStateEnum, double seconds);
 	void attack(bool val);
 	void regenAmmo(const Ogre::FrameEvent& evt);
-
 	void playerKilled(void);
+	void explode(void);
 private:
 	Ogre::Entity* ent;
 	Ogre::SceneManager* mSceneMgr;
@@ -132,6 +133,7 @@ private:
 	//btPairCachingGhostObject* mGhost;
 	btRigidBody* mBody;
 	btTransform trans;
+	Ogre::ParticleSystem* mExplosion;
 	
 	Ogre::SceneNode* pnode;
 	Ogre::Vector3 mDirection;

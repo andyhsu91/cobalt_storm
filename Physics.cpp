@@ -22,6 +22,9 @@ double tempMass = 111.111;
 float invalid = -999.999;
 static int P1damageTrack = 0;
 static int P2damageTrack = 0;
+static int wep1Damage = 5;
+static int wep2Damage = 20;
+
 
 Physics::Physics(void)
 {
@@ -91,10 +94,11 @@ Physics::~Physics(void)
 	}
 }*/
 
+
 //code from https://github.com/alanjrogers/bullet-physics/blob/master/Demos/ConcaveDemo/ConcavePhysicsDemo.cpp     http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?p=&f=9&t=1943
 static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject* colObj0, int partId0, int index0, const btCollisionObject* colObj1, int partId1, int index1)
 {
-	Ogre::SceneNode *obj0 = static_cast<Ogre::SceneNode*>(colObj0->getUserPointer());
+	Ogre::SceneNode* obj0 = static_cast<Ogre::SceneNode*>(colObj0->getUserPointer());
 	Ogre::SceneNode* obj1 = static_cast<Ogre::SceneNode*>(colObj1->getUserPointer());
 
 	//btCollisionObject* dObj0 = (btCollisionObject*)(colObj0);
@@ -114,16 +118,18 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 			cout << "Hit Other 1" << endl;
 			if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2") == 0) {
 				if (obj0_name.find("bnode11") == 0)
-					P2damageTrack += 5;
+					P2damageTrack += wep1Damage;
 				else if (obj0_name.find("bnode12") == 0) {
-					P2damageTrack += 20;
+					P2damageTrack += wep2Damage;
+					
 				}
 			}
 			else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode1") == 0){
 				if (obj0_name.find("bnode21") == 0)
-					P1damageTrack += 5;
+					P1damageTrack += wep1Damage;
 				else if (obj0_name.find("bnode22") == 0) {
-					P1damageTrack += 20;
+					P1damageTrack += wep2Damage;
+					
 				}
 			}
 			//cout << "Damage done: " << P1damageTrack << " " << P2damageTrack << endl;
@@ -152,16 +158,18 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 			cout << "Hit Other 2" << endl;
 			if (obj1_name.find("bnode1") == 0 && obj0_name.find("pnode2") == 0) {
 				if (obj1_name.find("bnode11") == 0)
-					P2damageTrack += 5;
+					P2damageTrack += wep1Damage;
 				else if (obj1_name.find("bnode12") == 0) {
-					P2damageTrack += 20;
+					P2damageTrack += wep2Damage;
+					
 				}
 			}
 			else if (obj1_name.find("bnode2") == 0 && obj0_name.find("pnode1") == 0){
 				if (obj1_name.find("bnode21") == 0)
-					P1damageTrack += 5;
+					P1damageTrack += wep1Damage;
 				else if (obj1_name.find("bnode22") == 0) {
-					P1damageTrack += 20;
+					P1damageTrack += wep2Damage;
+					
 				}
 			}
 			//cout << "Damage done: " << P1damageTrack << " " << P2damageTrack << endl;

@@ -86,6 +86,8 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mLook = Ogre::Vector3(1.0, 0.0, 0.0);
 
         bullet = 0;
+        regenTime = 0.0;
+        lastRegen = 0;
 
         lockedOn = true;
 
@@ -276,6 +278,8 @@ void Player::setCameraOrientation(Ogre::Quaternion rotation)
 }
 
 void Player::regenAmmo(const Ogre::FrameEvent& evt) {
+    regenTime += evt.timeSinceLastFrame;
+    int diff = (int)(regenTime - (float)lastRegen);
     
 }
 

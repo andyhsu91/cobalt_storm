@@ -142,6 +142,7 @@ private:
 	int bullet;
 	bool lockedOn;
 	float regenTime;
+	int lastRegen;
 	
 	float playerTargetCosTheta;
     float playerTargetSinTheta;

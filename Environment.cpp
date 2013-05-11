@@ -110,7 +110,7 @@ void Environment::initEnvironment(Ogre::SceneManager* SceneMgr,
     			createChildSceneNode("snode2", position);
  			    		
  			snode->attachObject(ent);
-    		ent->setMaterialName("Examples/Beach");
+    		ent->setMaterialName("01-Default");
     		ent->setCastShadows(false);
     	}
 

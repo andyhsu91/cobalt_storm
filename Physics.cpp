@@ -469,7 +469,7 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 	}
 
 	if(snode->getName() == "pnode1")
-		dynamicsWorld->addRigidBody(body,15,15);
+		dynamicsWorld->addRigidBody(body,5,5);
 	else if(snode->getName() == "pnode2")
 		dynamicsWorld->addRigidBody(body,3,3);
 	else
@@ -521,7 +521,7 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 		dynamicsWorld->addRigidBody(body,2,1);
 	else {
 		//dynamicsWorld->addRigidBody(body,8,4);
-		dynamicsWorld->addRigidBody(body);
+		dynamicsWorld->addRigidBody(body,4,1);
 	}
 
 	if (weapon_type == 1 || weapon_type == -1)

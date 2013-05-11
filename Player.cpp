@@ -288,6 +288,11 @@ void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* p
     btCollisionObject* eObj = mBullet->collisionObject(pnode);
     btRigidBody* body = btRigidBody::upcast(eObj);
     body->getMotionState()->setWorldTransform(enemyTrans);
+
+    body->getMotionState()->getWorldTransform(enemyTrans);
+    btVector3 vec3 = enemyTrans.getOrigin();
+    cout << "Enemy SceneNode" << pnode->getPosition().x << pnode->getPosition().y << pnode->getPosition().z << endl;
+    cout << "Enemy Origin: " << vec3.getX() << " " << vec3.getY() << " " << vec3.getZ() << endl;
 }
 
 

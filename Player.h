@@ -125,6 +125,8 @@ public:
 	void regenAmmo(const Ogre::FrameEvent& evt);
 	void playerKilled(void);
 	void explode(void);
+	void receiveDamage(int damageAmount);
+	void giveDamage(int damageAmount);
 private:
 	Ogre::Entity* ent;
 	Ogre::SceneManager* mSceneMgr;

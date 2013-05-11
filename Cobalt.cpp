@@ -138,10 +138,10 @@ PlayerVars* Cobalt::createPacket(void){
 	gameUpdate->playerPosition[1] = myPos->y;
 	gameUpdate->playerPosition[2] = myPos->z;
 
-	PlayerVars* myPlayerVars = myself->getPlayerVars(); 
-	gameUpdate->shootTimeRemaining = myPlayerVars->shootTimeRemaining;
-	gameUpdate->server_health = myPlayerVars->server_health;
-	gameUpdate->client_health = myPlayerVars->client_health;
+	PlayerVars* myPlayerVars = myself->getPlayerVars();
+	gameUpdate->shootTimeRemaining = myself->getPlayerVars()->shootTimeRemaining;
+	gameUpdate->server_health = min(myPlayerVars->server_health, enemy->getPlayerVars()->server_health);
+	gameUpdate->client_health = min(myPlayerVars->client_health, enemy->getPlayerVars()->client_health);
 	//send my animation states
 	for (int i = 0; i < Player::animEnumCount; i++){
 		gameUpdate->animationStateEnabled[i] = myPlayerVars->animationStateEnabled[i];
@@ -204,7 +204,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		//cout << myself->getPlayerVars()->weaponamt1 << " " << myself->getPlayerVars()->weaponamt2 << endl;
 
 		mGUI.setHealth(myself->getPlayerVars()->server_health/100);
-		mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health/100);
+		//mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health/100);
 		mGUI.setAmmo1(myself->getPlayerVars()->weaponamt1,wep1max);
 		mGUI.setAmmo2(myself->getPlayerVars()->weaponamt2,wep2max);
 
@@ -253,32 +253,35 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 			if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
 			
+			
+
 			if(packetWasReceived){ 
 				receivedPacket = nManager->getGameUpdate(); 
 				numPacketsReceived++;
 				
-				int currServerHealth = myself->getPlayerVars()->server_health;
-				int currClientHealth = myself->getPlayerVars()->client_health;
-				int newServerHealth = min( receivedPacket->server_health, myself->getPlayerVars()->server_health );
-				int newClientHealth = min( receivedPacket->client_health, myself->getPlayerVars()->client_health );
+				int currServerHealth = min(myself->getPlayerVars()->server_health, enemy->getPlayerVars()->server_health);
+				int currClientHealth = min(myself->getPlayerVars()->client_health, enemy->getPlayerVars()->client_health);
 				
-				if(newServerHealth <= currServerHealth-20){
-					serverPlayer->explode();
-				} 
-
-				if(newClientHealth <= currClientHealth-20){
-					clientPlayer->explode();
-				} 
-
-				if(currServerHealth != newServerHealth){
-					cout<<"Server Took Damage"<<currServerHealth-newServerHealth<<endl;
-					myself->getPlayerVars()->server_health = newServerHealth;
-				}
-				if(currClientHealth != newClientHealth){
-					cout<<"Client Took Damage: "<<currClientHealth-newClientHealth<<endl;
-					myself->getPlayerVars()->client_health = newClientHealth;
-				}
+				int newServerHealth = min( receivedPacket->server_health, currServerHealth);
+				int newClientHealth = min( receivedPacket->client_health, currClientHealth);
 				
+				int serverDamage = currServerHealth - newServerHealth;
+				int clientDamage = currClientHealth - newClientHealth;
+
+
+				if(serverDamage > 0){
+					if(serverDamage >=20){
+						serverPlayer->explode();
+					}
+					serverPlayer->receiveDamage(serverDamage);
+				}
+
+				if(clientDamage > 0){
+					if(clientDamage >=20){
+						clientPlayer->explode();
+					}
+					clientPlayer->receiveDamage(clientDamage);
+				}
 
 				
 				enemy->updatePositionFromPacket(evt, receivedPacket);
@@ -317,8 +320,9 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					gameOver = true;
 					iAmWinner = true;
 					enemy->playerKilled();
-					
 				}
+				
+				
 
 			}else{
 				//I am client
@@ -329,7 +333,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					gameOver = true;
 					iAmWinner = false;
 					myself->playerKilled();
-					mGUI.showDefeat();
+					
 				}
 				
 				if(sentPacket!=NULL && sentPacket->server_health <=0){
@@ -339,6 +343,21 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					iAmWinner = true;
 					enemy->playerKilled();
 					
+				}
+
+				if(!gameOver){
+					int myCurrHealth = myself->getPlayerVars()->client_health;
+					int enemyCurrHealth = myself->getPlayerVars()->server_health;
+					if(myCurrHealth <=0){
+						gameOver = true;
+						iAmWinner = false;
+						myself->playerKilled();
+					}
+					if(enemyCurrHealth <=0){
+						gameOver = true;
+						iAmWinner = true;
+						enemy->playerKilled();
+					}
 				}
 			}
 			//multiplayer game over

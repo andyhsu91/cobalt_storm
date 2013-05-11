@@ -265,6 +265,24 @@ Ogre::Vector3 Player::getNewCameraPos(void){
 
 }
 
+void Player::receiveDamage(int damageAmount){
+    //this player receives Damage
+    if(iAmServer){
+        mPlayerState->server_health-=damageAmount;
+    } else{
+        mPlayerState->client_health-=damageAmount;
+    }
+}
+
+void Player::giveDamage(int damageAmount){
+    //this player gives damager to other player
+    if(!iAmServer){
+        mPlayerState->server_health-=damageAmount;
+    } else{
+        mPlayerState->client_health-=damageAmount;
+    }
+}
+
 float Player::getCurrentAxisState(int axis)
 {
     return mCurrentControllerAxisState[axis];
@@ -318,7 +336,7 @@ void Player::regenAmmo(const Ogre::FrameEvent& evt) {
 }
 
 void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet){
-    //update player based on packet recieved over the network
+    //update player based on packet received over the network
 
     if(dead){
         updateAnimation(Die, evt.timeSinceLastFrame);
@@ -547,11 +565,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
             if(distanceToTarget <= meleeRange){
                 //cout<<"Headbutted Enemy!"<<endl;
                 sManager->playSoundFromEnum(Sound::Thud);
-                if(iAmServer){
-                    mPlayerState->client_health -=meleeDamage;
-                }else{
-                    mPlayerState->server_health -=meleeDamage;
-                }
+
+                giveDamage(meleeDamage);
             }
         }
     } else{

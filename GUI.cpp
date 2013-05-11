@@ -312,7 +312,7 @@ void GUI::drawVictory(void)
 	//OKBut->setProperty("NormalImage","set:CrosshairIS image:crosshair");
 	OKBut->setAlwaysOnTop(true);
 	OKBut->subscribeEvent(CEGUI::PushButton::EventClicked,
-		CEGUI::Event::Subscriber(&GUI::resumeGame, this));
+		CEGUI::Event::Subscriber(&GUI::quitGame, this));
 	victoryScreen->addChildWindow(OKBut);
 
 	//Win message
@@ -351,7 +351,7 @@ void GUI::drawDefeat(void)
 	//OKBut->setProperty("NormalImage","set:TaharezLook image:full_image");
 	OKBut->setAlwaysOnTop(true);
 	OKBut->subscribeEvent(CEGUI::PushButton::EventClicked,
-		CEGUI::Event::Subscriber(&GUI::resumeGame, this));
+		CEGUI::Event::Subscriber(&GUI::quitGame, this));
 	defeatScreen->addChildWindow(OKBut);
 
 	//Win message

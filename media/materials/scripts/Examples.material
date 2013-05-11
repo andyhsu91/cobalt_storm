@@ -508,7 +508,7 @@ technique
 
 			texture_unit
 			{
-				texture BeachStones.jpg
+				texture BeachStones4x4.jpg
 			}
 		}
 	}

@@ -71,9 +71,9 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         mPlayerState->server_health = 100;
         mPlayerState->client_health = 100;
-        mPlayerState->weaponamt1 = -1;
-        mPlayerState->weaponamt2 = 30;
-        mPlayerState->weaponamt3 = 5;
+        mPlayerState->weaponamt1 = 100;
+        mPlayerState->weaponamt2 = 10;
+        mPlayerState->weaponamt3 = 1;
 
         for (int i = 0; i < sizeof(mPlayerState->playerState) / sizeof(bool); i++)
                 mPlayerState->playerState[i] = false;
@@ -273,6 +273,10 @@ Ogre::Vector3 Player::getCameraTarget(void)
 void Player::setCameraOrientation(Ogre::Quaternion rotation)
 {
     CameraOrientation= rotation;
+}
+
+void Player::regenAmmo(const Ogre::FrameEvent& evt) {
+    
 }
 
 void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet){

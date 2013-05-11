@@ -23,7 +23,7 @@ Player mPlayer;
  bool iAmWinner = false;
  Network* nManager;
  Sound* sManager;
- const float timeLimit = 60.0;
+ const float timeLimit = 90.0;
  long numPacketsReceived = 0;
 float UnlockedCameraMovementSpeed= 80;
 
@@ -196,6 +196,8 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		
 		timeElapsed += evt.timeSinceLastFrame;
 		mGUI.setTime(timeLimit-timeElapsed);
+
+		myself->regenAmmo(evt);
 
 		mGUI.setHealth(myself->getPlayerVars()->server_health/100);
 		mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health/100);

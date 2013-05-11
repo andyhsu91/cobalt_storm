@@ -50,6 +50,10 @@ enum States { STANDING,
 #define LMIDBUTTON 6
 #define RMIDBUTTON 7
 
+const int wep1max = 100;
+const int wep2max = 10;
+const int wep3max = -1;
+
 struct PlayerVars {
 	//Upper limit of this struct is 1500 bytes
 	bool paused;
@@ -115,6 +119,7 @@ public:
 	void enableState(int animStateEnum, bool enabled, bool loop);
 	void updateAnimation(int animStateEnum, double seconds);
 	void attack(bool val);
+	void regenAmmo(const Ogre::FrameEvent& evt);
 
 private:
 	Ogre::Entity* ent;
@@ -135,6 +140,7 @@ private:
 	std::string pSig;
 	int bullet;
 	bool lockedOn;
+	float regenTime;
 	
 	float playerTargetCosTheta;
     float playerTargetSinTheta;

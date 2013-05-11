@@ -112,20 +112,21 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 		}
 		else {
 			cout << "Hit Other" << endl;
-			if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2")) {
-				if (obj0_name.find("bnode11"))
+			if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2") == 0) {
+				if (obj0_name.find("bnode11") == 0)
 					P2damageTrack += 5;
-				else if (obj0_name.find("bnode12")) {
+				else if (obj0_name.find("bnode12") == 0) {
 					P2damageTrack += 20;
 				}
 			}
-			else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode1")){
-				if (obj0_name.find("bnode11"))
+			else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode1") == 0){
+				if (obj0_name.find("bnode11") == 0)
 					P1damageTrack += 5;
-				else if (obj0_name.find("bnode12")) {
+				else if (obj0_name.find("bnode12") == 0) {
 					P1damageTrack += 20;
 				}
 			}
+			//cout << "Damage done: " << P1damageTrack << " " << P2damageTrack << endl;
 
 			btCollisionObject* bullet;
 			for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
@@ -148,20 +149,21 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 		}
 		else {
 			cout << "Hit Other" << endl;
-			if (obj1_name.find("bnode1") == 0 && obj0_name.find("pnode2")) {
-				if (obj1_name.find("bnode11"))
+			if (obj1_name.find("bnode1") == 0 && obj0_name.find("pnode2") == 0) {
+				if (obj1_name.find("bnode11") == 0)
 					P2damageTrack += 5;
-				else if (obj1_name.find("bnode12")) {
+				else if (obj1_name.find("bnode12") == 0) {
 					P2damageTrack += 20;
 				}
 			}
-			else if (obj1_name.find("bnode2") == 0 && obj0_name.find("pnode1")){
-				if (obj1_name.find("bnode11"))
+			else if (obj1_name.find("bnode2") == 0 && obj0_name.find("pnode1") == 0){
+				if (obj1_name.find("bnode11") == 0)
 					P1damageTrack += 5;
-				else if (obj1_name.find("bnode12")) {
+				else if (obj1_name.find("bnode12") == 0) {
 					P1damageTrack += 20;
 				}
 			}
+			//cout << "Damage done: " << P1damageTrack << " " << P2damageTrack << endl;
 
 			btCollisionObject* bullet;
 			for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
@@ -467,7 +469,7 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 	}
 
 	if(snode->getName() == "pnode1")
-		dynamicsWorld->addRigidBody(body,5,5);
+		dynamicsWorld->addRigidBody(body,15,15);
 	else if(snode->getName() == "pnode2")
 		dynamicsWorld->addRigidBody(body,3,3);
 	else
@@ -517,8 +519,10 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 	std::string obj_name = (snode->getName().c_str());
 	if(obj_name.find("bnode1") == 0)
 		dynamicsWorld->addRigidBody(body,2,1);
-	else
-		dynamicsWorld->addRigidBody(body,4,1);
+	else {
+		//dynamicsWorld->addRigidBody(body,8,4);
+		dynamicsWorld->addRigidBody(body);
+	}
 
 	if (weapon_type == 1 || weapon_type == -1)
 		body->setLinearVelocity(btVector3(direction.x * 2000.0, direction.y * 2000.0 + 20.0, direction.z * 2000.0));
@@ -594,28 +598,6 @@ void Physics::setBallRestitution(double restit)
 {
 	restitution = restit;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

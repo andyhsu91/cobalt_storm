@@ -102,64 +102,80 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 	std::string obj0_name = (obj0->getName().c_str());
 	std::string obj1_name = (obj1->getName().c_str());
 
-	//cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
+	cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
 	if (obj0_name.find("bnode") == 0) {
 		//cout << "Object 0 " << obj0_name.find("bnode") << endl;
 		// Calculate damage
-		if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2")) {
-			if (obj0_name.find("bnode11"))
-				P2damageTrack += 5;
-			else if (obj0_name.find("bnode12")) {
-				P2damageTrack += 20;
+		if ((obj0_name.find("bnode1") == 0 && obj1_name.find("pnode1") == 0) ||
+			(obj0_name.find("bnode2") == 0 && obj1_name.find("pnode2") == 0)) {
+			cout << "Hit Self" << endl;
+		}
+		else {
+			cout << "Hit Other" << endl;
+			if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2") == 0) {
+				if (obj0_name.find("bnode11") == 0)
+					P2damageTrack += 5;
+				else if (obj0_name.find("bnode12") == 0) {
+					P2damageTrack += 20;
+				}
 			}
-		}
-		else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode")){
-			if (obj0_name.find("bnode11"))
-				P1damageTrack += 5;
-			else if (obj0_name.find("bnode12")) {
-				P1damageTrack += 20;
+			else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode1") == 0){
+				if (obj0_name.find("bnode11") == 0)
+					P1damageTrack += 5;
+				else if (obj0_name.find("bnode12") == 0) {
+					P1damageTrack += 20;
+				}
 			}
-		}
+			//cout << "Damage done: " << P1damageTrack << " " << P2damageTrack << endl;
 
-		btCollisionObject* bullet;
-		for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
-		{
-			btCollisionObject* obj = mDynamicWorld->getCollisionObjectArray()[j];
+			btCollisionObject* bullet;
+			for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
+			{
+				btCollisionObject* obj = mDynamicWorld->getCollisionObjectArray()[j];
 
-			if(colObj0->getUserPointer() == obj->getUserPointer())
-				bullet = obj;
+				if(colObj0->getUserPointer() == obj->getUserPointer())
+					bullet = obj;
+			}
+			mDynamicWorld->removeCollisionObject(bullet);
+			mSceneManager->destroySceneNode(obj0);
 		}
-		mDynamicWorld->removeCollisionObject(bullet);
-		mSceneManager->destroySceneNode(obj0);
 	}
-	if (obj1_name.find("bnode") == 0) {
+	else if (obj1_name.find("bnode") == 0) {
 		//cout << "Object 1 " << obj1_name.find("bnode") << endl;
 		// Calculate damage
-		if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2")) {
-			if (obj0_name.find("bnode11"))
-				P2damageTrack += 5;
-			else if (obj0_name.find("bnode12")) {
-				P2damageTrack += 20;
+		if ((obj1_name.find("bnode1") == 0 && obj0_name.find("pnode1") == 0) ||
+			(obj1_name.find("bnode2") == 0 && obj0_name.find("pnode2") == 0)) {
+			cout << "Hit Self" << endl;
+		}
+		else {
+			cout << "Hit Other" << endl;
+			if (obj1_name.find("bnode1") == 0 && obj0_name.find("pnode2") == 0) {
+				if (obj1_name.find("bnode11") == 0)
+					P2damageTrack += 5;
+				else if (obj1_name.find("bnode12") == 0) {
+					P2damageTrack += 20;
+				}
 			}
-		}
-		else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode")){
-			if (obj0_name.find("bnode11"))
-				P1damageTrack += 5;
-			else if (obj0_name.find("bnode12")) {
-				P1damageTrack += 20;
+			else if (obj1_name.find("bnode2") == 0 && obj0_name.find("pnode1") == 0){
+				if (obj1_name.find("bnode11") == 0)
+					P1damageTrack += 5;
+				else if (obj1_name.find("bnode12") == 0) {
+					P1damageTrack += 20;
+				}
 			}
-		}
+			//cout << "Damage done: " << P1damageTrack << " " << P2damageTrack << endl;
 
-		btCollisionObject* bullet;
-		for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
-		{
-			btCollisionObject* obj = mDynamicWorld->getCollisionObjectArray()[j];
+			btCollisionObject* bullet;
+			for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
+			{
+				btCollisionObject* obj = mDynamicWorld->getCollisionObjectArray()[j];
 
-			if(colObj1->getUserPointer() == obj->getUserPointer())
-				bullet = obj;
+				if(colObj1->getUserPointer() == obj->getUserPointer())
+					bullet = obj;
+			}
+			mDynamicWorld->removeCollisionObject(bullet);
+			mSceneManager->destroySceneNode(obj1);
 		}
-		mDynamicWorld->removeCollisionObject(bullet);
-		mSceneManager->destroySceneNode(obj1);
 	}
 
 	return true;
@@ -191,8 +207,8 @@ void Physics::initPhysics(Ogre::SceneManager* SceneMgr)
 	mSceneManager = mSceneMgr;
 
 	bullet = 0;
-	//P1damageTrack = 0;
-	//P2damageTrack = 0;
+	P1damageTrack = 0;
+	P2damageTrack = 0;
 	cerr << "Finished bullet init" << endl;
 }
 
@@ -362,7 +378,7 @@ float** Physics::getProjectiles(int typeOfProjectile){
 
 		//get mass of body
 		float bodyMass = 0.0;
-		if(body->getInvMass() != 0.0){
+		if(body->getInvMass() != 0.0) {
 			bodyMass = 1.0/(body->getInvMass()); //should not divide by zero 
 		} else{
 			continue; 
@@ -406,6 +422,16 @@ int Physics::damageToPlayer(bool isServer) {
 	return temp;
 }
 
+btCollisionObject* Physics::collisionObject(Ogre::SceneNode* node) {
+	for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
+	{
+		btCollisionObject* obj = mDynamicWorld->getCollisionObjectArray()[j];
+		Ogre::SceneNode *obj0 = static_cast<Ogre::SceneNode*>(obj->getUserPointer());
+		if(node->getName() == obj0->getName())
+			return obj;
+	}
+}
+
 
 //---------------------------------------------------------------------------
 btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode, 
@@ -442,7 +468,12 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
         body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 	}
 
-	dynamicsWorld->addRigidBody(body,3,3); 
+	if(snode->getName() == "pnode1")
+		dynamicsWorld->addRigidBody(body,5,5);
+	else if(snode->getName() == "pnode2")
+		dynamicsWorld->addRigidBody(body,3,3);
+	else
+		dynamicsWorld->addRigidBody(body); 
 	cout<<"Exiting Physics::setRigidBoxBody()"<<endl;
 	return body;
 }
@@ -484,7 +515,15 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 	
 	body->setRestitution(restitution);
 	body->setUserPointer((void *) (snode));
-	dynamicsWorld->addRigidBody(body,2,1);
+
+	std::string obj_name = (snode->getName().c_str());
+	if(obj_name.find("bnode1") == 0)
+		dynamicsWorld->addRigidBody(body,2,1);
+	else {
+		//dynamicsWorld->addRigidBody(body,8,4);
+		dynamicsWorld->addRigidBody(body,4,1);
+	}
+
 	if (weapon_type == 1 || weapon_type == -1)
 		body->setLinearVelocity(btVector3(direction.x * 2000.0, direction.y * 2000.0 + 20.0, direction.z * 2000.0));
 	else if (weapon_type == 2 || weapon_type == -2) {
@@ -559,28 +598,6 @@ void Physics::setBallRestitution(double restit)
 {
 	restitution = restit;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

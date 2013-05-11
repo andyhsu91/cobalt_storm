@@ -47,7 +47,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
                 mCurrentControllerButtonState[i] = 0;
         }
 
-        Ogre::Vector3 shapeDim = Ogre::Vector3(40, 60, 40);
+        Ogre::Vector3 shapeDim = Ogre::Vector3(60, 80, 60);
         Ogre::Vector3 position;
         if (isServer) {
             position = Ogre::Vector3(700.0, 242.0, -750.0);
@@ -72,7 +72,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mPlayerState->server_health = 100;
         mPlayerState->client_health = 100;
         mPlayerState->weaponamt1 = -1;
-        mPlayerState->weaponamt2 = 20;
+        mPlayerState->weaponamt2 = 30;
         mPlayerState->weaponamt3 = 5;
 
         for (int i = 0; i < sizeof(mPlayerState->playerState) / sizeof(bool); i++)
@@ -308,6 +308,19 @@ void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* p
 
     pnode->translate(Ogre::Vector3(xTrans, yTrans, zTrans), Ogre::Node::TS_WORLD);
     pnode->lookAt(cameraTarget, Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_X);
+
+    btTransform enemyTrans;
+    enemyTrans.setIdentity();
+    enemyTrans.setOrigin(btVector3(packet->playerPosition[0], packet->playerPosition[1], packet->playerPosition[2]));
+
+    btCollisionObject* eObj = mBullet->collisionObject(pnode);
+    btRigidBody* body = btRigidBody::upcast(eObj);
+    body->getMotionState()->setWorldTransform(enemyTrans);
+
+    body->getMotionState()->getWorldTransform(enemyTrans);
+    btVector3 vec3 = enemyTrans.getOrigin();
+    cout << "Enemy SceneNode" << pnode->getPosition().x << pnode->getPosition().y << pnode->getPosition().z << endl;
+    cout << "Enemy Origin: " << vec3.getX() << " " << vec3.getY() << " " << vec3.getZ() << endl;
 }
 
 
@@ -315,6 +328,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 {   
     //size of packet over the network;
     //printf("playervars: %d \n",sizeof (PlayerVars) );
+    //cout << "P1 Health: " << mPlayerState->server_health << endl;
+    //cout << "P2 Health: " << mPlayerState->client_health << endl;
     float distPerSec = 200;
     mDirection = Ogre::Vector3(0.0,0.0,0.0);
     

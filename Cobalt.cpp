@@ -17,7 +17,10 @@ Player mPlayer;
  bool isConnected;
  bool isServer;
  bool isPaused = true;
+ bool inMainMenu = true;
  bool menuCam = true;
+ bool gameOver = false;
+ bool iAmWinner = false;
  Network* nManager;
  Sound* sManager;
  const float timeLimit = 60.0;
@@ -71,7 +74,7 @@ void Cobalt::createScene(void)
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
 	
 	cerr << "Initing GUI" << endl;
-	mGUI.initGUI(mSceneMgr, &isPaused, &mShutDown);
+	mGUI.initGUI(mSceneMgr, &isPaused, &mShutDown, &inMainMenu);
 	mGUI.drawMenu();
 
 	//Initialize Network Manager
@@ -96,7 +99,7 @@ void Cobalt::createScene(void)
 	sManager = new Sound();
 	sManager->playBackground(-1);
 	cerr << "Initing Player" << endl;
-    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode", true);
+    serverPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity", "pnode1", true);
     clientPlayer->initPlayer(mSceneMgr, &mBullet, sManager, "PlayerEntity2", "pnode2", false);
 
     if(isConnected && !isServer){
@@ -158,12 +161,28 @@ PlayerVars* Cobalt::createPacket(void){
 	mBullet.freeProjectiles(type1);
 	mBullet.freeProjectiles(type2);
 
-	if(isServer)
-		gameUpdate->client_health -= mBullet.damageToPlayer(isServer);
-	else
-		gameUpdate->server_health -= mBullet.damageToPlayer(isServer);
+	int damageDone = mBullet.damageToPlayer(isServer);
 
+	if(isServer){
+		if(damageDone>0){cout << "Client Old HP: " << gameUpdate->client_health << endl;}
+		myPlayerVars->client_health -= damageDone;
+		gameUpdate->client_health = myPlayerVars->client_health;
+		if(damageDone>0){cout << "Client New HP: " << gameUpdate->client_health << endl;}
+		mGUI.setEnemyHealth(gameUpdate->client_health/100.0);
+	}else{
+		if(damageDone>0){cout << "Server Old HP: " << gameUpdate->server_health << endl;}
+		myPlayerVars->server_health -= damageDone;
+		gameUpdate->server_health = myPlayerVars->server_health;
+		if(damageDone>0){cout << "Server New HP: " << gameUpdate->server_health << endl;}
+		mGUI.setEnemyHealth(gameUpdate->server_health/100.0);
+	}
 	return gameUpdate;
+}
+
+void updateGUI(PlayerVars* sentPacket, PlayerVars receivedPacket){
+
+
+
 }
 
 //-------------------------------------------------------------------------------------
@@ -177,6 +196,15 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		
 		timeElapsed += evt.timeSinceLastFrame;
 		mGUI.setTime(timeLimit-timeElapsed);
+
+		mGUI.setHealth(myself->getPlayerVars()->server_health/100);
+		mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health/100);
+		mGUI.setAmmo(myself->getPlayerVars()->weaponamt1,1);
+		mGUI.setAmmo(myself->getPlayerVars()->weaponamt2,2);
+		mGUI.setAmmo(myself->getPlayerVars()->weaponamt3,3);
+
+
+		//mGUI.setHealth((timeLimit-timeElapsed)/100);
 
 		*myPos = myself->getPlayerPosition();
 		*enemyPos = enemy->getPlayerPosition();
@@ -215,37 +243,66 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 		if(isMultiplayer)
 		{
-			bool packetReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
+			bool packetWasReceived = nManager->checkForPackets(); //check for game updates and connection closed packets
 			isConnected = nManager->isConnectionOpen();
-			PlayerVars* gameUpdate = NULL;
+			PlayerVars* receivedPacket = NULL;
+			PlayerVars* sentPacket = NULL;
+
 			if(!isConnected){ mShutDown = true; return false; } //opponent closed connection
-			if(packetReceived){ 
-				gameUpdate = nManager->getGameUpdate(); 
+			
+			if(packetWasReceived){ 
+				receivedPacket = nManager->getGameUpdate(); 
 				numPacketsReceived++;
-				enemy->updatePositionFromPacket(evt, gameUpdate);
+				
+				myself->getPlayerVars()->server_health = min( receivedPacket->server_health, myself->getPlayerVars()->server_health );
+				myself->getPlayerVars()->client_health = min( receivedPacket->client_health, myself->getPlayerVars()->client_health );
+				
+				enemy->updatePositionFromPacket(evt, receivedPacket);
 				mBullet.removeTempProjectiles();
-				mBullet.putProjectiles(gameUpdate->type1ProjectilePos, 1);
-				mBullet.putProjectiles(gameUpdate->type2ProjectilePos, 2);
+				mBullet.putProjectiles(receivedPacket->type1ProjectilePos, 1);
+				mBullet.putProjectiles(receivedPacket->type2ProjectilePos, 2);
 			}
 
 
 
-			if(packetReceived || numPacketsReceived < 3){
+			if(packetWasReceived || numPacketsReceived < 3){
 				//only send packet when we receive a packet so that we don't congest the network
-				nManager->sendPacket( *createPacket() );
+				sentPacket = createPacket();
+				nManager->sendPacket( *sentPacket );
 			}
 
 			if(isServer){
 				//I am server
-				
+				mGUI.setHealth(myself->getPlayerVars()->server_health/100.0);
+				if(packetWasReceived && receivedPacket->server_health <= 0){
+					//game over, I lose
+					gameOver=true;
+					iAmWinner = false;
+				}
+				if(sentPacket!=NULL && sentPacket->client_health <=0){
+					//game over, I win
+					gameOver = true;
+					iAmWinner = true;
+				}
 
 			}else{
 				//I am client
-				if(packetReceived)
-				{
-					
+				mGUI.setHealth(myself->getPlayerVars()->client_health/100.0);
+				if(packetWasReceived && receivedPacket->client_health <= 0){
+					//game over, I lose
+					gameOver = true;
+					iAmWinner = false;
+				}
+				
+				if(sentPacket!=NULL && sentPacket->server_health <=0){
+					//game over, I win
+					gameOver = true;
+					iAmWinner = true;
 				}
 			}
+
+
+
 		}
 		else
 		{
@@ -255,6 +312,9 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 		
 
+		}
+		if(myself->getPlayerVars()->timeRemaining <=0.0){
+			gameOver = true;
 		}
 	}
 	return ret;
@@ -292,10 +352,33 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
     	{
     		myself->updateControlButton(LBUMP, 1);
     	}
-     else if (arg.key == OIS::KC_L)
+    else if (arg.key == OIS::KC_L)
     	{
     		myself->updateControlButton(RJOYCLICK,1);
     	}
+	else if (arg.key == OIS::KC_M)
+		{
+			if(!inMainMenu)
+			{
+				if(!isPaused)
+				{
+					mGUI.pauseGame();
+				}
+				else
+				{
+					mGUI.resumeGame();
+				}
+			}
+		}
+	//test victory/defeat screens
+	else if (arg.key == OIS::KC_B)
+		{
+			mGUI.showVictory();
+		}
+	else if (arg.key == OIS::KC_N)
+		{
+			mGUI.showDefeat();
+		}
        //this command will move the camera
 	//mCameraMan->injectKeyDown(arg);
 	return true;

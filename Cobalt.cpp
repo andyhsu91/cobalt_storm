@@ -25,7 +25,7 @@ Player mPlayer;
  Sound* sManager;
  const float timeLimit = 90.0;
  long numPacketsReceived = 0;
-float UnlockedCameraMovementSpeed= 80;
+float UnlockedCameraMovementSpeed= 120;
 
 
 //-------------------------------------------------------------------------------------
@@ -365,6 +365,10 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
     	{
     		myself->updateControlButton(RJOYCLICK,1);
     	}
+    else if (arg.key == OIS::KC_LSHIFT)
+    	{
+    		myself->updateControlAxis(LTRIG,1);
+    	}
 	else if (arg.key == OIS::KC_M)
 		{
 			if(!inMainMenu)
@@ -420,6 +424,10 @@ bool Cobalt::keyReleased( const OIS::KeyEvent &arg )
         {
 			myself->updateControlButton(LBUMP, 0);
         }
+    else if (arg.key == OIS::KC_LSHIFT)
+    	{
+    		myself->updateControlAxis(LTRIG,0);
+    	}
 //mCameraMan->injectKeyUp(arg);
 	if(CEGUI::System::getSingleton().injectKeyUp(arg.key)) return true;
     	mCameraMan->injectKeyUp(arg);

@@ -13,7 +13,8 @@ const float cameraRadius = 50.0; //how big the circle is that the camera orbits 
 const float shootTimeout = 0.6; //amount of seconds that the shooting animation takes
 const float walkTime = .85;
 const double pi = 3.14159265359;
-
+const float maxBoostTime = 3.0;
+float distPerSec = 200;
 
 
 
@@ -38,6 +39,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         mPlayerState = new PlayerVars;
         mPlayerState->shootTimeRemaining = 0.0;
         walkTimeRemaining = 0.0;
+        boostTimeRemaining = maxBoostTime;
         for (int i = 0; i < 5; ++i)
         {
                 mCurrentControllerAxisState[i] = 0;
@@ -238,7 +240,7 @@ Ogre::Vector3 Player::getNewCameraPos(void){
             300,
             50*sin(-CameraOrientation.getYaw().valueRadians()-pi*1.5) + serverPos.z);
 
-         //setCameraTargeta(serverPos);
+        // setCameraTarget(CameraPosition);
     }
 
     CameraPosition = newCameraPos;
@@ -356,9 +358,15 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     //printf("playervars: %d \n",sizeof (PlayerVars) );
     //cout << "P1 Health: " << mPlayerState->server_health << endl;
     //cout << "P2 Health: " << mPlayerState->client_health << endl;
-    float distPerSec = 200;
+
     mDirection = Ogre::Vector3(0.0,0.0,0.0);
-    
+
+
+    boostTimeRemaining += evt.timeSinceLastFrame*0.5;
+    if(boostTimeRemaining > maxBoostTime)
+    {
+        boostTimeRemaining = maxBoostTime;
+    }
 /*
     const float walkTime = 2.0;
     float walkTimeRemaining = 0.0;
@@ -401,6 +409,8 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     Ogre::Real diffZ = y - b;
     distanceToTarget = Ogre::Math::Sqrt(Ogre::Math::Sqr(diffX) + Ogre::Math::Sqr(diffZ));
 
+    float boost =  abs(mCurrentControllerAxisState[LTRIG]) + 1;
+
     double facingAngle = acos(diffX/r); //radians of rotation from x axis to line segment connecting players where opponent is at origin
     if(lockedOn)
     {
@@ -409,9 +419,10 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         float scalingFactor = distPerSec/distanceToTarget;
 
         //towards and away from enemy
+       
         mDirection.x += mCurrentControllerAxisState[LCONTROLY]*diffX*scalingFactor;
         mDirection.z += mCurrentControllerAxisState[LCONTROLY]*diffZ*scalingFactor;
-
+        //float boost =  abs(mCurrentControllerAxisState[LTRIG])*boostSpeed + 1;
         //left and right (Doesn't work yet)
         //Using http://math.stackexchange.com/questions/53875/calculating-point-around-circumference-of-circle-given-distance-travelled
         
@@ -436,6 +447,13 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         float controlY = mCurrentControllerAxisState[LCONTROLY]*distPerSec;
         mDirection.x =  controlX*camCos - controlY*camSin;
         mDirection.z =  controlX*camSin + controlY*camCos;
+    }
+    if(boostTimeRemaining>evt.timeSinceLastFrame && getPlayerState(BOOSTING))
+    {
+   mDirection *= boost;
+   boostTimeRemaining -= evt.timeSinceLastFrame;
+   if(boostTimeRemaining<=0.1)
+    boostTimeRemaining-=1.0;
     }
 
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
@@ -551,6 +569,13 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 void Player::updateControlAxis(int axis, float value)
 {
         mCurrentControllerAxisState[axis]=value;
+        if(axis == LTRIG || axis == RTRIG)
+        {
+            if(value >0.05)
+            updatePlayerState(BOOSTING, true);
+            else
+            updatePlayerState(BOOSTING, false); 
+        }
 }
 
 void Player::updateControlButton(int button, float value)

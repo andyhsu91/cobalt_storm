@@ -29,18 +29,23 @@ Controls:
 --------------------------------------------------------------------
 	- Keyboard
 		- WASD for movement
-		- O for firing projectiles
-		- Mouse for forcing camera direction
+		- Mouse Click for Bombs or Bullets
+		- Mouse movement for camera direction
+		- Shift for Boost
+		- Middle Click for Lock On/Off toggle
+		- M for Pause
+		
+		
 	- Razer Hydra
 		- Left Joystick for movement
+		- Right Joystick for camera
+		- Right Joystick button for On/Off toggle
+		- Left/Right Bumper for Bombs/Bullets
 
 
 Comments:
 --------------------------------------------------------------------
-	- We only have 2 sets of Hydra controllers so control implementation
-	  is slower for the Hydra than the Keyboard.
-	- We ended up finding rigging animation to be far harder than
-	  anticipated so without a proper model, the parts slowed down.
+	- Multiplayer functionality works correctly
 	  
 
 Functionality that's been implemented:
@@ -49,21 +54,36 @@ Functionality that's been implemented:
 	- Added camera tracking for auto lockon for opponents
 	- Finished flat environment. Need to add cover.
 	- Prototyped a GUI. Not merged from lack of styling.
-	- Implemented a health bar. Not in from lack of styling.
-	- Added background music
+	- Implemented a health bar.
+	- Added background music and sound Effects
+	- Boost
+	- Added Lock On functionality
+	- GUI: Health Bars, Ammo Bars
+	- Animation: Walking, Shooting
+	- Created Bomb Model
+	- Collision callback for detecting collisions between robots
+	- Sending player position, projectile positions, player healths, and button states over the network
+	
 
 
 Issues Encountered:
 --------------------------------------------------------------------
-	- Found animation to be harder than anticipated. No full model.
-	- Custom GUI styling requires XML files outside of CEGUI to be used.
+	- Robot Model could not be created due to animation requirements and lack of experience in animating models
+	- Robots walk through mountains
+	- Had problems putting static images on screen for GUI
+	- Every once in a while camera goes crazy in lock on mode
+	- 
 	
 
 What we still have to accomplish:
 --------------------------------------------------------------------
-	- Finish modeling and animation work.
-	- New sound effects for movements or attacks
-	- Time limit. After limit, low health player loses.
-	- Need to add collision callback from previous project to handle hits
-	- Duplicate current projectile and alter size, speed, etc for new weapon
+	- Time limit
+	- Melee Attack (Headbutt)
+	- Thinking about making a better terrain
+	- Settings button exists, but we don't know what settings to make available
+	- Game restart after game over
+	- Time delay after game over to show dying animation
+	
+	
+	
 

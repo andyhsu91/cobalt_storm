@@ -63,7 +63,10 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         pnode->attachObject(ent);
         pnode->scale(.5, .5, .5);
-        ent->setMaterialName("Examples/Robot");
+        if(node.compare("pnode1") == 0)
+        	ent->setMaterialName("Examples/RobotRed");
+        else
+        	ent->setMaterialName("Examples/RobotBlu");
         ent->setCastShadows(true);
 
         //mBullet->setKinematicCharacter(pnode, shapeDim, position, 250.0);

@@ -196,9 +196,8 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 		mGUI.setHealth(myself->getPlayerVars()->server_health/100);
 		mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health/100);
-		mGUI.setAmmo(myself->getPlayerVars()->weaponamt1,1);
-		mGUI.setAmmo(myself->getPlayerVars()->weaponamt2,2);
-		mGUI.setAmmo(myself->getPlayerVars()->weaponamt3,3);
+		mGUI.setAmmo1(myself->getPlayerVars()->weaponamt1,wep1max);
+		mGUI.setAmmo2(myself->getPlayerVars()->weaponamt2,wep2max);
 
 
 		//mGUI.setHealth((timeLimit-timeElapsed)/100);

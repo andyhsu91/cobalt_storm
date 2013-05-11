@@ -543,7 +543,9 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
                 createChildSceneNode(pSig + Ogre::StringConverter::toString(1) + Ogre::StringConverter::toString(bullet++), position);
 
         bnode->attachObject(ent);
-        bnode->scale(.03, .03, .03);
+        bnode->scale(.01, .01, .01);
+        //bnode->lookAt(cameraTarget,Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_Y);
+        //bnode->yaw(Ogre::Degree(90.0));
         Ogre::MaterialPtr bMat = ent->getSubEntity(0)->getMaterial()->clone("newBallColor");
         bMat->getTechnique(0)->getPass(0)->setAmbient(1.0, 0.8, 0.0);
         bMat->getTechnique(0)->getPass(0)->setDiffuse(1.0, 0.8, 0.0, 1.0);

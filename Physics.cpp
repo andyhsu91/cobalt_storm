@@ -29,6 +29,9 @@ static int wep2Damage = 20;
 Physics::Physics(void)
 {
 }
+
+
+
 //---------------------------------------------------------------------------
 Physics::~Physics(void)
 {
@@ -93,6 +96,7 @@ Physics::~Physics(void)
 		DestroyAllAttachedMovableObjects( pChildNode );
 	}
 }*/
+
 
 
 //code from https://github.com/alanjrogers/bullet-physics/blob/master/Demos/ConcaveDemo/ConcavePhysicsDemo.cpp     http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?p=&f=9&t=1943
@@ -192,6 +196,8 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 
 extern ContactAddedCallback gContactAddedCallback;
 
+
+
 //---------------------------------------------------------------------------
 void Physics::initPhysics(Ogre::SceneManager* SceneMgr)
 {
@@ -220,6 +226,8 @@ void Physics::initPhysics(Ogre::SceneManager* SceneMgr)
 	P2damageTrack = 0;
 	cerr << "Finished bullet init" << endl;
 }
+
+
 
 //---------------------------------------------------------------------------
 void Physics::updateWorld(const Ogre::FrameEvent& evt)
@@ -272,6 +280,8 @@ void Physics::updateWorld(const Ogre::FrameEvent& evt)
 	//cout<<"Exiting Physics::updateWorld()"<<endl;
 }
 
+
+
 void Physics::removeTempProjectiles(void){
 	//delete old temp projectiles from the network
 	for (int j=0; j<dynamicsWorld->getNumCollisionObjects(); j++)
@@ -300,6 +310,7 @@ void Physics::removeTempProjectiles(void){
 }
 
 
+
 void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 	
 	//cout<<"Entered Physics::putProjectiles()"<<endl;
@@ -320,7 +331,7 @@ void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 		if(typeOfProjectile==1){
 			
 			Ogre::Entity* ent = mSceneMgr->createEntity("BulletTemp" + Ogre::StringConverter::toString(bullet),
-                                                    "sphere.mesh");
+                                                    "column.mesh");
 	        Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
 	                createChildSceneNode("tempNode" + Ogre::StringConverter::toString(bullet++), position);
 
@@ -363,12 +374,16 @@ void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 	//cout<<"Exiting Physics::putProjectiles()"<<endl;
 }
 
+
+
 void Physics::freeProjectiles(float** projectiles){
 	for(int i=0; i<20; i++){
 		delete [] projectiles[i];
 	}
 	delete [] projectiles;
 }
+
+
 
 float** Physics::getProjectiles(int typeOfProjectile){
 	//cout<<"Entered Physics::getProjectiles()"<<endl;
@@ -428,6 +443,8 @@ float** Physics::getProjectiles(int typeOfProjectile){
 	return projPos;
 }
 
+
+
 int Physics::damageToPlayer(bool isServer) {
 	int temp = 0;
 	if (isServer)
@@ -441,6 +458,8 @@ int Physics::damageToPlayer(bool isServer) {
 	return temp;
 }
 
+
+
 btCollisionObject* Physics::collisionObject(Ogre::SceneNode* node) {
 	for (int j=mDynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
 	{
@@ -450,6 +469,7 @@ btCollisionObject* Physics::collisionObject(Ogre::SceneNode* node) {
 			return obj;
 	}
 }
+
 
 
 //---------------------------------------------------------------------------
@@ -497,6 +517,9 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 	cout<<"Exiting Physics::setRigidBoxBody()"<<endl;
 	return body;
 }
+
+
+
 btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 		int weapon_type, Ogre::Vector3 origin, Ogre::Vector3 direction)
 {
@@ -554,6 +577,9 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 	//cout<<"Exiting Physics::createBullet()"<<endl;
 	return body;
 }
+
+
+
 //---------------------------------------------------------------------------
 btPairCachingGhostObject* Physics::setKinematicCharacter(Ogre::SceneNode *snode,
                 Ogre::Vector3 shapeDim, Ogre::Vector3 origin, double mass)

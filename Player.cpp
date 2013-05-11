@@ -456,8 +456,6 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     boostTimeRemaining-=1.0;
     }
 
-    printf("boost time remaining %f\n",boostTimeRemaining);
-    printf("are we boosting? %d\n",getPlayerState(BOOSTING) );
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
     //printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);

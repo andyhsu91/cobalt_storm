@@ -121,6 +121,7 @@ public:
 	void attack(bool val);
 	void regenAmmo(const Ogre::FrameEvent& evt);
 
+	void playerKilled(void);
 private:
 	Ogre::Entity* ent;
 	Ogre::SceneManager* mSceneMgr;

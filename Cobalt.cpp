@@ -179,11 +179,6 @@ PlayerVars* Cobalt::createPacket(void){
 	return gameUpdate;
 }
 
-void updateGUI(PlayerVars* sentPacket, PlayerVars receivedPacket){
-
-
-
-}
 
 //-------------------------------------------------------------------------------------
 bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
@@ -284,11 +279,13 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					//game over, I lose
 					gameOver=true;
 					iAmWinner = false;
+					myself->playerKilled();
 				}
 				if(sentPacket!=NULL && sentPacket->client_health <=0){
 					//game over, I win
 					gameOver = true;
 					iAmWinner = true;
+					enemy->playerKilled();
 				}
 
 			}else{
@@ -298,12 +295,14 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					//game over, I lose
 					gameOver = true;
 					iAmWinner = false;
+					myself->playerKilled();
 				}
 				
 				if(sentPacket!=NULL && sentPacket->server_health <=0){
 					//game over, I win
 					gameOver = true;
 					iAmWinner = true;
+					enemy->playerKilled();
 				}
 			}
 

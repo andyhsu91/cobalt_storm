@@ -50,7 +50,7 @@ enum States { STANDING,
 #define LMIDBUTTON 6
 #define RMIDBUTTON 7
 
-const int wep1max = 100;
+const int wep1max = 80;
 const int wep2max = 10;
 const int wep3max = -1;
 
@@ -142,7 +142,8 @@ private:
 	int bullet;
 	bool lockedOn;
 	float regenTime;
-	int lastRegen;
+	int wep1Regen;
+	int wep2Regen;
 	
 	float playerTargetCosTheta;
     float playerTargetSinTheta;

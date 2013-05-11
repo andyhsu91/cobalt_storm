@@ -280,12 +280,14 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					gameOver=true;
 					iAmWinner = false;
 					myself->playerKilled();
+					mGUI.showDefeat();
 				}
 				if(sentPacket!=NULL && sentPacket->client_health <=0){
 					//game over, I win
 					gameOver = true;
 					iAmWinner = true;
 					enemy->playerKilled();
+					mGUI.showVictory();
 				}
 
 			}else{
@@ -296,6 +298,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					gameOver = true;
 					iAmWinner = false;
 					myself->playerKilled();
+					mGUI.showDefeat();
 				}
 				
 				if(sentPacket!=NULL && sentPacket->server_health <=0){
@@ -303,6 +306,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 					gameOver = true;
 					iAmWinner = true;
 					enemy->playerKilled();
+					mGUI.showVictory();
 				}
 			}
 

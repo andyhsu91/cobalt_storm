@@ -102,7 +102,7 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 	std::string obj0_name = (obj0->getName().c_str());
 	std::string obj1_name = (obj1->getName().c_str());
 
-	cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
+	//cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
 	if (obj0_name.find("bnode") == 0) {
 		//cout << "Object 0 " << obj0_name.find("bnode") << endl;
 		// Calculate damage

@@ -179,11 +179,6 @@ PlayerVars* Cobalt::createPacket(void){
 	return gameUpdate;
 }
 
-void updateGUI(PlayerVars* sentPacket, PlayerVars receivedPacket){
-
-
-
-}
 
 //-------------------------------------------------------------------------------------
 bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)

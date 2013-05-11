@@ -466,6 +466,7 @@ btRigidBody* Physics::setRigidBoxBody(Ogre::SceneNode *snode,
 	if (kino) {
         //body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+        body->setActivationState(DISABLE_DEACTIVATION);
 	}
 
 	if(snode->getName() == "pnode1")

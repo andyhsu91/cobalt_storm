@@ -463,12 +463,14 @@ bool Cobalt::mousePressed( const OIS::MouseEvent &evt, OIS::MouseButtonID id )
 	  if (id == OIS::MB_Left)
         {
         	myself->updateControlButton(LBUMP, 1);
-        } // if
-        // Right mouse button down
+        }
         else if (id == OIS::MB_Right)
         {
 			myself->updateControlButton(RBUMP, 1);
-        } // else if
+        }else if(id == OIS::MB_Middle)
+        {
+        	myself->updateControlButton(RJOYCLICK, 1);
+        } 
 		if (mTrayMgr->injectMouseDown(evt, id)) return true;
 		mCameraMan->injectMouseDown(evt, id);
 	}
@@ -486,12 +488,11 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &evt, OIS::MouseButtonID id )
 			  if (id == OIS::MB_Left)
         {
         	myself->updateControlButton(LBUMP, 0);
-        } // if
-        // Right mouse button down
+        }
         else if (id == OIS::MB_Right)
         {
 			myself->updateControlButton(RBUMP, 0);
-        } // else if
+        }
     	if (mTrayMgr->injectMouseUp(evt, id)) return true;
 		mCameraMan->injectMouseUp(evt, id);
 	}

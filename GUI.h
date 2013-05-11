@@ -21,7 +21,8 @@ class GUI
 		void initGUI(Ogre::SceneManager*, bool*, bool*, bool*);
 		void setHealth(float);
 		void setEnemyHealth(float);
-		void setAmmo(int, int);
+		void setAmmo1(int, int);
+		void setAmmo2(int, int);
 		void setTime(Ogre::Real);
 		void drawMenu(void);
 		void drawHUD(void);
@@ -52,7 +53,7 @@ class GUI
 		CEGUI::ProgressBar *ehealth;
 		CEGUI::ProgressBar *ammo1;
 		CEGUI::ProgressBar *ammo2;
-		CEGUI::ProgressBar *ammo3;
+		//CEGUI::ProgressBar *ammo3;
 		bool *isPaused;
 		bool *mShutDown;
 		bool *inMainMenu;

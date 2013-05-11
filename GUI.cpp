@@ -31,6 +31,11 @@ void GUI::initGUI(Ogre::SceneManager* pSceneMgr, bool *pGamepaused, bool *pGameq
 	CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
 
 	CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
+
+	CEGUI::Imageset MenuImageset = CEGUI::ImagesetManager::getSingleton().createFromImageFile 	("CrosshairIS","crosshair.png");
+	MenuImageset.defineImage("crosshair", CEGUI::Point(0.0f,0.0f), CEGUI::Size( 1.0f, 1.0f ), CEGUI::Point(0.0f,0.0f)); // Whole Image
+
+
 	mainMenu = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/Menu");
 	sheet = wmgr.createWindow("DefaultWindow", "CEGUIMainMenu/Sheet");
 	pauseMenu = wmgr.createWindow("DefaultWindow","CEGUIMainMenu/PauseMenu");
@@ -174,7 +179,7 @@ void GUI::drawHUD()
 	ahud1->setText("Weapon 1");
 	ahud1->disable();
 	ahud1->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.05, 0)));
-	ahud1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.02,0),CEGUI::UDim(0.70, 0)));
+	ahud1->setPosition(CEGUI::UVector2(CEGUI::UDim(0.02,0),CEGUI::UDim(0.75, 0)));
 	ahud1->setAlpha(0.6f);
 
 	//Create a ammo HUD 2
@@ -184,9 +189,10 @@ void GUI::drawHUD()
 	ahud2->setText("Weapon 2");
 	ahud2->disable();
 	ahud2->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.05, 0)));
-	ahud2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.07,0),CEGUI::UDim(0.81, 0)));
+	ahud2->setPosition(CEGUI::UVector2(CEGUI::UDim(0.07,0),CEGUI::UDim(0.86, 0)));
 	ahud2->setAlpha(0.6f);
 
+/*
 	//Create a ammo HUD 3
 	CEGUI::Window *ahud3 = wmgr.createWindow("TaharezLook/FrameWindow", "CEGUI/AmmoHudWindow3");
 	//adds the HUD to the sheet
@@ -195,7 +201,7 @@ void GUI::drawHUD()
 	ahud3->disable();
 	ahud3->setSize(CEGUI::UVector2(CEGUI::UDim(0.35, 0), CEGUI::UDim(0.05, 0)));
 	ahud3->setPosition(CEGUI::UVector2(CEGUI::UDim(0.12,0),CEGUI::UDim(0.92, 0)));
-	ahud3->setAlpha(0.6f);
+	ahud3->setAlpha(0.6f);*/
 
 
 	//Create a Health bar
@@ -243,7 +249,7 @@ void GUI::drawHUD()
 	ammo2->setProgress(0.90);
 	ammo2->setAlwaysOnTop(true);
 	ammo2->setAlpha(1.7);
-
+/*
 	//Creates an ammo-bar
 	ammo3 = static_cast<CEGUI::ProgressBar*>(wmgr.createWindow("TaharezLook/ProgressBar", "CEGUI/Ammo3"));
 	ahud3->addChildWindow(ammo3);
@@ -254,10 +260,7 @@ void GUI::drawHUD()
 	ammo3->setStepSize(0.03);
 	ammo3->setProgress(0.90);
 	ammo3->setAlwaysOnTop(true);
-	ammo3->setAlpha(1.7);
-
-	CEGUI::Imageset MenuImageset = CEGUI::ImagesetManager::getSingleton().createFromImageFile 	("CrosshairIS","crosshair.png");
-	MenuImageset.defineImage("crosshair", CEGUI::Point(0.0f,0.0f), CEGUI::Size( 1.0f, 1.0f ), CEGUI::Point(0.0f,0.0f)); // Whole Image
+	ammo3->setAlpha(1.7);*/
 
 	//time
 	timeDisplay = wmgr.createWindow("TaharezLook/StaticText", "CEGUI/TimeText");
@@ -306,7 +309,7 @@ void GUI::drawVictory(void)
 	OKBut->setSize(CEGUI::UVector2(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.05, 0)));
 	OKBut->setPosition(CEGUI::UVector2(CEGUI::UDim(0.18f, 0), CEGUI::UDim(0.78f, 0))); 	
 	OKBut->setAlpha(0.9f);	
-	//OKBut->setProperty("NormalImage","set:TaharezLook image:full_image");
+	//OKBut->setProperty("NormalImage","set:CrosshairIS image:crosshair");
 	OKBut->setAlwaysOnTop(true);
 	OKBut->subscribeEvent(CEGUI::PushButton::EventClicked,
 		CEGUI::Event::Subscriber(&GUI::resumeGame, this));
@@ -382,22 +385,14 @@ void GUI::setTime(Ogre::Real time)
 	this->timeDisplay->setText(timeString);
 }
 //---------------------------------------------------------------------------
-void GUI::setAmmo(int ammo, int weapon)
+void GUI::setAmmo1(int ammo, int capacity)
 {
-	float tmp = ammo/100;
-	switch(weapon){
-		case 1:
-			this->ammo1->setProgress(tmp);
-			break;
-		case 2:
-			this->ammo2->setProgress(tmp);
-			break;
-		case 3:
-			this->ammo3->setProgress(tmp);
-			break;
-		default:
-			break;
-	};
+	this->ammo1->setProgress((float)ammo/capacity);
+}
+//---------------------------------------------------------------------------
+void GUI::setAmmo2(int ammo, int capacity)
+{
+	this->ammo2->setProgress((float)ammo/capacity);
 }
 //---------------------------------------------------------------------------
 bool GUI::startGame(const CEGUI::EventArgs &e)

@@ -102,7 +102,7 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 	std::string obj0_name = (obj0->getName().c_str());
 	std::string obj1_name = (obj1->getName().c_str());
 
-	cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
+	//cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
 	if (obj0_name.find("bnode") == 0) {
 		//cout << "Object 0 " << obj0_name.find("bnode") << endl;
 		// Calculate damage
@@ -111,7 +111,7 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 			cout << "Hit Self" << endl;
 		}
 		else {
-			cout << "Hit Other" << endl;
+			cout << "Hit Other 1" << endl;
 			if (obj0_name.find("bnode1") == 0 && obj1_name.find("pnode2") == 0) {
 				if (obj0_name.find("bnode11") == 0)
 					P2damageTrack += 5;
@@ -120,9 +120,9 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 				}
 			}
 			else if (obj0_name.find("bnode2") == 0 && obj1_name.find("pnode1") == 0){
-				if (obj0_name.find("bnode11") == 0)
+				if (obj0_name.find("bnode21") == 0)
 					P1damageTrack += 5;
-				else if (obj0_name.find("bnode12") == 0) {
+				else if (obj0_name.find("bnode22") == 0) {
 					P1damageTrack += 20;
 				}
 			}
@@ -143,12 +143,13 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 	else if (obj1_name.find("bnode") == 0) {
 		//cout << "Object 1 " << obj1_name.find("bnode") << endl;
 		// Calculate damage
+		cout << "Name 1: " << obj0_name << " Name 2: " << obj1_name << endl;
 		if ((obj1_name.find("bnode1") == 0 && obj0_name.find("pnode1") == 0) ||
 			(obj1_name.find("bnode2") == 0 && obj0_name.find("pnode2") == 0)) {
 			cout << "Hit Self" << endl;
 		}
 		else {
-			cout << "Hit Other" << endl;
+			cout << "Hit Other 2" << endl;
 			if (obj1_name.find("bnode1") == 0 && obj0_name.find("pnode2") == 0) {
 				if (obj1_name.find("bnode11") == 0)
 					P2damageTrack += 5;
@@ -157,9 +158,9 @@ static bool myContactAddedCallback(btManifoldPoint& cp, const btCollisionObject*
 				}
 			}
 			else if (obj1_name.find("bnode2") == 0 && obj0_name.find("pnode1") == 0){
-				if (obj1_name.find("bnode11") == 0)
+				if (obj1_name.find("bnode21") == 0)
 					P1damageTrack += 5;
-				else if (obj1_name.find("bnode12") == 0) {
+				else if (obj1_name.find("bnode22") == 0) {
 					P1damageTrack += 20;
 				}
 			}

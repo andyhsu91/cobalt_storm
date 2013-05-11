@@ -362,6 +362,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     mDirection = Ogre::Vector3(0.0,0.0,0.0);
 
 
+
     boostTimeRemaining += evt.timeSinceLastFrame*0.5;
     if(boostTimeRemaining > maxBoostTime)
     {
@@ -456,6 +457,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     boostTimeRemaining-=1.0;
     }
 
+    //printf("axis Ltrig %f\n",abs(mCurrentControllerAxisState[LTRIG]));
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
     //printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
@@ -571,7 +573,7 @@ void Player::updateControlAxis(int axis, float value)
         mCurrentControllerAxisState[axis]=value;
         if(axis == LTRIG || axis == RTRIG)
         {
-            if(value >0.05)
+            if(abs(value) >0.05)
             updatePlayerState(BOOSTING, true);
             else
             updatePlayerState(BOOSTING, false); 

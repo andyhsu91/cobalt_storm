@@ -12,7 +12,7 @@ using namespace std;
 const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
 const float shootTimeout = 0.6; //amount of seconds that the shooting animation takes
 const float walkTime = .85;
-
+const double pi = 3.14159265359;
 
 
 
@@ -185,15 +185,21 @@ void Player::setCameraTarget(Ogre::Vector3 pos){
 
 }
 
+
+
 Ogre::Vector3 Player::getNewCameraPos(void){
+    
+    
     Ogre::Vector3 clientPos = cameraTarget;
     Ogre::Vector3 serverPos = getPlayerPosition();
     float zDist = clientPos.z-serverPos.z;
     float xDist = clientPos.x-serverPos.x;
     float distToTarget = sqrt( pow(xDist, 2.0) + pow(zDist, 2.0) );
     float scalingFactor = (cameraRadius/distToTarget);
-    float slope = (clientPos.z - serverPos.z)/(clientPos.x - serverPos.x); //m=(y2-y1)/(x2-x1)
+    float slope = (zDist)/(xDist); //m=(y2-y1)/(x2-x1)
     float zIntercept = serverPos.z - slope*serverPos.x; //b = z - mx
+    
+
     /*
         cout<<"serverPos:"<<serverPos<<endl;
         cout<<"clientPos:"<<clientPos<<endl;
@@ -208,11 +214,28 @@ Ogre::Vector3 Player::getNewCameraPos(void){
             distToTarget = .01; //stop divide by zero errors
         }
 
-    Ogre::Vector3 newCameraPos = Ogre::Vector3(
+        Ogre::Vector3 newCameraPos;
+    if(lockedOn)
+    {
+        //float x = r*cos(t) + h;
+        //float y = r*sin(t) + k;
+       
+    newCameraPos = Ogre::Vector3(
             serverPos.x - xDist*scalingFactor,
             300,
             serverPos.z - zDist*scalingFactor);
+    }else
+    {
 
+         newCameraPos = Ogre::Vector3(
+             50*cos(-CameraOrientation.getYaw().valueRadians()-pi*1.5) + serverPos.x,
+            300,
+            50*sin(-CameraOrientation.getYaw().valueRadians()-pi*1.5) + serverPos.z);
+
+         //setCameraTargeta(serverPos);
+    }
+
+    CameraPosition = newCameraPos;
     return newCameraPos;
 
 }
@@ -245,6 +268,11 @@ bool Player::getPlayerState(int state)
 Ogre::Vector3 Player::getCameraTarget(void)
 {
     return cameraTarget;
+}
+
+void Player::setCameraOrientation(Ogre::Quaternion rotation)
+{
+    CameraOrientation= rotation;
 }
 
 void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet){
@@ -308,7 +336,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         }
         mDirection.z = mCurrentControllerAxisState[LCONTROLY]*distPerSec;
     }
-    if(mCurrentControllerAxisState[LCONTROLY] == 0.0 && mCurrentControllerAxisState[LCONTROLX] == 0.0){
+    if(abs(mCurrentControllerAxisState[LCONTROLY]) < 0.05 && abs(mCurrentControllerAxisState[LCONTROLX]) < 0.05){
         if(mPlayerState->animationStateEnabled[Walk]==true){
             enableState(Walk, false, false);
         }
@@ -345,7 +373,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
 
         //left and right (Doesn't work yet)
         //Using http://math.stackexchange.com/questions/53875/calculating-point-around-circumference-of-circle-given-distance-travelled
-        double pi = 3.14159265359;
+        
         double circumference = 2*pi*distanceToTarget;
         double d = distPerSec * evt.timeSinceLastFrame*50.0;
         
@@ -356,6 +384,17 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         mDirection.x -= mCurrentControllerAxisState[LCONTROLX]*(newXCoord-x); //amount of translation needed
         mDirection.z -= mCurrentControllerAxisState[LCONTROLX]*(newYCoord-y); //amount of translation needed
 
+    }else
+    {
+        //xcos - ysin
+        //xsin + ycos
+
+        float camCos = cos(-CameraOrientation.getYaw().valueRadians());
+        float camSin = sin(-CameraOrientation.getYaw().valueRadians());
+        float controlX = mCurrentControllerAxisState[LCONTROLX]*distPerSec;
+        float controlY = mCurrentControllerAxisState[LCONTROLY]*distPerSec;
+        mDirection.x =  controlX*camCos - controlY*camSin;
+        mDirection.z =  controlX*camSin + controlY*camCos;
     }
 
     //pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);

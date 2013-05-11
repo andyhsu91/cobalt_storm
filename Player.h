@@ -107,6 +107,7 @@ public:
 	void toggleLock(void);
 	bool getLockedOn(void);
 	void setCameraTarget(Ogre::Vector3 pos);
+	void setCameraOrientation(Ogre::Quaternion rotation);
 	Ogre::Vector3 getNewCameraPos(void);
 	float getPlayerTargetCosTheta(void);
 	float getPlayerTargetSinTheta(void);
@@ -138,6 +139,9 @@ private:
 	float playerTargetCosTheta;
     float playerTargetSinTheta;
 	Ogre::Vector3 cameraTarget;
+
+	Ogre::Quaternion CameraOrientation;
+	Ogre::Vector3 CameraPosition;
 
     Ogre::Real distanceToTarget;
     

@@ -22,6 +22,7 @@ Player mPlayer;
  Sound* sManager;
  const float timeLimit = 60.0;
  long numPacketsReceived = 0;
+float UnlockedCameraMovementSpeed= 80;
 
 
 //-------------------------------------------------------------------------------------
@@ -186,17 +187,30 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		
 		mBullet.updateWorld(evt);
 
-		mCamera->setPosition(cameraPos);
-		cameraPos = myself->getNewCameraPos();
+		
+		
 
 
 		if(myself->getLockedOn())
 		{
+			cameraPos = myself->getNewCameraPos();
+			mCamera->setPosition(cameraPos);
 			mCamera->lookAt(*enemyPos);
+
 		}else
 		{
-			mCamera->yaw( Ogre::Degree(  -myself->getCurrentAxisState(RCONTROLX)*3));
-			mCamera->pitch( Ogre::Degree( -myself->getCurrentAxisState(RCONTROLY)*3));
+
+
+
+			mCamera->yaw( Ogre::Degree(  -myself->getCurrentAxisState(RCONTROLX)
+				*UnlockedCameraMovementSpeed*evt.timeSinceLastFrame));
+			mCamera->pitch( Ogre::Degree( -myself->getCurrentAxisState(RCONTROLY)
+				*UnlockedCameraMovementSpeed*evt.timeSinceLastFrame));
+
+			myself->setCameraOrientation(mCamera->getOrientation());
+			cameraPos = myself->getNewCameraPos();
+			mCamera->setPosition(cameraPos);
+			   
 		}
 
 		if(isMultiplayer)
@@ -404,7 +418,7 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &evt, OIS::MouseButtonID id )
 
 
  	//printf("axisMoved %f\n",((float)e.state.mAxes[axis].abs)/OIS::JoyStick::MAX_AXIS);
-	 	serverPlayer->updateControlAxis(axis, axisValue);
+	 	myself->updateControlAxis(axis, axisValue);
 
     return true;
  }

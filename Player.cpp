@@ -285,10 +285,10 @@ void Player::setCameraOrientation(Ogre::Quaternion rotation)
 
 void Player::regenAmmo(const Ogre::FrameEvent& evt) {
     regenTime += evt.timeSinceLastFrame;
-    int regenInt = (int)regenTime;
+    int regenInt = (int)(regenTime*2);
     int add1 = regenInt - wep1Regen; 
-    int add2 = (regenInt/2.0) - wep2Regen;
-    mPlayerState->weaponamt1 += (add1 * 2);
+    int add2 = regenInt/4.0 - wep2Regen;
+    mPlayerState->weaponamt1 += (add1);
     mPlayerState->weaponamt2 += add2;
 
     wep1Regen += add1;

@@ -193,6 +193,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		mGUI.setTime(timeLimit-timeElapsed);
 
 		myself->regenAmmo(evt);
+		//cout << myself->getPlayerVars()->weaponamt1 << " " << myself->getPlayerVars()->weaponamt2 << endl;
 
 		mGUI.setHealth(myself->getPlayerVars()->server_health/100);
 		mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health/100);

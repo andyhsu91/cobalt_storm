@@ -87,7 +87,8 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
 
         bullet = 0;
         regenTime = 0.0;
-        lastRegen = 0;
+        wep1Regen = 0;
+        wep2Regen = 0;
 
         lockedOn = true;
 
@@ -279,8 +280,19 @@ void Player::setCameraOrientation(Ogre::Quaternion rotation)
 
 void Player::regenAmmo(const Ogre::FrameEvent& evt) {
     regenTime += evt.timeSinceLastFrame;
-    int diff = (int)(regenTime - (float)lastRegen);
-    
+    int regenInt = (int)regenTime;
+    int add1 = regenInt - wep1Regen;
+    int add2 = (regenInt/3.0) - wep2Regen;
+    mPlayerState->weaponamt1 += (add1 * 2);
+    mPlayerState->weaponamt2 += add2;
+
+    wep1Regen += add1;
+    wep2Regen += add2;
+
+    if(mPlayerState->weaponamt1 > wep1max)
+        mPlayerState->weaponamt1 = wep1max;
+    if(mPlayerState->weaponamt2 > wep2max)
+        mPlayerState->weaponamt2 = wep2max;
 }
 
 void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* packet){
@@ -453,7 +465,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     trans.setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
     mBody->getMotionState()->setWorldTransform(trans);
 
-    if (getPlayerState(SHOOTING2)) {
+    if (getPlayerState(SHOOTING2) && mPlayerState->weaponamt1 > 0) {
         //small and fast projectile
         attack(true);
         sManager->playSoundFromEnum(Sound::Shoot1);
@@ -478,6 +490,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         
         mBullet->createBullet(bnode, 1, position, mLook);
 
+        mPlayerState->weaponamt1 = mPlayerState->weaponamt1 - 1;
         updatePlayerState(SHOOTING2,false);
     }
     if (getPlayerState(SHOOTING1) && mPlayerState->weaponamt2 > 0) {

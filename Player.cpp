@@ -524,7 +524,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         Ogre::Vector3 position = Ogre::Vector3(pnode->getPosition().x + (mLook.x*30.0), pnode->getPosition().y+20, pnode->getPosition().z + (mLook.z*30.0));
 
         Ogre::Entity* ent = mSceneMgr->createEntity("Bullet" + Ogre::StringConverter::toString(bullet),
-                                                    "sphere.mesh");
+                                                    "bomb.mesh");
         Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
                 createChildSceneNode(pSig + Ogre::StringConverter::toString(2) + Ogre::StringConverter::toString(bullet++), position);
 
@@ -533,7 +533,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
         Ogre::MaterialPtr gMat = ent->getSubEntity(0)->getMaterial()->clone("newBombColor");
         gMat->getTechnique(0)->getPass(0)->setAmbient(0.2, 0.8, 0.2);
         gMat->getTechnique(0)->getPass(0)->setDiffuse(0.1, 0.8, 0.2, 1.0);
-        ent->setMaterialName(gMat->getName());
+        //ent->setMaterialName(gMat->getName());
         // ent->setMaterialName("Examples/Chrome");
         ent->setCastShadows(true);
         

@@ -17,6 +17,7 @@ Player mPlayer;
  bool isConnected;
  bool isServer;
  bool isPaused = true;
+ bool inMainMenu = true;
  bool menuCam = true;
  bool gameOver = false;
  bool iAmWinner = false;
@@ -72,7 +73,7 @@ void Cobalt::createScene(void)
 	mEnv.initEnvironment(mSceneMgr, mWindow, &mBullet);
 	
 	cerr << "Initing GUI" << endl;
-	mGUI.initGUI(mSceneMgr, &isPaused, &mShutDown);
+	mGUI.initGUI(mSceneMgr, &isPaused, &mShutDown, &inMainMenu);
 	mGUI.drawMenu();
 
 	//Initialize Network Manager
@@ -194,6 +195,15 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		
 		timeElapsed += evt.timeSinceLastFrame;
 		mGUI.setTime(timeLimit-timeElapsed);
+
+		mGUI.setHealth(myself->getPlayerVars()->server_health/100);
+		mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health/100);
+		mGUI.setAmmo(myself->getPlayerVars()->weaponamt1,1);
+		mGUI.setAmmo(myself->getPlayerVars()->weaponamt2,2);
+		mGUI.setAmmo(myself->getPlayerVars()->weaponamt3,3);
+
+
+		//mGUI.setHealth((timeLimit-timeElapsed)/100);
 
 		*myPos = myself->getPlayerPosition();
 		*enemyPos = enemy->getPlayerPosition();
@@ -328,10 +338,33 @@ bool Cobalt::keyPressed( const OIS::KeyEvent &arg )
     	{
     		myself->updateControlButton(LBUMP, 1);
     	}
-     else if (arg.key == OIS::KC_L)
+    else if (arg.key == OIS::KC_L)
     	{
     		myself->updateControlButton(RJOYCLICK,1);
     	}
+	else if (arg.key == OIS::KC_M)
+		{
+			if(!inMainMenu)
+			{
+				if(!isPaused)
+				{
+					mGUI.pauseGame();
+				}
+				else
+				{
+					mGUI.resumeGame();
+				}
+			}
+		}
+	//test victory/defeat screens
+	else if (arg.key == OIS::KC_B)
+		{
+			mGUI.showVictory();
+		}
+	else if (arg.key == OIS::KC_N)
+		{
+			mGUI.showDefeat();
+		}
        //this command will move the camera
 	//mCameraMan->injectKeyDown(arg);
 	return true;

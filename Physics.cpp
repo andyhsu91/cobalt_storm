@@ -306,16 +306,18 @@ void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 		
 		Ogre::Vector3 vel = Ogre::Vector3(0.0, 0.0, 0.0);
 
-		Ogre::Entity* ent = mSceneMgr->createEntity("BulletTemp" + Ogre::StringConverter::toString(bullet),
-                                                    "sphere.mesh");
-        Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
-                createChildSceneNode("tempNode" + Ogre::StringConverter::toString(bullet++), position);
-
-        bnode->attachObject(ent);
+		
         
 
 		if(typeOfProjectile==1){
 			
+			Ogre::Entity* ent = mSceneMgr->createEntity("BulletTemp" + Ogre::StringConverter::toString(bullet),
+                                                    "sphere.mesh");
+	        Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
+	                createChildSceneNode("tempNode" + Ogre::StringConverter::toString(bullet++), position);
+
+	        bnode->attachObject(ent);
+
 	        bnode->scale(.03, .03, .03);
 	        Ogre::MaterialPtr bMat = ent->getSubEntity(0)->getMaterial()->clone("newBallColor");
 	        bMat->getTechnique(0)->getPass(0)->setAmbient(1.0, 0.8, 0.0);
@@ -327,11 +329,19 @@ void Physics::putProjectiles(float projectiles[][3], int typeOfProjectile){
 	        createBullet(bnode, -1, position, vel);
 		}
 		else if(typeOfProjectile==2){
+
+			Ogre::Entity* ent = mSceneMgr->createEntity("BulletTemp" + Ogre::StringConverter::toString(bullet),
+                                                    "bomb.mesh");
+	        Ogre::SceneNode* bnode = mSceneMgr->getRootSceneNode()->
+	                createChildSceneNode("tempNode" + Ogre::StringConverter::toString(bullet++), position);
+
+	        bnode->attachObject(ent);
+
 			bnode->scale(.07, .07, .07);
 	        Ogre::MaterialPtr gMat = ent->getSubEntity(0)->getMaterial()->clone("newBombColor");
 	        gMat->getTechnique(0)->getPass(0)->setAmbient(0.2, 0.8, 0.2);
 	        gMat->getTechnique(0)->getPass(0)->setDiffuse(0.1, 0.8, 0.2, 1.0);
-	        ent->setMaterialName(gMat->getName());
+	        //ent->setMaterialName(gMat->getName());
 	        // ent->setMaterialName("Examples/Chrome");
 	        ent->setCastShadows(true);
 	        

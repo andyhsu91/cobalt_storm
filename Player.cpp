@@ -47,7 +47,7 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
                 mCurrentControllerButtonState[i] = 0;
         }
 
-        Ogre::Vector3 shapeDim = Ogre::Vector3(60, 80, 60);
+        Ogre::Vector3 shapeDim = Ogre::Vector3(50, 80, 50);
         Ogre::Vector3 position;
         if (isServer) {
             position = Ogre::Vector3(700.0, 242.0, -750.0);
@@ -319,8 +319,8 @@ void Player::updatePositionFromPacket(const Ogre::FrameEvent& evt, PlayerVars* p
 
     body->getMotionState()->getWorldTransform(enemyTrans);
     btVector3 vec3 = enemyTrans.getOrigin();
-    cout << "Enemy SceneNode" << pnode->getPosition().x << pnode->getPosition().y << pnode->getPosition().z << endl;
-    cout << "Enemy Origin: " << vec3.getX() << " " << vec3.getY() << " " << vec3.getZ() << endl;
+    //cout << "Enemy SceneNode " << pnode->getPosition().x << pnode->getPosition().y << pnode->getPosition().z << endl;
+    //cout << "Enemy Origin: " << vec3.getX() << " " << vec3.getY() << " " << vec3.getZ() << endl;
 }
 
 

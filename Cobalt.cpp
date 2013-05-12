@@ -645,7 +645,8 @@ bool Cobalt::mouseReleased( const OIS::MouseEvent &evt, OIS::MouseButtonID id )
  }
  bool Cobalt::buttonReleased( const OIS::JoyStickEvent &e, int button )
  {
-		myself->updatePlayerState(button, false);
+ 	if(button!= RJOYCLICK)
+		myself->updateControlButton(button, false);
 
     return true;
 

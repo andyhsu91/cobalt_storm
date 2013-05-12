@@ -553,7 +553,7 @@ void Player::updatePosition(const Ogre::FrameEvent& evt)
     pnode->translate(mDirection * evt.timeSinceLastFrame, Ogre::Node::TS_WORLD);
     printf(" mCurrentControllerStateX: %f\n",mCurrentControllerState[LCONTROLX]);
     printf(" mCurrentControllerStateY: %f\n",mCurrentControllerState[LCONTROLY]);*/
-
+    printf("is meleeing %f\n" ,getCurrentAxisState(RBUTTON1));
     if(getPlayerState(MELEEING) || mPlayerState->animationStateEnabled[Slump]){
         //starting/continueing melee attack
         melee(true);

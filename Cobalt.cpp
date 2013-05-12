@@ -23,7 +23,7 @@ Player mPlayer;
  bool iAmWinner = false;
  Network* nManager;
  Sound* sManager;
- const float timeLimit = 90.0;
+ const float timeLimit = 900.0;
  long numPacketsReceived = 0;
 float UnlockedCameraMovementSpeed= 120;
 
@@ -170,7 +170,7 @@ PlayerVars* Cobalt::createPacket(void){
 		myPlayerVars->client_health -= damageDone;
 		gameUpdate->client_health = myPlayerVars->client_health;
 		if(damageDone>0){cout << "Client New HP: " << gameUpdate->client_health << endl;}
-		mGUI.setEnemyHealth(gameUpdate->client_health/100.0);
+		mGUI.setEnemyHealth(gameUpdate->client_health/MAX_HEALTH);
 		if(damageDone>=20){
 			clientPlayer->explode();
 		}
@@ -179,7 +179,7 @@ PlayerVars* Cobalt::createPacket(void){
 		myPlayerVars->server_health -= damageDone;
 		gameUpdate->server_health = myPlayerVars->server_health;
 		if(damageDone>0){cout << "Server New HP: " << gameUpdate->server_health << endl;}
-		mGUI.setEnemyHealth(gameUpdate->server_health/100.0);
+		mGUI.setEnemyHealth(gameUpdate->server_health/MAX_HEALTH);
 		if(damageDone>=20){
 			serverPlayer->explode();
 		}
@@ -203,7 +203,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		myself->regenAmmo(evt);
 		//cout << myself->getPlayerVars()->weaponamt1 << " " << myself->getPlayerVars()->weaponamt2 << endl;
 
-		mGUI.setHealth(myself->getPlayerVars()->server_health/100);
+		mGUI.setHealth(myself->getPlayerVars()->server_health/MAX_HEALTH);
 		//mGUI.setEnemyHealth(enemy->getPlayerVars()->server_health/100);
 		mGUI.setAmmo1(myself->getPlayerVars()->weaponamt1,wep1max);
 		mGUI.setAmmo2(myself->getPlayerVars()->weaponamt2,wep2max);
@@ -304,7 +304,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 			if(isServer){
 				//I am server
-				mGUI.setHealth(myself->getPlayerVars()->server_health/100.0);
+				mGUI.setHealth(myself->getPlayerVars()->server_health/MAX_HEALTH);
 				if(packetWasReceived && receivedPacket->server_health <= 0){
 					//game over, I lose
 					cout<<"Game Over: True"<<endl;
@@ -326,7 +326,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 			}else{
 				//I am client
-				mGUI.setHealth(myself->getPlayerVars()->client_health/100.0);
+				mGUI.setHealth(myself->getPlayerVars()->client_health/MAX_HEALTH);
 				if(packetWasReceived && receivedPacket->client_health <= 0){
 					//game over, I lose
 					cout<<"Game Over: True"<<endl;
@@ -387,7 +387,7 @@ bool Cobalt::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			if(damageDone>0){cout << "Enemy Old HP: " << myPlayerVars->client_health << endl;}
 			myPlayerVars->client_health -= damageDone;
 			if(damageDone>0){cout << "Enemy New HP: " << myPlayerVars->client_health << endl;}
-			mGUI.setEnemyHealth(myPlayerVars->client_health/100.0);
+			mGUI.setEnemyHealth(myPlayerVars->client_health/MAX_HEALTH);
 			if(damageDone>=20){
 				enemy->explode();
 			}

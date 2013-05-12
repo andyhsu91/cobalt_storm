@@ -28,7 +28,7 @@ enum States { STANDING,
  DOWN,
  DEATH};
 
-
+const float MAX_HEALTH = 500;
 #define LCONTROLX 0
 #define LCONTROLY 1
 #define RCONTROLX 3

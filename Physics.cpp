@@ -568,9 +568,9 @@ btRigidBody* Physics::createBullet(Ogre::SceneNode *snode,
 	}
 
 	if (weapon_type == 1 || weapon_type == -1)
-		body->setLinearVelocity(btVector3(direction.x * 2000.0, direction.y * 2000.0 + 20.0, direction.z * 2000.0));
+		body->setLinearVelocity(btVector3(direction.x * 2500.0, 20.0, direction.z * 2500.0));
 	else if (weapon_type == 2 || weapon_type == -2) {
-		body->setLinearVelocity(btVector3(direction.x * 400.0, 400.0, direction.z * 400.0));
+		body->setLinearVelocity(btVector3(direction.x * 400.0, 200.0, direction.z * 400.0));
 		body->setGravity(btVector3(0, -700, 0));
 	}
 

@@ -9,6 +9,7 @@ Filename:    Player.cpp
 using namespace std;
 
 //static variables
+
 const float cameraRadius = 50.0; //how big the circle is that the camera orbits around the player
 const float shootTimeout = 0.6; //amount of seconds that the shooting animation takes
 const float meleeTimeout = 0.5;
@@ -79,8 +80,8 @@ void Player::initPlayer(Ogre::SceneManager* SceneMgr,
         //mBullet->setKinematicCharacter(pnode, shapeDim, position, 250.0);
         mBody = mBullet->setRigidBoxBody(pnode, shapeDim, position, 5000.0, true);
 
-        mPlayerState->server_health = 100;
-        mPlayerState->client_health = 100;
+        mPlayerState->server_health = MAX_HEALTH;
+        mPlayerState->client_health = MAX_HEALTH;
         mPlayerState->weaponamt1 = 100;
         mPlayerState->weaponamt2 = 10;
         mPlayerState->weaponamt3 = 1;
